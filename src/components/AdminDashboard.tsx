@@ -19,6 +19,7 @@ import { formatDate } from '../lib/utils';
 import { LanguageSettings as LanguageSettingsModal } from './LanguageSettings';
 import { AnalyticsChart } from './AnalyticsChart';
 import { AIChatAnalytics } from './AIChatAnalytics';
+import { DEFAULT_LANGUAGE_SETTINGS } from '../lib/languages';
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
