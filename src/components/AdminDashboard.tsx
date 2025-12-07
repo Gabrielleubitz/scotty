@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, BarChart3, Users, Eye, BookOpen, Code, Globe, Bot, Languages, TrendingUp, Tag, Lock } from 'lucide-react';
+import { Plus, Edit2, Trash2, BarChart3, Users, Eye, BookOpen, Code, Globe, Bot, Languages, TrendingUp, Tag, Lock, Settings, HelpCircle, Layout, Bell } from 'lucide-react';
 import { ChangelogPost, Analytics, AIAgentConfig, LanguageSettings, Segment } from '../types';
 import { apiService } from '../lib/api';
 import { useTeam } from '../hooks/useTeam';
@@ -40,7 +40,7 @@ export const AdminDashboard: React.FC = () => {
   const [selectedPostForAnalytics, setSelectedPostForAnalytics] = useState<ChangelogPost | null>(null);
   const [previewPostId, setPreviewPostId] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<ChangelogPost | null>(null);
-  const [aiConfig, setAiConfig] = useState<AIAgentConfig>({ apiToken: '', apiUrl: 'https://aiagent.net2phone.com', enabled: false });
+  const [aiConfig, setAiConfig] = useState<AIAgentConfig>({ apiToken: '', apiUrl: '', enabled: false });
   const [languageSettings, setLanguageSettings] = useState<LanguageSettings>(DEFAULT_LANGUAGE_SETTINGS);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -248,96 +248,113 @@ export const AdminDashboard: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Settings Group */}
-            <div className="flex flex-wrap gap-3">
-              <div className="group relative">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+              Admin Dashboard
+            </h1>
+            <p className="text-sm text-gray-600">
+              Manage your product updates and track engagement
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Settings Group - Organized with clear labels */}
+            <div className="flex flex-wrap gap-2">
+              <div className="relative group">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsEmbedModalOpen(true)} 
-                  className="bg-white hover:bg-blue-50 border-gray-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                  title="Get the embed code to add the widget to your website"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="p-1 bg-blue-100 rounded-md group-hover:bg-blue-200 transition-colors">
-                      <Code size={14} className="text-blue-600" />
-                    </div>
-                    <span className="font-medium text-gray-700 group-hover:text-blue-700">Widget Code</span>
-                  </div>
+                  <Code size={16} className="mr-2" />
+                  <span className="hidden sm:inline">Widget Code</span>
+                  <span className="sm:hidden">Code</span>
                 </Button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
+                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                    Get embed code for your website
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
               </div>
               
-              <div className="group relative">
+              <div className="relative group">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsAISettingsOpen(true)}
-                  className="bg-white hover:bg-purple-50 border-gray-200 hover:border-purple-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                  title="Configure AI assistant for your widget"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="p-1 bg-purple-100 rounded-md group-hover:bg-purple-200 transition-colors">
-                      <Bot size={14} className="text-purple-600" />
-                    </div>
-                    <span className="font-medium text-gray-700 group-hover:text-purple-700">AI Settings</span>
-                  </div>
+                  <Bot size={16} className="mr-2" />
+                  <span className="hidden sm:inline">AI Assistant</span>
+                  <span className="sm:hidden">AI</span>
                 </Button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
+                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                    Configure AI chat assistant
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
               </div>
               
-              <div className="group relative">
+              <div className="relative group">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsLanguageSettingsOpen(true)}
-                  className="bg-white hover:bg-green-50 border-gray-200 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                  title="Set up multi-language support"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="p-1 bg-green-100 rounded-md group-hover:bg-green-200 transition-colors">
-                      <Languages size={14} className="text-green-600" />
-                    </div>
-                    <span className="font-medium text-gray-700 group-hover:text-green-700">Languages</span>
-                  </div>
+                  <Languages size={16} className="mr-2" />
+                  <span className="hidden sm:inline">Languages</span>
+                  <span className="sm:hidden">Lang</span>
                 </Button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
+                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                    Configure multi-language support
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
               </div>
               
-              <div className="group relative">
+              <div className="relative group">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsSegmentManagerOpen(true)}
-                  className="bg-white hover:bg-orange-50 border-gray-200 hover:border-orange-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                  title="Manage user segments and targeting"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="p-1 bg-orange-100 rounded-md group-hover:bg-orange-200 transition-colors">
-                      <Tag size={14} className="text-orange-600" />
-                    </div>
-                    <span className="font-medium text-gray-700 group-hover:text-orange-700">Segments</span>
-                  </div>
+                  <Tag size={16} className="mr-2" />
+                  <span className="hidden sm:inline">Segments</span>
+                  <span className="sm:hidden">Tags</span>
                 </Button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
+                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                    Manage user segments & targeting
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
               </div>
             </div>
             
-            {/* Primary Action */}
-            <div className="flex-shrink-0">
-              <Button 
-                onClick={handleCreatePost} 
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3"
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="p-1 bg-white/20 rounded-md">
-                    <Plus size={16} className="text-white" />
-                  </div>
-                  <span className="font-semibold">Create New Update</span>
-                </div>
-              </Button>
-            </div>
+            {/* Primary Action - More prominent */}
+            <Button 
+              onClick={handleCreatePost} 
+              className="bg-gray-900 hover:bg-gray-800 text-white shadow-md hover:shadow-lg transition-all"
+            >
+              <Plus size={18} className="mr-2" />
+              <span className="font-semibold">Create New Update</span>
+            </Button>
           </div>
         </div>
 
         {/* Quick Stats Summary */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white mb-8">
+        <div className="bg-gray-900 rounded-lg p-6 text-white mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Content Overview</h2>
-            <div className="flex items-center space-x-2">
+            <h2 className="text-lg font-semibold">Content Overview</h2>
+            <div className="flex items-center space-x-2 px-3 py-1 bg-gray-800 rounded-md">
               <Bot size={16} />
               <span className="text-sm">
                 AI Agent: {aiConfig.enabled ? 'Enabled' : 'Disabled'}
@@ -346,69 +363,69 @@ export const AdminDashboard: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <p className="text-blue-100">Total Posts</p>
-              <p className="text-2xl font-bold">{posts.length}</p>
+              <p className="text-gray-400 text-sm mb-1">Total Posts</p>
+              <p className="text-3xl font-semibold">{posts.length}</p>
             </div>
             <div>
-              <p className="text-blue-100">Total Views</p>
-              <p className="text-2xl font-bold">{analytics?.totalViews.toLocaleString() || '0'}</p>
+              <p className="text-gray-400 text-sm mb-1">Total Views</p>
+              <p className="text-3xl font-semibold">{analytics?.totalViews.toLocaleString() || '0'}</p>
             </div>
             <div>
-              <p className="text-blue-100">Unique Users</p>
-              <p className="text-2xl font-bold">{analytics?.uniqueUsers.toLocaleString() || '0'}</p>
+              <p className="text-gray-400 text-sm mb-1">Unique Users</p>
+              <p className="text-3xl font-semibold">{analytics?.uniqueUsers.toLocaleString() || '0'}</p>
             </div>
           </div>
         </div>
 
         {/* Analytics Cards */}
         {analytics && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
               <div className="flex items-center">
-                <div className="bg-blue-100 rounded-lg p-3">
-                  <Eye className="h-6 w-6 text-blue-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Eye className="h-5 w-5 text-gray-700" />
                 </div>
-                <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500">Total Views</h3>
-                  <p className="text-2xl font-semibold text-gray-900">{analytics.totalViews.toLocaleString()}</p>
+                <div className="ml-3">
+                  <h3 className="text-xs font-medium text-gray-500 mb-1">Total Views</h3>
+                  <p className="text-xl font-semibold text-gray-900">{analytics.totalViews.toLocaleString()}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
               <div className="flex items-center">
-                <div className="bg-green-100 rounded-lg p-3">
-                  <Users className="h-6 w-6 text-green-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Users className="h-5 w-5 text-gray-700" />
                 </div>
-                <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500">Unique Users</h3>
-                  <p className="text-2xl font-semibold text-gray-900">{analytics.uniqueUsers.toLocaleString()}</p>
+                <div className="ml-3">
+                  <h3 className="text-xs font-medium text-gray-500 mb-1">Unique Users</h3>
+                  <p className="text-xl font-semibold text-gray-900">{analytics.uniqueUsers.toLocaleString()}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
               <div className="flex items-center">
-                <div className="bg-purple-100 rounded-lg p-3">
-                  <BarChart3 className="h-6 w-6 text-purple-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-gray-700" />
                 </div>
-                <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500">Avg. Daily Views</h3>
-                  <p className="text-2xl font-semibold text-gray-900">
+                <div className="ml-3">
+                  <h3 className="text-xs font-medium text-gray-500 mb-1">Avg. Daily Views</h3>
+                  <p className="text-xl font-semibold text-gray-900">
                     {Math.round(analytics.viewsOverTime.reduce((sum, day) => sum + day.views, 0) / analytics.viewsOverTime.length)}
                   </p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
               <div className="flex items-center">
-                <div className="bg-orange-100 rounded-lg p-3">
-                  <Globe className="h-6 w-6 text-orange-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-gray-700" />
                 </div>
-                <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500">Domains</h3>
-                  <p className="text-2xl font-semibold text-gray-900">
+                <div className="ml-3">
+                  <h3 className="text-xs font-medium text-gray-500">Domains</h3>
+                  <p className="text-xl font-semibold text-gray-900">
                     {visitorAnalytics?.domainStats?.length || 0}
                   </p>
                 </div>
@@ -466,15 +483,15 @@ export const AdminDashboard: React.FC = () => {
         {hasAdminAnalytics && visitorAnalytics && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Domain Stats */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Domain Analytics</h3>
+                <h3 className="text-base font-semibold text-gray-900">Domain Analytics</h3>
               </div>
               <div className="p-6">
                 {visitorAnalytics.domainStats?.length > 0 ? (
                   <div className="space-y-4">
                     {visitorAnalytics.domainStats.slice(0, 5).map((domain: any, index: number) => (
-                      <div key={domain.domain} className="flex items-center justify-between">
+                      <div key={`domain-${domain.domain}-${index}`} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="bg-blue-100 rounded-lg p-2">
                             <Globe size={16} className="text-blue-600" />
@@ -501,17 +518,17 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Top Countries & Browsers */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Visitor Insights</h3>
+                <h3 className="text-base font-semibold text-gray-900">Visitor Insights</h3>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3">Top Countries</h4>
                     <div className="space-y-2">
-                      {visitorAnalytics.topCountries?.slice(0, 3).map((country: any) => (
-                        <div key={country.country} className="flex justify-between">
+                      {visitorAnalytics.topCountries?.slice(0, 3).map((country: any, idx: number) => (
+                        <div key={`country-${country.country}-${idx}`} className="flex justify-between">
                           <span className="text-sm text-gray-600">{country.country}</span>
                           <span className="text-sm font-medium">{country.count}</span>
                         </div>
@@ -521,8 +538,8 @@ export const AdminDashboard: React.FC = () => {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3">Top Browsers</h4>
                     <div className="space-y-2">
-                      {visitorAnalytics.topBrowsers?.slice(0, 3).map((browser: any) => (
-                        <div key={browser.browser} className="flex justify-between">
+                      {visitorAnalytics.topBrowsers?.slice(0, 3).map((browser: any, idx: number) => (
+                        <div key={`browser-${browser.browser}-${idx}`} className="flex justify-between">
                           <span className="text-sm text-gray-600">{browser.browser}</span>
                           <span className="text-sm font-medium">{browser.count}</span>
                         </div>
@@ -541,21 +558,28 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Posts Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Published Updates</h2>
-              <span className="text-sm text-gray-500">{posts.length} total posts</span>
+              <h2 className="text-base font-semibold text-gray-900">Published Updates</h2>
+              <span className="text-sm text-gray-600">
+                {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+              </span>
             </div>
           </div>
           
           <div className="overflow-x-auto">
             {posts.length === 0 ? (
               <div className="text-center py-12">
-                <BookOpen size={48} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No updates yet</h3>
-                <p className="text-gray-500 mb-4">Create your first product update to get started</p>
-                <Button onClick={handleCreatePost}>
+                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <BookOpen size={32} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No updates yet</h3>
+                <p className="text-gray-600 mb-4 text-sm">Create your first product update to get started</p>
+                <Button 
+                  onClick={handleCreatePost}
+                  className="bg-gray-900 hover:bg-gray-800 text-white"
+                >
                   <Plus size={16} className="mr-2" />
                   Create First Update
                 </Button>
@@ -580,16 +604,16 @@ export const AdminDashboard: React.FC = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {posts.map((post) => (
-                  <tr key={post.id}>
+                  <tr key={post.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{post.title}</div>
-                      <div className="text-sm text-gray-500">{post.content.replace(/<[^>]*>/g, '').substring(0, 60)}...</div>
+                      <div className="text-sm text-gray-500 mt-1">{post.content.replace(/<[^>]*>/g, '').substring(0, 60)}...</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(post.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">
                         {post.views.toLocaleString()}
                       </span>
                     </td>
@@ -597,7 +621,7 @@ export const AdminDashboard: React.FC = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handlePreviewPost(post.id)}
-                          className="text-green-600 hover:text-green-900"
+                          className="text-gray-600 hover:text-gray-900 transition-colors"
                           title="Preview in widget"
                         >
                           <Eye size={16} />
@@ -605,7 +629,7 @@ export const AdminDashboard: React.FC = () => {
                         {hasAdminAnalytics ? (
                           <button
                             onClick={() => handleViewPostAnalytics(post)}
-                            className="text-purple-600 hover:text-purple-900"
+                            className="text-gray-600 hover:text-gray-900 transition-colors"
                             title="View analytics"
                           >
                             <TrendingUp size={16} />
@@ -623,13 +647,13 @@ export const AdminDashboard: React.FC = () => {
                         )}
                         <button
                           onClick={() => handleEditPost(post)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-gray-600 hover:text-gray-900 transition-colors"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button
                           onClick={() => handleDeletePost(post.id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-red-600 hover:text-red-700 transition-colors"
                         >
                           <Trash2 size={16} />
                         </button>

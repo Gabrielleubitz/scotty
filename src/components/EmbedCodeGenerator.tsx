@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Code, Eye, Settings, Tag } from 'lucide-react';
+import { Copy, Check, Code, Eye, Settings, Tag, Layout, Bell, Package, HelpCircle, Info, Sparkles, Zap } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
@@ -31,12 +31,16 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
   const [targetSelector, setTargetSelector] = useState('#my-notification-icon');
   const [badgePosition, setBadgePosition] = useState<'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'>('top-right');
   const [badgeColor, setBadgeColor] = useState('#ef4444');
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [isPreviewWidgetOpen, setIsPreviewWidgetOpen] = useState(false);
   const [widgetTitle, setWidgetTitle] = useState('Product Updates');
   const [enableDarkMode, setEnableDarkMode] = useState(true);
   const [showButton, setShowButton] = useState(true);
   const [productId, setProductId] = useState('YOUR_PRODUCT_ID');
+  const [buttonSize, setButtonSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [buttonShape, setButtonShape] = useState<'rounded' | 'pill' | 'square'>('pill');
+  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [zIndex, setZIndex] = useState(9999);
 
   const generateStyleBlock = () => {
     // Return CSS as a properly escaped string for ES5 compatibility
@@ -65,7 +69,7 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
   };
 
   const generateFullWidgetCode = () => {
-    const baseUrl = 'https://scotty.n2p.io';
+    const baseUrl = window.location.origin;
     
     return '<!-- ProductFlow Changelog Widget -->\n' +
       '<script>\n' +
@@ -130,7 +134,7 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
   };
 
   const generateNotificationWidgetCode = () => {
-    const baseUrl = 'https://scotty.n2p.io';
+    const baseUrl = window.location.origin;
     
     return '<!-- ProductFlow Notification Badge Widget -->\n' +
       '<!-- Step 1: Add this to your existing icon/button -->\n' +
@@ -204,7 +208,7 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
   };
 
   const generateGTMCode = () => {
-    const baseUrl = 'https://scotty.n2p.io';
+    const baseUrl = window.location.origin;
     
     return '<!-- ProductFlow Changelog Widget for Google Tag Manager -->\n' +
       '<script>\n' +
@@ -369,201 +373,322 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
         {/* Widget Configuration */}
         <div className="space-y-6">
           {/* Product ID */}
-          <div>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <label className="flex items-center text-sm font-semibold text-gray-900 mb-2">
+              <Tag size={16} className="mr-2 text-gray-600" />
+              Product ID
+              <div className="ml-2 relative group">
+                <HelpCircle size={14} className="text-gray-400 cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50 w-48">
+                  <div className="bg-gray-900 text-white text-xs rounded py-2 px-3">
+                    A unique identifier for your product. Used to track analytics and prevent conflicts.
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
+              </div>
+            </label>
             <Input
-              label="Product ID"
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               placeholder="your-product-name"
+              className="w-full"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Unique identifier for your product. Use lowercase letters, numbers, and hyphens only.
+            <p className="text-xs text-gray-500 mt-2 flex items-center">
+              <Info size={12} className="mr-1" />
+              Use lowercase letters, numbers, and hyphens only (e.g., "my-awesome-app")
             </p>
           </div>
 
           {/* Widget Type Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Widget Type
-            </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-semibold text-gray-900">
+                Choose Widget Type
+              </label>
+              <div className="flex items-center text-xs text-gray-500">
+                <HelpCircle size={14} className="mr-1" />
+                <span>Select the type that fits your needs</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={() => setWidgetType('full')}
-                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   widgetType === 'full'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-gray-900 bg-gray-50 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
               >
-                <h4 className="font-medium text-gray-900 mb-1">Full Widget</h4>
-                <p className="text-sm text-gray-600">Complete changelog widget with chat</p>
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`p-2.5 rounded-lg ${widgetType === 'full' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+                    <Layout size={20} className={widgetType === 'full' ? 'text-white' : 'text-gray-700'} />
+                  </div>
+                  {widgetType === 'full' && (
+                    <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center">
+                      <Check size={14} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-1.5">Full Widget</h4>
+                <p className="text-sm text-gray-600 mb-2">Complete changelog widget with all features</p>
+                <ul className="text-xs text-gray-500 space-y-1">
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    Floating button + popup
+                  </li>
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    AI chat assistant
+                  </li>
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    Full post browsing
+                  </li>
+                </ul>
               </button>
+              
               <button
                 onClick={() => setWidgetType('notification')}
-                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   widgetType === 'notification'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-gray-900 bg-gray-50 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
               >
-                <h4 className="font-medium text-gray-900 mb-1">Notification Badge</h4>
-                <p className="text-sm text-gray-600">Lightweight badge for existing icons</p>
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`p-2.5 rounded-lg ${widgetType === 'notification' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+                    <Bell size={20} className={widgetType === 'notification' ? 'text-white' : 'text-gray-700'} />
+                  </div>
+                  {widgetType === 'notification' && (
+                    <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center">
+                      <Check size={14} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-1.5">Notification Badge</h4>
+                <p className="text-sm text-gray-600 mb-2">Lightweight badge for existing UI elements</p>
+                <ul className="text-xs text-gray-500 space-y-1">
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    Attach to your icon
+                  </li>
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    Shows update count
+                  </li>
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    Minimal footprint
+                  </li>
+                </ul>
               </button>
+              
               <button
                 onClick={() => setWidgetType('gtm')}
-                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   widgetType === 'gtm'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-gray-900 bg-gray-50 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
               >
-                <h4 className="font-medium text-gray-900 mb-1">Google Tag Manager</h4>
-                <p className="text-sm text-gray-600">Complete GTM integration</p>
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`p-2.5 rounded-lg ${widgetType === 'gtm' ? 'bg-gray-900' : 'bg-gray-100'}`}>
+                    <Package size={20} className={widgetType === 'gtm' ? 'text-white' : 'text-gray-700'} />
+                  </div>
+                  {widgetType === 'gtm' && (
+                    <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center">
+                      <Check size={14} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-1.5">Google Tag Manager</h4>
+                <p className="text-sm text-gray-600 mb-2">Complete integration for GTM users</p>
+                <ul className="text-xs text-gray-500 space-y-1">
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    GTM optimized
+                  </li>
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    Widget + badge
+                  </li>
+                  <li className="flex items-center">
+                    <Zap size={12} className="mr-1.5 text-gray-400" />
+                    Easy deployment
+                  </li>
+                </ul>
               </button>
             </div>
           </div>
 
           {/* Configuration based on widget type */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {(widgetType === 'full' || widgetType === 'gtm') ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Widget Position
-                  </label>
-                  <select
-                    value={widgetPosition}
-                    onChange={(e) => setWidgetPosition(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="bottom-right">Bottom Right</option>
-                    <option value="bottom-left">Bottom Left</option>
-                    <option value="top-right">Top Right</option>
-                    <option value="top-left">Top Left</option>
-                  </select>
-                </div>
+          <div className="border-t border-gray-200 pt-6 mt-6">
+            <div className="flex items-center mb-4">
+              <Settings size={18} className="text-gray-700 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Customize Appearance</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {(widgetType === 'full' || widgetType === 'gtm') ? (
+                <>
+                  <div>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                      <Layout size={16} className="mr-2 text-gray-500" />
+                      Widget Position
+                    </label>
+                    <select
+                      value={widgetPosition}
+                      onChange={(e) => setWidgetPosition(e.target.value as any)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white"
+                    >
+                      <option value="bottom-right">Bottom Right (Recommended)</option>
+                      <option value="bottom-left">Bottom Left</option>
+                      <option value="top-right">Top Right</option>
+                      <option value="top-left">Top Left</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1.5">Where the widget button appears on your site</p>
+                  </div>
 
-                <div>
-                  <Input
-                    label="Button Text"
-                    value={buttonText}
-                    onChange={(e) => setButtonText(e.target.value)}
-                    placeholder="What's New"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Primary Color
-                  </label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-                    />
+                  <div>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                      <Sparkles size={16} className="mr-2 text-gray-500" />
+                      Button Text
+                    </label>
                     <Input
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      placeholder="#2563eb"
-                      className="flex-1"
+                      value={buttonText}
+                      onChange={(e) => setButtonText(e.target.value)}
+                      placeholder="What's New"
+                      className="w-full"
                     />
+                    <p className="text-xs text-gray-500 mt-1.5">Text displayed on the widget button</p>
                   </div>
-                </div>
 
-                <div>
-                  <Input
-                    label="Widget Title"
-                    value={widgetTitle}
-                    onChange={(e) => setWidgetTitle(e.target.value)}
-                    placeholder="Product Updates"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Show Button
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowButton(true)}
-                      className={`p-3 rounded-lg border-2 text-left transition-all ${
-                        showButton
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2 mb-1">
-                        <div className="w-4 h-4 bg-blue-600 rounded"></div>
-                        <span className="font-medium text-gray-900">Show Button</span>
-                      </div>
-                      <p className="text-xs text-gray-600">Display floating button</p>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowButton(false)}
-                      className={`p-3 rounded-lg border-2 text-left transition-all ${
-                        !showButton
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2 mb-1">
-                        <div className="w-4 h-4 bg-gray-300 rounded"></div>
-                        <span className="font-medium text-gray-900">Hidden</span>
-                      </div>
-                      <p className="text-xs text-gray-600">Programmatic control only</p>
-                    </button>
+                  <div>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                      <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: primaryColor }}></div>
+                      Primary Color
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="color"
+                        value={primaryColor}
+                        onChange={(e) => setPrimaryColor(e.target.value)}
+                        className="w-14 h-12 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors"
+                        title="Choose button color"
+                      />
+                      <Input
+                        value={primaryColor}
+                        onChange={(e) => setPrimaryColor(e.target.value)}
+                        placeholder="#2563eb"
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1.5">Main color for the widget button</p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {showButton 
-                      ? 'Button will be visible for users to click'
-                      : 'Use window.productflow_openWidget() to open programmatically'
-                    }
-                  </p>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Widget Theme
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setEnableDarkMode(false)}
-                      className={`p-3 rounded-lg border-2 text-left transition-all ${
-                        !enableDarkMode
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2 mb-1">
-                        <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
-                        <span className="font-medium text-gray-900">Light Mode</span>
-                      </div>
-                      <p className="text-xs text-gray-600">Clean white background</p>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEnableDarkMode(true)}
-                      className={`p-3 rounded-lg border-2 text-left transition-all ${
-                        enableDarkMode
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2 mb-1">
-                        <div className="w-4 h-4 bg-gray-800 border border-gray-600 rounded"></div>
-                        <span className="font-medium text-gray-900">Dark Mode</span>
-                      </div>
-                      <p className="text-xs text-gray-600">Dark background theme</p>
-                    </button>
+                  <div>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                      <Tag size={16} className="mr-2 text-gray-500" />
+                      Widget Title
+                    </label>
+                    <Input
+                      value={widgetTitle}
+                      onChange={(e) => setWidgetTitle(e.target.value)}
+                      placeholder="Product Updates"
+                      className="w-full"
+                    />
+                    <p className="text-xs text-gray-500 mt-1.5">Title shown inside the widget popup</p>
                   </div>
-                </div>
-              </>
-            ) : widgetType === 'notification' ? (
+
+                  <div>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                      <Eye size={16} className="mr-2 text-gray-500" />
+                      Button Visibility
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowButton(true)}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          showButton
+                            ? 'border-gray-900 bg-gray-50 shadow-md'
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="w-5 h-5 bg-gray-900 rounded-lg flex items-center justify-center">
+                            <Eye size={12} className="text-white" />
+                          </div>
+                          <span className="font-semibold text-gray-900">Visible</span>
+                        </div>
+                        <p className="text-xs text-gray-600">Display floating button for users</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowButton(false)}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          !showButton
+                            ? 'border-gray-900 bg-gray-50 shadow-md'
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="w-5 h-5 bg-gray-300 rounded-lg flex items-center justify-center">
+                            <Eye size={12} className="text-gray-600" />
+                          </div>
+                          <span className="font-semibold text-gray-900">Hidden</span>
+                        </div>
+                        <p className="text-xs text-gray-600">Open programmatically only</p>
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {showButton 
+                        ? '✓ Button will be visible for users to click'
+                        : 'Use window.productflow_openWidget() to open programmatically'
+                      }
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                      <Sparkles size={16} className="mr-2 text-gray-500" />
+                      Widget Theme
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setEnableDarkMode(false)}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          !enableDarkMode
+                            ? 'border-gray-900 bg-gray-50 shadow-md'
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className="w-6 h-6 bg-white border-2 border-gray-300 rounded-lg shadow-sm"></div>
+                          <span className="font-semibold text-gray-900">Light Mode</span>
+                        </div>
+                        <p className="text-xs text-gray-600">Clean white background</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEnableDarkMode(true)}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          enableDarkMode
+                            ? 'border-gray-900 bg-gray-50 shadow-md'
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className="w-6 h-6 bg-gray-800 border-2 border-gray-600 rounded-lg shadow-sm"></div>
+                          <span className="font-semibold text-gray-900">Dark Mode</span>
+                        </div>
+                        <p className="text-xs text-gray-600">Dark background theme</p>
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1.5">Color scheme for the widget popup</p>
+                  </div>
+                </>
+              ) : widgetType === 'notification' ? (
               <>
                 <div>
                   <Input
@@ -629,48 +754,148 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                 </p>
               </div>
             )}
+            </div>
           </div>
         </div>
 
-        {/* Preview */}
-        {showPreview && (
-          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Preview:</h4>
-            <div className="relative bg-white border rounded-lg h-32 overflow-hidden mb-4">
-              <div
-                className="absolute flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-medium shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                style={{
-                  backgroundColor: primaryColor,
-                  [widgetPosition.includes('bottom') ? 'bottom' : 'top']: '12px',
-                  [widgetPosition.includes('right') ? 'right' : 'left']: '12px',
-                  display: showButton ? 'flex' : 'none'
-                }}
-                onClick={() => setIsPreviewWidgetOpen(true)}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                </svg>
-                {widgetTitle}
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-              </div>
-              {!showButton && (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
-                  Button hidden - use programmatic control
-                </div>
-              )}
-            </div>
-            <div className="text-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsPreviewWidgetOpen(true)}
-              >
-                <Eye size={16} className="mr-2" />
-                Test Widget Functionality
-              </Button>
-            </div>
+        {/* Live Preview */}
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+            <h4 className="text-sm font-semibold text-gray-900">Live Preview</h4>
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              className="text-xs text-gray-600 hover:text-gray-900"
+            >
+              {showPreview ? 'Hide' : 'Show'} Preview
+            </button>
           </div>
-        )}
+          {showPreview && (
+            <div className="p-6 bg-white">
+              <div className="relative bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg h-96 overflow-hidden mb-4" style={{ minHeight: '400px' }}>
+                {/* Simulated website background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-50"></div>
+                
+                {/* Widget Button Preview */}
+                {showButton && (widgetType === 'full' || widgetType === 'gtm') && (
+                  <div
+                    className={`absolute flex items-center gap-2 text-white font-medium shadow-lg cursor-pointer hover:shadow-xl transition-all z-10 ${
+                      buttonSize === 'small' ? 'px-3 py-2 text-xs' :
+                      buttonSize === 'large' ? 'px-6 py-4 text-base' :
+                      'px-4 py-3 text-sm'
+                    } ${
+                      buttonShape === 'pill' ? 'rounded-full' :
+                      buttonShape === 'square' ? 'rounded-none' :
+                      'rounded-lg'
+                    }`}
+                    style={{
+                      backgroundColor: primaryColor,
+                      [widgetPosition.includes('bottom') ? 'bottom' : 'top']: '20px',
+                      [widgetPosition.includes('right') ? 'right' : 'left']: '20px',
+                    }}
+                    onClick={() => setIsPreviewWidgetOpen(true)}
+                  >
+                    <svg 
+                      width={buttonSize === 'small' ? 14 : buttonSize === 'large' ? 20 : 18} 
+                      height={buttonSize === 'small' ? 14 : buttonSize === 'large' ? 20 : 18} 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                    >
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <span>{buttonText}</span>
+                    <span 
+                      className={`absolute bg-red-500 rounded-full border-2 border-white ${
+                        buttonSize === 'small' ? 'w-2 h-2 -top-0.5 -right-0.5' :
+                        buttonSize === 'large' ? 'w-4 h-4 -top-1 -right-1' :
+                        'w-3 h-3 -top-1 -right-1'
+                      }`}
+                    ></span>
+                  </div>
+                )}
+
+                {/* Notification Badge Preview */}
+                {widgetType === 'notification' && (
+                  <div className="absolute top-20 left-20">
+                    <div className="relative inline-block p-3 bg-white border border-gray-300 rounded-lg shadow-sm">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-gray-600">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                      <div
+                        className="absolute flex items-center justify-center text-white text-xs font-bold rounded-full"
+                        style={{
+                          backgroundColor: badgeColor,
+                          width: '20px',
+                          height: '20px',
+                          fontSize: '10px',
+                          [badgePosition.includes('top') ? 'top' : 'bottom']: '-4px',
+                          [badgePosition.includes('right') ? 'right' : 'left']: '-4px',
+                        }}
+                      >
+                        3
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!showButton && (widgetType === 'full' || widgetType === 'gtm') && (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+                    <div className="text-center">
+                      <p className="mb-2">Button hidden</p>
+                      <p className="text-xs">Use <code className="bg-gray-200 px-1 rounded">window.productflow_openWidget()</code> to open</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Preview Info Overlay */}
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg p-3 text-xs text-gray-600">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <span className="font-medium text-gray-700">Position:</span> 
+                      <span className="ml-1">{widgetPosition}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Theme:</span> 
+                      <span className="ml-1">{enableDarkMode ? 'Dark' : 'Light'}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Size:</span> 
+                      <span className="ml-1 capitalize">{buttonSize}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Shape:</span> 
+                      <span className="ml-1 capitalize">{buttonShape}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Color:</span> 
+                      <span className="ml-1 inline-block w-3 h-3 rounded border border-gray-300" style={{ backgroundColor: primaryColor }}></span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Title:</span> 
+                      <span className="ml-1">{widgetTitle}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Preview updates in real-time as you customize
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsPreviewWidgetOpen(true)}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  <Eye size={16} className="mr-2" />
+                  Test Full Widget
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* GTM Instructions */}
         {widgetType === 'gtm' && (

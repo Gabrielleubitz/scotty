@@ -26,7 +26,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/proxy': {
-        target: 'https://aiagent.net2phone.com',
+        target: 'https://api.example.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/proxy/, '/api'),
         configure: (proxy, options) => {

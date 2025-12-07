@@ -1,0 +1,38 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Changelog images - authenticated users can upload/read
+    match /changelog/{allPaths=**} {
+      // Allow authenticated users to read changelog images
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to upload changelog images
+      allow write: if isAuthenticated() && 
+                      request.resource.size < 10 * 1024 * 1024 && // 10MB limit
+                      request.resource.contentType.matches('image/.*');
+    }
+    
+    // User avatars - users can manage their own
+    match /avatars/{userId}/{allPaths=**} {
+      // Users can read any avatar
+      allow read: if true;
+      
+      // Users can only upload/update their own avatar
+      allow write: if isAuthenticated() && 
+                      userId == request.auth.uid &&
+                      request.resource.size < 5 * 1024 * 1024 && // 5MB limit
+                      request.resource.contentType.matches('image/.*');
+    }
+    
+    // Default: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

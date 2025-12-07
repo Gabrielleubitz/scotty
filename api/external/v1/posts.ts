@@ -13,22 +13,51 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 // Initialize Firebase Admin (server-side only)
 function getFirebaseAdmin() {
   if (getApps().length === 0) {
-    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
+    let serviceAccount: any = null;
     
-    // For development, allow missing service account (will fail gracefully)
-    if (!serviceAccount) {
-      console.warn('FIREBASE_SERVICE_ACCOUNT not configured. API endpoints will not work.');
+    // Try to get service account from environment variable (for Vercel/production)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } 
+    // Try to read from local file (for local development)
+    else {
+      try {
+        // Try different possible locations
+        const fs = require('fs');
+        const path = require('path');
+        
+        const possiblePaths = [
+          path.join(process.cwd(), 'scotty-dccad-firebase-adminsdk-fbsvc-6e304d870e.json'),
+          path.join(process.cwd(), 'config', 'firebase-service-account.json'),
+          path.join(process.cwd(), 'firebase-service-account.json'),
+        ];
+        
+        for (const filePath of possiblePaths) {
+          if (fs.existsSync(filePath)) {
+            serviceAccount = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            console.log(`Loaded Firebase service account from: ${filePath}`);
+            break;
+          }
+        }
+      } catch (error) {
+        // File reading failed, will try default credentials
+        console.warn('Could not read Firebase service account file:', error);
+      }
+    }
+    
+    if (serviceAccount) {
+      initializeApp({
+        credential: cert(serviceAccount),
+      });
+    } else {
       // Try to initialize with default credentials (for local development with gcloud)
       try {
         initializeApp();
+        console.log('Initialized Firebase Admin with default credentials');
       } catch (error) {
         console.error('Failed to initialize Firebase Admin:', error);
-        throw new Error('Firebase Admin not configured. Set FIREBASE_SERVICE_ACCOUNT environment variable.');
+        throw new Error('Firebase Admin not configured. Set FIREBASE_SERVICE_ACCOUNT environment variable or place service account file in project root.');
       }
-    } else {
-      initializeApp({
-        credential: cert(JSON.parse(serviceAccount)),
-      });
     }
   }
   return getFirestore();

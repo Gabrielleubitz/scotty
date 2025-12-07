@@ -49,15 +49,21 @@ const convertFirebaseUser = async (firebaseUser: FirebaseUser): Promise<User> =>
       updatedAt: now,
     };
     
-    await setDoc(doc(db, 'users', firebaseUser.uid), {
+    const userDocData: any = {
       name: newUser.name,
       displayName: newUser.displayName,
       email: newUser.email,
-      avatarUrl: newUser.avatarUrl,
       role: newUser.role,
       createdAt: Timestamp.fromDate(now),
       updatedAt: Timestamp.fromDate(now),
-    });
+    };
+    
+    // Only include avatarUrl if it exists (Firestore doesn't allow undefined)
+    if (newUser.avatarUrl) {
+      userDocData.avatarUrl = newUser.avatarUrl;
+    }
+    
+    await setDoc(doc(db, 'users', firebaseUser.uid), userDocData);
     
     return newUser;
   }
@@ -106,15 +112,21 @@ class AuthService {
     
     // Create user document in Firestore
     const now = new Date();
-    await setDoc(doc(db, 'users', userCredential.user.uid), {
+    const userDocData: any = {
       name,
       displayName: name,
       email,
-      avatarUrl: userCredential.user.photoURL || undefined,
       role: 'user', // Legacy role
       createdAt: Timestamp.fromDate(now),
       updatedAt: Timestamp.fromDate(now),
-    });
+    };
+    
+    // Only include avatarUrl if it exists (Firestore doesn't allow undefined)
+    if (userCredential.user.photoURL) {
+      userDocData.avatarUrl = userCredential.user.photoURL;
+    }
+    
+    await setDoc(doc(db, 'users', userCredential.user.uid), userDocData);
     
     const user = await convertFirebaseUser(userCredential.user);
     

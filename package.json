@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13,6 +16,7 @@
     "clsx": "^2.1.1",
     "dompurify": "^3.2.6",
     "firebase": "^11.10.0",
+    "framer-motion": "^12.23.25",
     "lucide-react": "^0.344.0",
     "marked": "^16.1.1",
     "quill": "^2.0.3",

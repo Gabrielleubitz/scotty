@@ -40,6 +40,9 @@ yarn-error.log*
 .firebase/
 firebase-debug.log
 firestore-debug.log
+*-firebase-adminsdk-*.json
+firebase-service-account.json
+config/firebase-service-account.json
 
 # TypeScript
 *.tsbuildinfo

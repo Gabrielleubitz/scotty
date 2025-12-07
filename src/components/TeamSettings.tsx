@@ -535,7 +535,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
           )}
 
           {/* Feature Flags Section - Only visible to owner/admin and when env flag is set */}
-          {canManageTeam && (process.env.VITE_ENABLE_FEATURE_FLAGS === 'true' || import.meta.env.VITE_ENABLE_FEATURE_FLAGS === 'true') && (
+          {canManageTeam && import.meta.env.VITE_ENABLE_FEATURE_FLAGS === 'true' && (
             <div className="pt-4 border-t border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">

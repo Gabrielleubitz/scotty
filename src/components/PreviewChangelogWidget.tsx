@@ -39,6 +39,39 @@ export const PreviewChangelogWidget: React.FC<PreviewChangelogWidgetProps> = ({
     }
   }, [isOpen, focusPostId]);
 
+  // Inject styles once on mount
+  useEffect(() => {
+    const styleId = 'preview-widget-styles';
+    if (document.getElementById(styleId)) return;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      @keyframes slide-in-right {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      
+      .animate-slide-in-right {
+        animation: slide-in-right 0.3s ease-out;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      const existingStyle = document.getElementById(styleId);
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+    };
+  }, []);
+
   if (!isOpen) return null;
 
   return (
@@ -182,23 +215,6 @@ export const PreviewChangelogWidget: React.FC<PreviewChangelogWidgetProps> = ({
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slide-in-right {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        .animate-slide-in-right {
-          animation: slide-in-right 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

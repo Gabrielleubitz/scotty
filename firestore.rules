@@ -1,0 +1,233 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to get user ID
+    function getUserId() {
+      return request.auth.uid;
+    }
+    
+    // Helper function to check if user is a member of a team
+    // Note: team_members uses auto-generated IDs, so we check by querying
+    function isTeamMember(teamId) {
+      return isAuthenticated();
+      // We'll check membership in the rule itself since we can't easily query here
+    }
+    
+    // Helper function to get user's role in a team
+    // This is a simplified check - actual role verification happens in queries
+    function getTeamRole(teamId) {
+      // For rules, we'll allow if authenticated - detailed checks in app logic
+      return 'owner'; // Simplified for rules
+    }
+    
+    // Helper function to check if user can manage team (owner or admin)
+    function canManageTeam(teamId) {
+      let role = getTeamRole(teamId);
+      return role == 'owner' || role == 'admin';
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own document
+      allow read: if isAuthenticated() && userId == getUserId();
+      
+      // Users can create/update their own document
+      allow create, update: if isAuthenticated() && userId == getUserId();
+      
+      // Admins can read any user (for team member management)
+      allow read: if isAuthenticated() && 
+                     exists(/databases/$(database)/documents/users/$(getUserId())) &&
+                     get(/databases/$(database)/documents/users/$(getUserId())).data.role == 'admin';
+    }
+    
+    // Teams collection
+    match /teams/{teamId} {
+      // Allow authenticated users to read teams (we'll filter by membership in app)
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to query teams (for slug checking, etc.)
+      // This is needed for checking slug availability when creating teams
+      allow list: if isAuthenticated();
+      
+      // Only authenticated users can create teams (will be owner)
+      allow create: if isAuthenticated() && 
+                       request.resource.data.ownerUserId == getUserId();
+      
+      // Allow updates if user is the owner (simplified for initial setup)
+      // Full role checking happens in app logic
+      allow update: if isAuthenticated() && (
+                       resource.data.ownerUserId == getUserId() ||
+                       request.resource.data.ownerUserId == getUserId()
+                     );
+      
+      // Only team owners can delete teams
+      allow delete: if isAuthenticated() && resource.data.ownerUserId == getUserId();
+    }
+    
+    // Team members collection
+    match /team_members/{memberId} {
+      // Users can read their own team memberships
+      allow read: if isAuthenticated() && resource.data.userId == getUserId();
+      
+      // Allow authenticated users to read any team_member (for team management)
+      // App logic will filter appropriately
+      allow read: if isAuthenticated();
+      
+      // Allow users to query team_members (needed for getUserTeams and team member lists)
+      allow list: if isAuthenticated();
+      
+      // Allow users to create their own team_members entry when creating a team
+      // OR if they're adding to a team they own
+      allow create: if isAuthenticated() && (
+                       // User is creating themselves as owner of a new team
+                       (request.resource.data.userId == getUserId() && 
+                        request.resource.data.role == 'owner') ||
+                       // OR user is owner of the team they're adding to
+                       (request.resource.data.teamId != null &&
+                        exists(/databases/$(database)/documents/teams/$(request.resource.data.teamId)) &&
+                        get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.ownerUserId == getUserId())
+                     );
+      
+      // Allow updates if user is owner of the team
+      allow update: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+      
+      // Only team owners can remove members (except themselves as owner)
+      allow delete: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId() &&
+                       !(resource.data.userId == getUserId() && resource.data.role == 'owner');
+    }
+    
+    // Changelog posts collection
+    match /changelog/{postId} {
+      // Allow authenticated users to read posts (app filters by teamId)
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to create posts (app verifies team membership)
+      allow create: if isAuthenticated() && 
+                       request.resource.data.teamId != null;
+      
+      // Allow authenticated users to update posts (app verifies team membership and role)
+      allow update: if isAuthenticated() && 
+                       resource.data.teamId != null;
+      
+      // Allow delete if user is owner of the team
+      allow delete: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+    }
+    
+    // Segments collection
+    match /segments/{segmentId} {
+      // Allow authenticated users to read segments (app filters by teamId)
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to create segments (app verifies team membership)
+      allow create: if isAuthenticated() && 
+                       request.resource.data.teamId != null;
+      
+      // Allow authenticated users to update segments (app verifies team membership)
+      allow update: if isAuthenticated() && 
+                       resource.data.teamId != null;
+      
+      // Allow delete if user is owner of the team
+      allow delete: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+    }
+    
+    // API keys collection
+    match /api_keys/{apiKeyId} {
+      // Allow read if user is owner of the team
+      allow read: if isAuthenticated() && 
+                     resource.data.teamId != null &&
+                     exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                     get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+      
+      // Only team owners can create API keys
+      allow create: if isAuthenticated() && 
+                       request.resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(request.resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.ownerUserId == getUserId();
+      
+      // Only team owners can update API keys
+      allow update: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+      
+      // Only team owners can delete (revoke) API keys
+      allow delete: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+    }
+    
+    // Team feature overrides collection
+    match /team_feature_overrides/{overrideId} {
+      // Allow read if user is owner of the team
+      allow read: if isAuthenticated() && 
+                     resource.data.teamId != null &&
+                     exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                     get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+      
+      // Only team owners can create/update feature overrides
+      allow create, update: if isAuthenticated() && 
+                               request.resource.data.teamId != null &&
+                               exists(/databases/$(database)/documents/teams/$(request.resource.data.teamId)) &&
+                               get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.ownerUserId == getUserId();
+      
+      // Only team owners can delete feature overrides
+      allow delete: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+    }
+    
+    // Visitors collection (public read, authenticated write)
+    match /visitors/{visitorId} {
+      allow read: if true; // Public read for analytics
+      allow write: if isAuthenticated(); // Only authenticated users can write
+    }
+    
+    // Post views collection (public read, authenticated write)
+    match /post_views/{viewId} {
+      allow read: if true; // Public read for analytics
+      allow write: if isAuthenticated(); // Only authenticated users can write
+    }
+    
+    // Widget events collection (public read, authenticated write)
+    match /widget_events/{eventId} {
+      allow read: if true; // Public read for analytics
+      allow write: if isAuthenticated(); // Only authenticated users can write
+    }
+    
+    // AI config collection (user-scoped)
+    match /ai_config/{userId} {
+      allow read, write: if isAuthenticated() && userId == getUserId();
+    }
+    
+    // Language settings collection (user-scoped)
+    match /language_settings/{userId} {
+      allow read, write: if isAuthenticated() && userId == getUserId();
+    }
+    
+    // User read states collection (public read/write for widget)
+    match /user_read_states/{stateId} {
+      allow read, write: if true; // Public for widget functionality
+    }
+  }
+}
+

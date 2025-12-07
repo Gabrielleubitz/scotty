@@ -197,16 +197,16 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
             <h4 className="font-medium text-gray-900 mb-2">Example Segments</h4>
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex justify-between">
-                <span>AI Agent</span>
-                <span className="font-mono">aiagent.net2phone.com</span>
+                <span>Production</span>
+                <span className="font-mono">app.example.com</span>
               </div>
               <div className="flex justify-between">
-                <span>Main Platform</span>
-                <span className="font-mono">app.net2phone.com</span>
+                <span>Staging</span>
+                <span className="font-mono">staging.example.com</span>
               </div>
               <div className="flex justify-between">
                 <span>Documentation</span>
-                <span className="font-mono">docs.net2phone.com</span>
+                <span className="font-mono">docs.example.com</span>
               </div>
             </div>
           </div>
@@ -232,7 +232,7 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
             label="Domain"
             value={formData.domain}
             onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
-            placeholder="e.g., aiagent.net2phone.com"
+            placeholder="e.g., app.example.com"
             required
           />
 

@@ -254,21 +254,38 @@ export const apiService = {
         publishedAt = Timestamp.fromDate(now);
       }
       
-      const docRef = await addDoc(collection(db, 'changelog'), {
+      const postData: any = {
         title: post.title,
         content: post.content,
         translations: post.translations || {},
-        videoUrl: post.videoUrl,
-        imageUrl: post.imageUrl,
         status,
-        publishedAt,
-        scheduledFor,
-        segmentId: post.segmentId,
         teamId: currentTeamId,
         createdAt: Timestamp.fromDate(now),
         updatedAt: Timestamp.fromDate(now),
         views: 0,
-      });
+      };
+      
+      // Only include optional fields if they exist (Firestore doesn't allow undefined)
+      if (post.videoUrl) {
+        postData.videoUrl = post.videoUrl;
+      }
+      if (post.imageUrl) {
+        postData.imageUrl = post.imageUrl;
+      }
+      if (post.segmentId) {
+        postData.segmentId = post.segmentId;
+      }
+      if (post.category) {
+        postData.category = post.category;
+      }
+      if (publishedAt) {
+        postData.publishedAt = publishedAt;
+      }
+      if (scheduledFor) {
+        postData.scheduledFor = scheduledFor;
+      }
+      
+      const docRef = await addDoc(collection(db, 'changelog'), postData);
 
       return {
         id: docRef.id,
@@ -311,30 +328,46 @@ export const apiService = {
       
       // Handle status changes for scheduling
       let updateData: any = {
-        ...updates,
         updatedAt: Timestamp.fromDate(now),
       };
       
-      // Remove React-specific fields that shouldn't be saved to Firestore
-      delete updateData.id;
-      delete updateData.createdAt;
-      delete updateData.views;
-      delete updateData.teamId; // Don't allow changing teamId
+      // Only include fields that are actually provided and not undefined
+      if (updates.title !== undefined) updateData.title = updates.title;
+      if (updates.content !== undefined) updateData.content = updates.content;
+      if (updates.translations !== undefined) updateData.translations = updates.translations;
+      if (updates.category !== undefined) updateData.category = updates.category;
+      if (updates.status !== undefined) updateData.status = updates.status;
       
       // Handle scheduling logic
-      if (updates.scheduledFor) {
-        if (updates.scheduledFor > now) {
+      if (updates.scheduledFor !== undefined) {
+        if (updates.scheduledFor && updates.scheduledFor > now) {
           updateData.status = 'scheduled';
           updateData.scheduledFor = Timestamp.fromDate(updates.scheduledFor);
           updateData.publishedAt = null;
+        } else if (updates.scheduledFor === null) {
+          updateData.scheduledFor = null;
         } else {
           updateData.status = 'published';
           updateData.publishedAt = Timestamp.fromDate(now);
           updateData.scheduledFor = null;
         }
+      } else if (updates.status === 'published' && postData.status !== 'published') {
+        updateData.publishedAt = Timestamp.fromDate(now);
+        updateData.scheduledFor = null;
       }
       
-      // Convert Date objects to Timestamps for Firestore
+      // Handle optional fields - only include if they're not undefined
+      if (updates.videoUrl !== undefined) {
+        updateData.videoUrl = updates.videoUrl || null;
+      }
+      if (updates.imageUrl !== undefined) {
+        updateData.imageUrl = updates.imageUrl || null;
+      }
+      if (updates.segmentId !== undefined) {
+        updateData.segmentId = updates.segmentId || null;
+      }
+      
+      // Convert Date objects to Timestamps for Firestore (if they exist)
       if (updateData.publishedAt && updateData.publishedAt instanceof Date) {
         updateData.publishedAt = Timestamp.fromDate(updateData.publishedAt);
       }
@@ -519,7 +552,7 @@ export const apiService = {
     try {
       const user = auth.currentUser;
       if (!user) {
-        return { apiToken: '', apiUrl: 'https://aiagent.net2phone.com', enabled: false };
+        return { apiToken: '', apiUrl: '', enabled: false };
       }
 
       const configDoc = await getDoc(doc(db, 'ai_config', user.uid));
@@ -535,7 +568,7 @@ export const apiService = {
       // If it's a permissions error, return empty config instead of throwing
       if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
         console.warn('Firestore permissions not configured for AI config. Returning default config.');
-        return { apiToken: '', apiUrl: 'https://aiagent.net2phone.com', enabled: false };
+        return { apiToken: '', apiUrl: '', enabled: false };
       }
       
       // For other errors, still return default config to prevent app crashes
@@ -740,11 +773,27 @@ export const apiService = {
       // Check if admin_analytics feature is enabled
       const team = await teamService.getTeam(currentTeamId);
       if (!team) {
-        throw new Error('Team not found');
+        return {
+          totalVisitors: 0,
+          totalViews: 0,
+          domainStats: [],
+          recentVisitors: [],
+          topCountries: [],
+          topBrowsers: []
+        };
       }
       const overrides = await featureOverrideService.getTeamOverrides(currentTeamId);
       if (!isFeatureEnabledForTeam(team, overrides, 'admin_analytics')) {
-        throw new Error('This feature is not available on your current plan. Upgrade to Pro to access admin analytics.');
+        // Return empty analytics instead of throwing error
+        console.warn(`Admin Analytics feature is not enabled for team ${currentTeamId}. Returning empty analytics.`);
+        return {
+          totalVisitors: 0,
+          totalViews: 0,
+          domainStats: [],
+          recentVisitors: [],
+          topCountries: [],
+          topBrowsers: []
+        };
       }
 
       // Get team's posts first to filter analytics
@@ -846,11 +895,31 @@ export const apiService = {
       // Check if admin_analytics feature is enabled
       const team = await teamService.getTeam(currentTeamId);
       if (!team) {
-        throw new Error('Team not found');
+        return {
+          totalViews: 0,
+          uniqueUsers: 0,
+          viewsChange: 0,
+          uniqueChange: 0,
+          timeChange: 0,
+          last7Days: [],
+          topDomains: [],
+          avgTimeSpent: 0
+        };
       }
       const overrides = await featureOverrideService.getTeamOverrides(currentTeamId);
       if (!isFeatureEnabledForTeam(team, overrides, 'admin_analytics')) {
-        throw new Error('This feature is not available on your current plan. Upgrade to Pro to access admin analytics.');
+        // Return empty analytics instead of throwing error
+        console.warn(`Post Analytics feature is not enabled for team ${team.id}. Returning empty analytics.`);
+        return {
+          totalViews: 0,
+          uniqueUsers: 0,
+          viewsChange: 0,
+          uniqueChange: 0,
+          timeChange: 0,
+          last7Days: [],
+          topDomains: [],
+          avgTimeSpent: 0
+        };
       }
 
       const postViewsRef = collection(db, 'post_views');

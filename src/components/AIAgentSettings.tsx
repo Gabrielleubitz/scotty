@@ -110,7 +110,7 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
             label="API URL"
             value={formData.apiUrl}
             onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
-            placeholder="https://aiagent.net2phone.com"
+            placeholder="https://api.example.com"
             disabled={!formData.enabled}
           />
 
@@ -124,7 +124,7 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
               disabled={!formData.enabled}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Enter the base URL without /api (e.g., https://aiagent.net2phone.com). The system will automatically add /api/chat to your URL.
+              Enter the base URL without /api (e.g., https://api.example.com). The system will automatically add /api/chat to your URL.
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Get your API token from the Admin interface under "Manage Tokens". The token is stored securely as a server environment variable.
@@ -188,7 +188,7 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
             intelligent responses about your product updates.
           </p>
           <a
-            href="https://aiagent.net2phone.com/docs"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
