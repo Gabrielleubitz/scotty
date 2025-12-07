@@ -107,12 +107,18 @@ export const CreatePostPage: React.FC = () => {
   };
 
   if (!currentTeam) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-600">Loading team...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="mb-6">
           <button
             onClick={() => navigate('/admin')}

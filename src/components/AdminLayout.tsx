@@ -4,7 +4,7 @@ import { Zap, User, LogOut } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useAuth } from '../hooks/useAuth';
 
-export const AdminLayout: React.FC = () => {
+export const AdminLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
@@ -39,7 +39,7 @@ export const AdminLayout: React.FC = () => {
           </div>
         </div>
       </div>
-      <Outlet />
+      {children || <Outlet />}
     </div>
   );
 };

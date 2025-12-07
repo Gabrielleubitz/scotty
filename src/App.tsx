@@ -32,55 +32,31 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<HomePage />} />
 
-        {/* Protected admin routes */}
+        {/* Protected admin routes with nested layout */}
         <Route
           path="/admin"
           element={
             (user?.role === 'admin' || user?.role === 'god') ? (
-              <AdminLayout>
-                <AdminDashboard />
-              </AdminLayout>
+              <AdminLayout />
             ) : (
               <Navigate to="/" replace />
             )
           }
-        />
-        <Route
-          path="/admin/posts/new"
-          element={
-            (user?.role === 'admin' || user?.role === 'god') ? (
-              <AdminLayout>
-                <CreatePostPage />
-              </AdminLayout>
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-        <Route
-          path="/admin/posts/:id/edit"
-          element={
-            (user?.role === 'admin' || user?.role === 'god') ? (
-              <AdminLayout>
-                <EditPostPage />
-              </AdminLayout>
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-        <Route
-          path="/admin/god"
-          element={
-            user?.role === 'god' ? (
-              <AdminLayout>
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="posts/new" element={<CreatePostPage />} />
+          <Route path="posts/:id/edit" element={<EditPostPage />} />
+          <Route
+            path="god"
+            element={
+              user?.role === 'god' ? (
                 <GodAdminPage />
-              </AdminLayout>
-            ) : (
-              <Navigate to="/admin" replace />
-            )
-          }
-        />
+              ) : (
+                <Navigate to="/admin" replace />
+              )
+            }
+          />
+        </Route>
 
         {/* Settings route */}
         <Route
