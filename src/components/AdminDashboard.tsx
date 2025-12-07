@@ -583,8 +583,6 @@ export const AdminDashboard: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
-
 
       {/* Embed Code Generator Modal */}
       <EmbedCodeGenerator 
