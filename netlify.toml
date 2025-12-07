@@ -1,0 +1,39 @@
+[[redirects]]
+  from = "/api/ai-proxy"
+  to = "/.netlify/edge-functions/ai-proxy"
+  status = 200
+
+[[redirects]]
+  from = "/api/track-view"
+  to = "/.netlify/edge-functions/track-view"
+  status = 200
+
+[[redirects]]
+  from = "/api/billing/create-checkout-session"
+  to = "/.netlify/edge-functions/billing-checkout"
+  status = 200
+
+[[redirects]]
+  from = "/api/webhooks/stripe"
+  to = "/.netlify/edge-functions/stripe-webhook"
+  status = 200
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[edge_functions]]
+  function = "ai-proxy"
+  path = "/api/ai-proxy"
+
+[[edge_functions]]
+  function = "track-view"
+  path = "/api/track-view"
+
+[[edge_functions]]
+  function = "billing-checkout"
+  path = "/api/billing/create-checkout-session"
+
+[[edge_functions]]
+  function = "stripe-webhook"
+  path = "/api/webhooks/stripe"

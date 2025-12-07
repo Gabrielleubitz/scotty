@@ -1,0 +1,1730 @@
+// ProductFlow Widget Script - Modern Glassmorphic Version with Dark Mode
+(function() {
+  // Get configuration from global variable or use defaults
+  const config = window.productflow_config || {
+    product_id: 'default',
+    position: 'bottom-right',
+    buttonText: "What's New",
+    widgetTitle: 'Product Updates',
+    primaryColor: '#2563eb',
+    enableLanguageSelector: true,
+    darkMode: false
+  };
+  
+  // Set default dark mode to false if not specified
+  if (config.darkMode === undefined) {
+    config.darkMode = false;
+  }
+
+  // Set API URL based on product_id or use current origin
+  config.apiUrl = config.apiUrl || window.location.origin;
+  
+  // Firebase configuration
+  config.firebaseConfig = config.firebaseConfig || {
+    apiKey: "AIzaSyD7tlbe2_A9JCOAcpS7QNRkn9wcoLQ6bE4",
+    authDomain: "scotty-acfe5.firebaseapp.com",
+    projectId: "scotty-acfe5",
+    storageBucket: "scotty-acfe5.firebasestorage.app",
+    messagingSenderId: "1048370427467",
+    appId: "1:1048370427467:web:90127c22dbebc20eacffce"
+  };
+
+  // Dark mode state
+  let isDarkMode = config.darkMode || false;
+
+  // Position styles mapping
+  const positionStyles = {
+    'bottom-right': 'bottom: 24px; right: 24px;',
+    'bottom-left': 'bottom: 24px; left: 24px;',
+    'top-right': 'top: 24px; right: 24px;',
+    'top-left': 'top: 24px; left: 24px;'
+  };
+
+  // Create dynamic styles with dark mode support
+  const createStyles = () => `
+    :root {
+      --pf-primary: ${config.primaryColor};
+      --pf-primary-hover: ${config.primaryColor}dd;
+      --pf-bg-light: rgba(255, 255, 255, 0.95);
+      --pf-bg-dark: rgba(17, 24, 39, 0.95);
+      --pf-glass-light: rgba(255, 255, 255, 0.8);
+      --pf-glass-dark: rgba(17, 24, 39, 0.8);
+      --pf-border-light: rgba(255, 255, 255, 0.2);
+      --pf-border-dark: rgba(55, 65, 81, 0.3);
+      --pf-text-light: #1e293b;
+      --pf-text-dark: #f8fafc;
+      --pf-text-muted-light: #64748b;
+      --pf-text-muted-dark: #94a3b8;
+      --pf-surface-light: rgba(248, 250, 252, 0.8);
+      --pf-surface-dark: rgba(31, 41, 55, 0.8);
+      --pf-hover-light: rgba(248, 250, 252, 0.9);
+      --pf-hover-dark: rgba(31, 41, 55, 0.9);
+    }
+
+    .productflow-dark {
+      --pf-bg: var(--pf-bg-dark);
+      --pf-glass: var(--pf-glass-dark);
+      --pf-border: var(--pf-border-dark);
+      --pf-text: var(--pf-text-dark);
+      --pf-text-muted: var(--pf-text-muted-dark);
+      --pf-surface: var(--pf-surface-dark);
+      --pf-hover: var(--pf-hover-dark);
+    }
+
+    .productflow-light {
+      --pf-bg: var(--pf-bg-light);
+      --pf-glass: var(--pf-glass-light);
+      --pf-border: var(--pf-border-light);
+      --pf-text: var(--pf-text-light);
+      --pf-text-muted: var(--pf-text-muted-light);
+      --pf-surface: var(--pf-surface-light);
+      --pf-hover: var(--pf-hover-light);
+    }
+    
+    #productflow-widget-button {
+      position: fixed;
+      ${positionStyles[config.position] || positionStyles['bottom-right']}
+      background: var(--pf-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--pf-border);
+      border-radius: 50px;
+      padding: 14px 24px;
+      color: var(--pf-text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      text-decoration: none;
+      outline: none;
+    }
+    
+    #productflow-widget-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 6px 20px rgba(0, 0, 0, 0.1);
+      background: var(--pf-hover);
+    }
+    
+    #productflow-widget-button:active {
+      transform: translateY(0) scale(0.98);
+    }
+    
+    #productflow-widget-button.has-updates::after {
+      content: '';
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(135deg, #ff6b6b, #ff5252);
+      border-radius: 50%;
+      border: 2px solid var(--pf-bg);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    #productflow-widget-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #productflow-widget-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    #productflow-widget-container {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 480px;
+      max-width: 90vw;
+      height: 100vh;
+      background: var(--pf-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid var(--pf-border);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10001;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    #productflow-widget-container.active {
+      transform: translateX(0);
+    }
+    
+    .productflow-header {
+      padding: 28px 32px 24px;
+      background: linear-gradient(135deg, var(--pf-primary), #8b5cf6);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .productflow-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      pointer-events: none;
+    }
+    
+    .productflow-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .productflow-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .productflow-header h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .productflow-dark-mode-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: white;
+    }
+    
+    .productflow-dark-mode-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+    }
+    
+    .productflow-close {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      color: white;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .productflow-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fef2f2;
+      transform: scale(1.1);
+    }
+    
+    .productflow-content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    .productflow-view-toggle {
+      display: flex;
+      background: var(--pf-surface);
+      border-bottom: 1px solid var(--pf-border);
+      padding: 8px;
+      margin: 0 24px 0 24px;
+      border-radius: 12px;
+      margin-top: 24px;
+      gap: 4px;
+    }
+    
+    .productflow-view-button {
+      flex: 1;
+      padding: 12px 16px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pf-text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .productflow-view-button.active {
+      background: var(--pf-primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .productflow-view-button:hover:not(.active) {
+      background: var(--pf-hover);
+      color: var(--pf-text);
+    }
+    
+    .productflow-main-content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .productflow-posts, .productflow-chat {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 24px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      transform: translateX(20px);
+    }
+    
+    .productflow-posts.active, .productflow-chat.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+    
+    .productflow-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--pf-text-muted);
+      font-size: 16px;
+      gap: 16px;
+    }
+    
+    .productflow-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--pf-border);
+      border-top: 3px solid var(--pf-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .productflow-post {
+      background: var(--pf-glass);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--pf-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .productflow-post::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(139, 92, 246, 0.03));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .productflow-post:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      border-color: var(--pf-primary);
+    }
+    
+    .productflow-post:hover::before {
+      opacity: 1;
+    }
+    
+    .productflow-post:last-child {
+      margin-bottom: 0;
+    }
+    
+    .productflow-post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .productflow-post-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .productflow-post-badge {
+      background: linear-gradient(135deg, var(--pf-primary), #8b5cf6);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .productflow-post-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--pf-text);
+      margin: 0 0 12px 0;
+      line-height: 1.4;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .productflow-post-date {
+      font-size: 12px;
+      color: var(--pf-text-muted);
+      font-weight: 500;
+    }
+    
+    .productflow-post-content {
+      color: var(--pf-text-muted);
+      line-height: 1.6;
+      margin: 16px 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .productflow-post-content h1, 
+    .productflow-post-content h2, 
+    .productflow-post-content h3 {
+      color: var(--pf-text);
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    
+    .productflow-post-content strong {
+      color: var(--pf-text);
+    }
+    
+    .productflow-post-content img, 
+    .productflow-post-content video {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin: 16px 0;
+      border: 1px solid var(--pf-border);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    
+    .productflow-post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--pf-border);
+      font-size: 12px;
+      color: var(--pf-text-muted);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .productflow-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      text-align: center;
+      color: var(--pf-text-muted);
+      gap: 16px;
+    }
+    
+    .productflow-empty-icon {
+      width: 64px;
+      height: 64px;
+      opacity: 0.5;
+    }
+    
+    .productflow-empty h3 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--pf-text);
+    }
+    
+    .productflow-empty p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .productflow-chat {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+    
+    .productflow-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      padding-bottom: 0;
+    }
+    
+    .productflow-chat-welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      text-align: center;
+      gap: 20px;
+    }
+    
+    .productflow-chat-welcome-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--pf-surface);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--pf-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+    
+    .productflow-chat-welcome h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--pf-text);
+    }
+    
+    .productflow-chat-welcome p {
+      margin: 0;
+      font-size: 16px;
+      color: var(--pf-text-muted);
+      line-height: 1.5;
+    }
+    
+    .productflow-message {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      animation: messageSlide 0.3s ease-out;
+    }
+    
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .productflow-message.user {
+      flex-direction: row-reverse;
+    }
+    
+    .productflow-message-content {
+      max-width: 75%;
+      padding: 16px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .productflow-message.user .productflow-message-content {
+      background: linear-gradient(135deg, var(--pf-primary), #8b5cf6);
+      color: white;
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .productflow-message.bot .productflow-message-content {
+      background: var(--pf-glass);
+      color: var(--pf-text);
+      border: 1px solid var(--pf-border);
+      border-bottom-left-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    
+    .productflow-typing {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 20px;
+      background: var(--pf-glass);
+      border: 1px solid var(--pf-border);
+      border-radius: 20px;
+      border-bottom-left-radius: 6px;
+      max-width: 80px;
+    }
+    
+    .productflow-typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--pf-text-muted);
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out;
+    }
+    
+    .productflow-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .productflow-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-12px); }
+    }
+    
+    .productflow-chat-input {
+      padding: 24px;
+      background: var(--pf-surface);
+      border-top: 1px solid var(--pf-border);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .productflow-chat-input input {
+      flex: 1;
+      padding: 14px 20px;
+      border: 1px solid var(--pf-border);
+      border-radius: 25px;
+      outline: none;
+      font-size: 14px;
+      background: var(--pf-glass);
+      color: var(--pf-text);
+      transition: all 0.3s ease;
+    }
+    
+    .productflow-chat-input input::placeholder {
+      color: var(--pf-text-muted);
+    }
+    
+    .productflow-chat-input input:focus {
+      border-color: var(--pf-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .productflow-chat-input button {
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--pf-primary), #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .productflow-chat-input button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .productflow-chat-input button:active {
+      transform: translateY(0);
+    }
+    
+    .productflow-chat-input button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Scrollbar styling */
+    .productflow-posts::-webkit-scrollbar,
+    .productflow-chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .productflow-posts::-webkit-scrollbar-track,
+    .productflow-chat-messages::-webkit-scrollbar-track {
+      background: var(--pf-surface);
+    }
+    
+    .productflow-posts::-webkit-scrollbar-thumb,
+    .productflow-chat-messages::-webkit-scrollbar-thumb {
+      background: var(--pf-border);
+      border-radius: 3px;
+    }
+    
+    .productflow-posts::-webkit-scrollbar-thumb:hover,
+    .productflow-chat-messages::-webkit-scrollbar-thumb:hover {
+      background: var(--pf-text-muted);
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      #productflow-widget-container {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .productflow-header {
+        padding: 20px 24px;
+      }
+      
+      .productflow-header h2 {
+        font-size: 18px;
+      }
+      
+      .productflow-posts,
+      .productflow-chat-messages {
+        padding: 20px;
+      }
+      
+      .productflow-post {
+        padding: 20px;
+      }
+      
+      .productflow-chat-input {
+        padding: 20px;
+      }
+      
+      .productflow-view-toggle {
+        margin: 16px 20px 0;
+      }
+    }
+  `;
+
+  // Add styles to page with theme class
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = createStyles();
+  document.head.appendChild(styleSheet);
+
+  // Apply theme class to body
+  const updateTheme = () => {
+    document.body.classList.remove('productflow-light', 'productflow-dark');
+    document.body.classList.add(isDarkMode ? 'productflow-dark' : 'productflow-light');
+  };
+
+  updateTheme();
+  
+  // Create widget button
+  const button = document.createElement('button');
+  button.id = 'productflow-widget-button';
+  button.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+    ${config.buttonText}
+  `;
+  
+  // Create overlay and container
+  const overlay = document.createElement('div');
+  overlay.id = 'productflow-widget-overlay';
+  
+  const container = document.createElement('div');
+  container.id = 'productflow-widget-container';
+  container.innerHTML = `
+    <div class="productflow-header">
+      <div class="productflow-header-left">
+        <h2>${config.widgetTitle || 'Product Updates'}</h2>
+      </div>
+      <div class="productflow-header-right">
+        <button class="productflow-close">&times;</button>
+      </div>
+    </div>
+    
+    <div class="productflow-view-toggle">
+      <button class="productflow-view-button active" data-view="updates">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        Updates
+      </button>
+      <button class="productflow-view-button" data-view="chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Ask AI
+      </button>
+    </div>
+    
+    <div class="productflow-content">
+      <div class="productflow-main-content">
+        <div class="productflow-posts active" id="productflow-posts">
+          <div class="productflow-loading">
+            <div class="productflow-spinner"></div>
+            <span>Loading updates...</span>
+          </div>
+        </div>
+        
+        <div class="productflow-chat" id="productflow-chat">
+          <div class="productflow-chat-messages" id="productflow-messages">
+            <div class="productflow-chat-welcome">
+              <div class="productflow-chat-welcome-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <h3>Ask me anything!</h3>
+              <p>I can help you understand our latest updates and features.</p>
+            </div>
+          </div>
+          <div class="productflow-chat-input">
+            <input type="text" placeholder="Ask about our updates..." id="productflow-chat-input">
+            <button id="productflow-chat-send">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Add elements to page
+  document.body.appendChild(button);
+  document.body.appendChild(overlay);
+  document.body.appendChild(container);
+  
+  // Widget state
+  let isOpen = false;
+  let activeView = 'updates';
+  let posts = [];
+  let chatMessages = [];
+  let sessionId = null;
+  let isTyping = false;
+  let db = null;
+  let widgetOpenTime = null;
+  
+  // Event listeners
+  button.addEventListener('click', openWidget);
+  // overlay.addEventListener('click', closeWidget); // Removed to allow page interaction
+  container.querySelector('.productflow-close').addEventListener('click', closeWidget);
+  
+  
+  // View switching
+  container.querySelectorAll('.productflow-view-button').forEach(button => {
+    button.addEventListener('click', () => switchView(button.dataset.view));
+  });
+  
+  // Chat functionality
+  const chatInput = container.querySelector('#productflow-chat-input');
+  const chatSend = container.querySelector('#productflow-chat-send');
+  
+  chatSend.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+  
+  // Prevent container clicks from closing widget
+  container.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+  
+  // Escape key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      closeWidget();
+    }
+  });
+  
+  // Functions
+  function openWidget() {
+    if (isOpen) return;
+    
+    isOpen = true;
+    widgetOpenTime = Date.now();
+    
+    // Add classes to trigger animations
+    overlay.classList.add('active');
+    container.classList.add('active');
+    
+    // Remove notification indicator
+    button.classList.remove('has-updates');
+    
+    // Load posts when widget opens
+    if (posts.length === 0) {
+      loadPosts();
+    }
+    
+    // Track widget open if tracking is available
+    if (window.productflowTracking) {
+      window.productflowTracking.trackWidgetOpen();
+    }
+  }
+  
+  function closeWidget() {
+    if (!isOpen) return;
+    
+    isOpen = false;
+    
+    // Remove classes to trigger animations
+    overlay.classList.remove('active');
+    container.classList.remove('active');
+    
+    // Track widget close if tracking is available
+    if (window.productflowTracking && widgetOpenTime) {
+      const timeSpent = Date.now() - widgetOpenTime;
+      window.productflowTracking.trackWidgetClose(timeSpent);
+      widgetOpenTime = null;
+    }
+  }
+  
+  
+  function switchView(view) {
+    activeView = view;
+    
+    // Update view buttons
+    container.querySelectorAll('.productflow-view-button').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === view);
+    });
+    
+    // Update content
+    container.querySelectorAll('.productflow-posts, .productflow-chat').forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    if (view === 'updates') {
+      container.querySelector('.productflow-posts').classList.add('active');
+    } else {
+      container.querySelector('.productflow-chat').classList.add('active');
+    }
+  }
+  
+  // Load Firebase and initialize
+  function loadFirebase() {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-app.js';
+  script.onload = function () {
+    const firestoreScript = document.createElement('script');
+    firestoreScript.src = 'https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-firestore.js';
+    firestoreScript.onload = function () {
+      initializeFirebase();
+    };
+    document.head.appendChild(firestoreScript);
+  };
+  document.head.appendChild(script);
+}
+  
+  function initializeFirebase() {
+    // Initialize Firebase
+    firebase.initializeApp(config.firebaseConfig);
+    db = firebase.firestore();
+    
+    // Initialize tracking
+    const trackingService = {
+      userId: null,
+      sessionId: 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      domain: window.location.hostname,
+      startTime: Date.now(),
+      
+      init: function() {
+        this.userId = this.getOrCreateUserId();
+        this.trackVisitor();
+        
+        window.addEventListener('beforeunload', () => {
+          this.updateLastSeen();
+        });
+      },
+      
+      getOrCreateUserId: function() {
+        let userId = localStorage.getItem('productflow_user_id');
+        if (!userId) {
+          userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem('productflow_user_id', userId);
+        }
+        return userId;
+      },
+      
+      getBrowserInfo: function() {
+        const userAgent = navigator.userAgent;
+        
+        let browser = 'Unknown';
+        if (userAgent.includes('Chrome')) browser = 'Chrome';
+        else if (userAgent.includes('Firefox')) browser = 'Firefox';
+        else if (userAgent.includes('Safari')) browser = 'Safari';
+        else if (userAgent.includes('Edge')) browser = 'Edge';
+        else if (userAgent.includes('Opera')) browser = 'Opera';
+
+        let os = 'Unknown';
+        if (userAgent.includes('Windows')) os = 'Windows';
+        else if (userAgent.includes('Mac')) os = 'Mac OS';
+        else if (userAgent.includes('Linux')) os = 'Linux';
+        else if (userAgent.includes('Android')) os = 'Android';
+        else if (userAgent.includes('iOS')) os = 'iOS';
+
+        return { browser, os };
+      },
+      
+      trackVisitor: async function() {
+        const { browser, os } = this.getBrowserInfo();
+        const now = new Date().toISOString();
+        
+        const firstSeen = localStorage.getItem('productflow_first_seen') || now;
+        if (!localStorage.getItem('productflow_first_seen')) {
+          localStorage.setItem('productflow_first_seen', now);
+        }
+
+        const visitorData = {
+          userId: this.userId,
+          language: navigator.language || 'EN',
+          firstSeen,
+          lastSeen: now,
+          browser,
+          os,
+          domain: this.domain,
+          userAgent: navigator.userAgent,
+          referrer: document.referrer,
+          sessionId: this.sessionId,
+          productId: config.product_id
+        };
+
+        try {
+          await db.collection('visitors').add(visitorData);
+        } catch (error) {
+          console.warn('Could not track visitor:', error);
+        }
+      },
+      
+      trackPostView: async function(postId, timeSpent) {
+        const postView = {
+          postId,
+          userId: this.userId,
+          domain: this.domain,
+          timestamp: new Date().toISOString(),
+          timeSpent: timeSpent || 0,
+          sessionId: this.sessionId,
+          productId: config.product_id
+        };
+
+        try {
+          await db.collection('post_views').add(postView);
+        } catch (error) {
+          console.warn('Could not track post view:', error);
+        }
+      },
+      
+      trackWidgetOpen: async function() {
+        try {
+          await db.collection('widget_events').add({
+            eventType: 'widget_open',
+            userId: this.userId,
+            domain: this.domain,
+            timestamp: new Date().toISOString(),
+            sessionId: this.sessionId,
+            productId: config.product_id
+          });
+        } catch (error) {
+          console.warn('Could not track widget open:', error);
+        }
+      },
+      
+      trackWidgetClose: async function(timeSpent) {
+        try {
+          await db.collection('widget_events').add({
+            eventType: 'widget_close',
+            userId: this.userId,
+            domain: this.domain,
+            timestamp: new Date().toISOString(),
+            sessionId: this.sessionId,
+            timeSpent,
+            productId: config.product_id
+          });
+        } catch (error) {
+          console.warn('Could not track widget close:', error);
+        }
+      },
+      
+      updateLastSeen: async function() {
+        try {
+          await db.collection('visitors').add({
+            userId: this.userId,
+            lastSeen: new Date().toISOString(),
+            sessionDuration: Date.now() - this.startTime,
+            eventType: 'session_end',
+            productId: config.product_id
+          });
+        } catch (error) {
+          console.warn('Could not update last seen:', error);
+        }
+      }
+    };
+    
+    // Make tracking service available globally
+    window.productflowTracking = trackingService;
+    
+    // Initialize tracking
+    trackingService.init();
+    
+    console.log('Widget initialized for domain:', window.location.hostname);
+  }
+  
+  async function loadPosts() {
+    if (!db) {
+      console.error('Firebase not initialized');
+      return;
+    }
+    
+    try {
+      const postsContainer = document.getElementById('productflow-posts');
+      
+      // Get posts from Firestore with retry logic
+      const posts = await retryOperation(async () => {
+        const snapshot = await db.collection('changelog')
+          .where('status', '==', 'published')
+          .orderBy('createdAt', 'desc')
+          .get();
+        
+        return snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt.toDate()
+        }));
+      });
+      
+      // Filter posts by current domain with retry logic
+      const currentDomain = window.location.hostname;
+      const filteredPosts = await retryOperation(async () => {
+        return await filterPostsByDomain(posts, currentDomain);
+      });
+      
+      // Load language settings and localize posts
+      const languageSettings = await retryOperation(async () => {
+        return await loadLanguageSettings();
+      });
+      const localizedPosts = localizePosts(filteredPosts, languageSettings);
+      
+      displayPosts(localizedPosts);
+      
+      // Show notification if there are new posts
+      if (localizedPosts.length > 0) {
+        button.classList.add('has-updates');
+      }
+      
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      document.getElementById('productflow-posts').innerHTML = `
+        <div class="productflow-empty">
+          <svg class="productflow-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <h3>Unable to load updates</h3>
+          <p>Please try again later or contact support if the issue persists.</p>
+        </div>
+      `;
+    }
+  }
+  
+  // Helper function to get segments from Firestore
+  async function getSegments() {
+    try {
+      console.log('📋 Fetching segments from Firestore...');
+      
+      // Add retry logic for segment fetching
+      const segments = await retryOperation(async () => {
+        const segmentsRef = db.collection('segments');
+        const querySnapshot = await segmentsRef.orderBy('name', 'asc').get();
+        
+        return querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name || '',
+            domain: data.domain || '',
+            description: data.description || '',
+            createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+            updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(),
+          };
+        }).filter(segment => segment.name && segment.domain); // Filter out invalid segments
+      });
+      
+      console.log('✅ Loaded segments:', segments ? segments.length : 0);
+      return segments;
+    } catch (error) {
+      console.error('❌ Error fetching segments:', error);
+      return [];
+    }
+  }
+  
+  // Helper function to filter posts by domain
+  async function filterPostsByDomain(posts, currentDomain) {
+    try {
+      if (!posts || posts.length === 0) {
+        return [];
+      }
+
+      console.log('🔍 Filtering posts for domain:', currentDomain);
+      console.log('📊 Total posts before filtering:', posts.length);
+      
+      // Get all segments
+      const segments = await getSegments();
+      
+      if (!segments || segments.length === 0) {
+        console.log('📝 No segments configured, showing all posts');
+        return posts;
+      }
+
+      // Find segment for current domain
+      const currentSegment = segments.find(segment => 
+        segment && segment.domain && (
+          segment.domain === currentDomain || 
+          segment.domain === `www.${currentDomain}` ||
+          `www.${segment.domain}` === currentDomain
+        )
+      );
+      
+      console.log('🎯 Current segment for domain:', currentSegment);
+      
+      let filteredPosts;
+      
+      // If no segment found for this domain, show all posts without segments
+      if (!currentSegment) {
+        console.log('📝 No segment found for domain, showing posts without segments');
+        filteredPosts = posts.filter(post => !post.segmentId || post.segmentId === null || post.segmentId === undefined);
+      } else {
+        console.log('📝 Segment found, showing posts for segment + posts without segments');
+        // Show posts for this segment + posts without segments
+        filteredPosts = posts.filter(post => 
+          !post.segmentId || 
+          post.segmentId === null || 
+          post.segmentId === undefined || 
+          post.segmentId === currentSegment.id
+        );
+      }
+      
+      console.log('✅ Posts after domain filtering:', filteredPosts.length);
+      
+      return filteredPosts;
+    } catch (error) {
+      console.error('❌ Error filtering posts by domain:', error);
+      // On error, return all posts to prevent breaking the widget
+      return posts;
+    }
+  }
+  
+  // Retry utility function for widget operations
+  async function retryOperation(operation, maxRetries = 3, baseDelay = 1000) {
+    let lastError;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        
+        console.warn(`Widget operation failed (attempt ${attempt + 1}/${maxRetries + 1}):`, error);
+        
+        // Check if error is retryable
+        const isRetryable = error.code === 'resource-exhausted' || 
+                           error.code === 'unavailable' || 
+                           error.code === 'deadline-exceeded' ||
+                           error.code === 'internal' ||
+                           (error.message && (
+                             error.message.includes('network') ||
+                             error.message.includes('timeout') ||
+                             error.message.includes('rate limit')
+                           ));
+        
+        // Don't retry on the last attempt or non-retryable errors
+        if (attempt === maxRetries || !isRetryable) {
+          break;
+        }
+        
+        const delay = baseDelay * Math.pow(2, attempt);
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    throw lastError;
+  }
+  
+  // Batched view increment utility
+  const viewIncrementBatch = {
+    pending: new Map(),
+    timeout: null,
+    
+    queue: function(postId, increment = 1) {
+      const current = this.pending.get(postId) || 0;
+      this.pending.set(postId, current + increment);
+      
+      // Clear existing timeout
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
+      
+      // Process batch after delay or when it gets large
+      if (this.pending.size >= 10) {
+        this.process();
+      } else {
+        this.timeout = setTimeout(() => this.process(), 2000);
+      }
+    },
+    
+    process: async function() {
+      if (this.pending.size === 0) return;
+      
+      const batch = new Map(this.pending);
+      this.pending.clear();
+      
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+        this.timeout = null;
+      }
+      
+      console.log(`Processing batched view increments for ${batch.size} posts`);
+      
+      // Process in chunks to avoid overwhelming Firestore
+      const entries = Array.from(batch.entries());
+      const chunkSize = 5;
+      
+      for (let i = 0; i < entries.length; i += chunkSize) {
+        const chunk = entries.slice(i, i + chunkSize);
+        
+        await Promise.allSettled(
+          chunk.map(async ([postId, increment]) => {
+            try {
+              await retryOperation(async () => {
+                await incrementPostViewCount(postId, increment);
+              });
+            } catch (error) {
+              console.error(`Failed to increment views for post ${postId}:`, error);
+            }
+          })
+        );
+        
+        // Small delay between chunks
+        if (i + chunkSize < entries.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+    }
+  };
+  
+  // Function to increment post view count directly
+  async function incrementPostViewCount(postId, incrementBy = 1) {
+    if (!db || !postId) {
+      console.warn('Cannot increment view count: missing database or postId');
+      return;
+    }
+    
+    try {
+      console.log('🔄 Incrementing view count for post:', postId, 'by', incrementBy);
+      
+      const postRef = db.collection('changelog').doc(postId);
+      
+      // Simple update with increment - more efficient than transaction for this use case
+      await postRef.update({
+        views: firebase.firestore.FieldValue.increment(incrementBy)
+      });
+      
+      console.log('✅ Successfully incremented views for post:', postId, 'by', incrementBy);
+      
+    } catch (error) {
+      console.error('❌ Failed to increment view count for post:', postId, error);
+      throw error; // Re-throw for retry logic
+    }
+  }
+  
+  // Localize posts based on user language
+  function localizePosts(posts, languageSettings) {
+    const userLanguage = getUserLanguage();
+    
+    return posts.map(post => {
+      // If user language is default or not enabled, return original
+      if (userLanguage === languageSettings.defaultLanguage || 
+          !languageSettings.enabledLanguages.includes(userLanguage)) {
+        return post;
+      }
+      
+      // Check if translation exists
+      const translation = post.translations?.[userLanguage];
+      if (translation && translation.title && translation.content) {
+        return {
+          ...post,
+          title: translation.title,
+          content: translation.content
+        };
+      }
+      
+      return post;
+    });
+  }
+  
+  function displayPosts(posts) {
+    const postsContainer = document.getElementById('productflow-posts');
+    
+    if (posts.length === 0) {
+      postsContainer.innerHTML = `
+        <div class="productflow-empty">
+          <svg class="productflow-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <h3>No updates yet</h3>
+          <p>Check back soon for the latest product updates!</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Helper function to get category color
+    function getCategoryColor(category) {
+      switch (category) {
+        case 'FEATURE': return '#10b981'; // green
+        case 'IMPROVEMENT': return '#3b82f6'; // blue
+        case 'BUG_FIX': return '#ef4444'; // red
+        case 'ANNOUNCEMENT': return '#8b5cf6'; // purple
+        case 'NOTIFICATION':
+        default: return '#3b82f6'; // blue
+      }
+    }
+    
+    // Helper function to get category icon
+    function getCategoryIcon(category) {
+      switch (category) {
+        case 'FEATURE': return '✨';
+        case 'IMPROVEMENT': return '🚀';
+        case 'BUG_FIX': return '🐛';
+        case 'ANNOUNCEMENT': return '📢';
+        case 'NOTIFICATION':
+        default: return '🔔';
+      }
+    }
+    
+    postsContainer.innerHTML = posts.map(post => `
+      <div class="productflow-post" data-post-id="${post.id}">
+        <div class="productflow-post-header">
+          <div class="productflow-post-meta">
+            <span class="productflow-post-badge" style="background: ${getCategoryColor(post.category || 'NOTIFICATION')}">
+              ${getCategoryIcon(post.category || 'NOTIFICATION')} ${post.category || 'NOTIFICATION'}
+            </span>
+            <span class="productflow-post-date">${formatRelativeTime(post.createdAt)}</span>
+          </div>
+        </div>
+        <h3 class="productflow-post-title">${post.title}</h3>
+        <div class="productflow-post-content">${renderMarkdown(post.content)}</div>
+        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Update image" style="max-width: 100%; border-radius: 12px; margin: 16px 0;" />` : ''}
+        ${post.videoUrl ? (
+          post.videoUrl.includes('youtube.com') || post.videoUrl.includes('youtu.be') 
+            ? `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${post.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="border-radius: 12px; margin: 16px 0;"></iframe>`
+            : `<video controls width="100%" style="border-radius: 12px; margin: 16px 0;"><source src="${post.videoUrl}" type="video/mp4"></video>`
+        ) : ''}
+        <div class="productflow-post-footer">
+          <span>${post.views || 0} views</span>
+        </div>
+      </div>
+    `).join('');
+    
+    // Track post views when they come into view
+    const postElements = postsContainer.querySelectorAll('.productflow-post');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const postId = entry.target.getAttribute('data-post-id');
+          if (postId && window.productflowTracking) {
+            // Track view with batching to avoid rate limits
+            setTimeout(() => {
+              window.productflowTracking.trackPostView(postId);
+              // Queue for batched increment to avoid rate limits
+              viewIncrementBatch.queue(postId, 1);
+            }, 500);
+            observer.unobserve(entry.target);
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+    
+    postElements.forEach(el => observer.observe(el));
+  }
+  
+  // Load language settings
+  async function loadLanguageSettings() {
+    try {
+      return await retryOperation(async () => {
+        const snapshot = await db.collection('language_settings').doc('default').get();
+        if (snapshot.exists) {
+          return snapshot.data();
+        }
+        
+        // Default settings
+        return {
+          supportedLanguages: ['en'],
+          defaultLanguage: 'en',
+          enabledLanguages: ['en']
+        };
+      });
+    } catch (error) {
+      console.warn('Could not load language settings:', error);
+      
+      // Default settings on error
+      return {
+        supportedLanguages: ['en'],
+        defaultLanguage: 'en',
+        enabledLanguages: ['en']
+      };
+    }
+  }
+  
+  // Get user's preferred language
+  function getUserLanguage() {
+    // Check localStorage first
+    const savedLanguage = localStorage.getItem('productflow_user_language');
+    if (savedLanguage) return savedLanguage;
+    
+    // Get browser language
+    const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+    return browserLang.split('-')[0].toLowerCase();
+  }
+  
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message || isTyping) return;
+    
+    addMessage(message, true);
+    chatInput.value = '';
+    chatSend.disabled = true;
+    
+    showTyping();
+    
+    try {
+      // Check if AI agent is configured
+      const aiConfig = config.aiAgent || { enabled: false };
+      
+      if (aiConfig.enabled && aiConfig.apiToken) {
+        // Use AI agent
+        const response = await fetch(`${config.apiUrl}/api/ai-proxy`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${aiConfig.apiToken}`,
+            'Content-Type': 'application/json',
+            'X-API-URL': aiConfig.apiUrl,
+          },
+          body: JSON.stringify({
+            message,
+            session_id: sessionId,
+            stream: false,
+          }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          hideTyping();
+          addMessage(data.message || 'I apologize, but I encountered an issue processing your request.');
+          if (data.session_id) {
+            sessionId = data.session_id;
+          }
+        } else {
+          throw new Error('AI agent request failed');
+        }
+      } else {
+        throw new Error('AI agent is not configured');
+      }
+      
+    } catch (error) {
+      hideTyping();
+      const errorMessage = error instanceof Error && error.message === 'AI agent is not configured'
+        ? "I'm sorry, the AI chat feature is not configured. Please contact the administrator to enable AI chat support."
+        : "I'm sorry, I'm having trouble responding right now. Please check the AI Agent settings or try again later.";
+      addMessage(errorMessage);
+    } finally {
+      chatSend.disabled = false;
+    }
+  }
+  
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', () => {
+    viewIncrementBatch.process();
+  });
+  
+  function addMessage(content, isUser = false) {
+    const messagesContainer = document.getElementById('productflow-messages');
+    
+    // Remove welcome message if it exists
+    const welcomeMessage = messagesContainer.querySelector('.productflow-chat-welcome');
+    if (welcomeMessage) {
+      welcomeMessage.remove();
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `productflow-message ${isUser ? 'user' : 'bot'}`;
+    
+    if (isUser) {
+      messageDiv.innerHTML = `<div class="productflow-message-content">${content}</div>`;
+    } else {
+      // Format AI responses with markdown
+      const formattedContent = formatMarkdown(content);
+      messageDiv.innerHTML = `<div class="productflow-message-content">${formattedContent}</div>`;
+    }
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+  
+  function showTyping() {
+    isTyping = true;
+    const messagesContainer = document.getElementById('productflow-messages');
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'productflow-message bot';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerHTML = `
+      <div class="productflow-typing">
+        <div class="productflow-typing-dot"></div>
+        <div class="productflow-typing-dot"></div>
+        <div class="productflow-typing-dot"></div>
+      </div>
+    `;
+    
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+  
+  function hideTyping() {
+    isTyping = false;
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+      typingIndicator.remove();
+    }
+  }
+  
+  // Utility functions
+  function formatRelativeTime(date) {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+    return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
+  }
+
+  function getYouTubeEmbedUrl(url) {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if (match) {
+      const videoId = match[1];
+      const origin = encodeURIComponent(window.location.origin);
+      return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}`;
+    }
+    return url;
+  }
+  
+  function renderMarkdown(content) {
+    return content
+      .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+      .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+      .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
+      .replace(/\[youtube\]\((https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+))[^)]*\)/g, function(match, fullUrl, videoId) {
+        var embedUrl = getYouTubeEmbedUrl(fullUrl);
+        return '<div class="my-4 relative" style="pointer-events: auto;"><iframe width="100%" height="250" src="' + embedUrl + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen class="rounded-lg border border-gray-200" title="YouTube video player" style="pointer-events: auto; position: relative; z-index: 10;"></iframe></div>';
+      })
+      .replace(/\[video\]\(([^)]+)\)/g, 
+        '<video controls width="100%" style="border-radius: 8px; margin: 12px 0;"><source src="$1" type="video/mp4"></video>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+  }
+  
+  function formatMarkdown(content) {
+    return content
+      // Headers
+      .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+      
+      // Bold and italic
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      
+      // Code blocks and inline code
+      .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      
+      // Lists
+      .replace(/^\d+\.\s+(.*)$/gm, '<li>$1</li>')
+      .replace(/^[\-\*]\s+(.*)$/gm, '<li>$1</li>')
+      
+      // Wrap consecutive list items
+      .replace(/(<li>.*?<\/li>\s*)+/g, '<ul>$&</ul>')
+      
+      // Links
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+      
+      // Line breaks and paragraphs
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      
+      // Wrap in paragraph if not already wrapped
+      .replace(/^(?!<[h|u|p|d])(.+)$/gm, '<p>$1</p>')
+      
+      // Clean up empty paragraphs
+      .replace(/<p><\/p>/g, '')
+      .replace(/<p><br><\/p>/g, '');
+  }
+  
+  // Initialize widget
+  loadFirebase();
+  
+  // Public API
+  window.productflow_openWidget = openWidget;
+  window.productflow_closeWidget = closeWidget;
+})();

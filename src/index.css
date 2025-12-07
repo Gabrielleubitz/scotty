@@ -1,0 +1,302 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* AI Chat Response Styling */
+.ai-response h1,
+.ai-response h2,
+.ai-response h3 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.ai-response h1:first-child,
+.ai-response h2:first-child,
+.ai-response h3:first-child {
+  margin-top: 0;
+}
+
+.ai-response ul {
+  padding-left: 1rem;
+}
+
+.ai-response li {
+  position: relative;
+  padding-left: 0.5rem;
+}
+
+.ai-response li.list-disc::before {
+  content: '•';
+  position: absolute;
+  left: -0.75rem;
+  color: #6b7280;
+  font-weight: bold;
+}
+
+.ai-response pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.ai-response code {
+  word-wrap: break-word;
+}
+
+.ai-response p:last-child {
+  margin-bottom: 0;
+}
+
+/* YouTube iframe interaction fixes */
+iframe[src*="youtube.com"],
+iframe[src*="youtube-nocookie.com"] {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  display: block !important;
+  width: 100% !important;
+  height: 250px !important;
+}
+
+/* Ensure all parent containers allow interactions */
+.prose,
+.prose *,
+.ai-response,
+.ai-response *,
+div[class*="prose"],
+div[class*="text-gray"],
+div[class*="space-y"],
+div[class*="leading-relaxed"] {
+  pointer-events: auto !important;
+}
+
+/* Specifically target YouTube containers */
+div:has(> iframe[src*="youtube"]),
+div > iframe[src*="youtube"],
+p:has(> iframe[src*="youtube"]),
+p > iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+  isolation: auto !important;
+}
+
+/* Override any potential blocking styles */
+.youtube-embed-container {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+  isolation: auto !important;
+  touch-action: auto !important;
+  user-select: auto !important;
+}
+
+/* Ensure modal content doesn't block YouTube */
+.modal-content iframe[src*="youtube"],
+.widget-content iframe[src*="youtube"],
+[class*="overflow-y-auto"] iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+}
+/* Additional fixes for updates tab and changelog widget */
+.changelog-content iframe[src*="youtube"],
+.changelog-content iframe[src*="youtube-nocookie"],
+.post-content iframe[src*="youtube"],
+.post-content iframe[src*="youtube-nocookie"],
+.update-content iframe[src*="youtube"],
+.update-content iframe[src*="youtube-nocookie"] {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  display: block !important;
+  width: 100% !important;
+  height: 250px !important;
+  touch-action: auto !important;
+  user-select: auto !important;
+}
+
+/* Force interaction on all YouTube containers in updates */
+.changelog-widget iframe[src*="youtube"],
+.widget-container iframe[src*="youtube"],
+.updates-container iframe[src*="youtube"],
+.post-container iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+  isolation: auto !important;
+}
+
+/* Ensure parent containers don't block YouTube in updates */
+.changelog-widget,
+.changelog-widget *,
+.widget-container,
+.widget-container *,
+.updates-container,
+.updates-container *,
+.post-container,
+.post-container * {
+  pointer-events: auto !important;
+}
+
+/* Specific overrides for any overflow or scroll containers */
+div[class*="overflow-"],
+div[class*="scroll-"],
+div[class*="max-h-"],
+div[class*="h-"] {
+  pointer-events: auto !important;
+}
+
+div[class*="overflow-"] iframe[src*="youtube"],
+div[class*="scroll-"] iframe[src*="youtube"],
+div[class*="max-h-"] iframe[src*="youtube"],
+div[class*="h-"] iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+  position: relative !important;
+}
+/* Ultra-specific targeting for ChangelogWidget YouTube videos */
+#productflow-changelog-widget iframe[src*="youtube.com"],
+#productflow-changelog-widget iframe[src*="youtube-nocookie.com"],
+#productflow-changelog-widget iframe[src*="youtu.be"] {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  display: block !important;
+  width: 100% !important;
+  height: 250px !important;
+  touch-action: auto !important;
+  user-select: auto !important;
+  isolation: auto !important;
+}
+
+/* Force all parent containers in ChangelogWidget to allow interactions */
+#productflow-changelog-widget,
+#productflow-changelog-widget *,
+#productflow-changelog-widget div,
+#productflow-changelog-widget p,
+#productflow-changelog-widget .prose,
+#productflow-changelog-widget .prose *,
+#productflow-changelog-widget [class*="prose"],
+#productflow-changelog-widget [class*="text-"],
+#productflow-changelog-widget [class*="space-"],
+#productflow-changelog-widget [class*="leading-"],
+#productflow-changelog-widget [class*="overflow-"],
+#productflow-changelog-widget [class*="max-w-"] {
+  pointer-events: auto !important;
+}
+
+/* Specific overrides for any containers that might block YouTube in ChangelogWidget */
+#productflow-changelog-widget div:has(> iframe[src*="youtube"]),
+#productflow-changelog-widget div > iframe[src*="youtube"],
+#productflow-changelog-widget p:has(> iframe[src*="youtube"]),
+#productflow-changelog-widget p > iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+  isolation: auto !important;
+}
+
+/* Override any potential prose or content styling that might interfere */
+#productflow-changelog-widget .prose iframe,
+#productflow-changelog-widget .prose iframe[src*="youtube"],
+#productflow-changelog-widget [class*="prose"] iframe,
+#productflow-changelog-widget [class*="prose"] iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Fix preview widget positioning */
+#productflow-preview-widget-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999999 !important;
+  transform: none !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 1rem !important;
+}
+/* Ensure the main widget container doesn't block interactions */
+#productflow-widget-container,
+.productflow-widget-container,
+[id*="productflow-widget"],
+[class*="productflow-widget"] {
+  pointer-events: auto !important;
+  z-index: 999998 !important;
+  position: relative !important;
+}
+
+/* Fix for embedded widget - remove overlay that blocks YouTube interaction */
+.productflow-post::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Alternative fix if the above doesn't work */
+.productflow-post {
+  position: relative !important;
+}
+
+.productflow-post::before {
+  pointer-events: none !important;
+}
+
+/* Ensure YouTube iframes in embedded widgets are always interactive */
+.productflow-post iframe[src*="youtube"],
+.productflow-post-content iframe[src*="youtube"],
+.productflow-posts iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+  position: relative !important;
+  isolation: isolate !important;
+}
+/* Force all iframe elements to be interactive regardless of context */
+iframe[src*="youtube.com"],
+iframe[src*="youtube-nocookie.com"],
+iframe[src*="youtu.be"] {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999999 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  display: block !important;
+  touch-action: auto !important;
+  user-select: auto !important;
+  isolation: auto !important;
+}
+
+/* Override any potential blocking elements */
+div:has(iframe[src*="youtube"]),
+p:has(iframe[src*="youtube"]),
+span:has(iframe[src*="youtube"]) {
+  pointer-events: auto !important;
+  z-index: 999998 !important;
+  position: relative !important;
+  isolation: auto !important;
+}
+
+/* Specific overrides for any modal or overlay that might interfere */
+.modal-content iframe[src*="youtube"],
+.widget-content iframe[src*="youtube"],
+.overlay-content iframe[src*="youtube"],
+[class*="fixed"] iframe[src*="youtube"],
+[class*="absolute"] iframe[src*="youtube"] {
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+  position: relative !important;
+}
