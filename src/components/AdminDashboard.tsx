@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, BarChart3, Users, Eye, BookOpen, Code, Globe, Bot, Languages, TrendingUp, Tag, Lock, Settings, HelpCircle, Layout, Bell, Crown } from 'lucide-react';
 import { ChangelogPost, Analytics, AIAgentConfig, LanguageSettings, Segment } from '../types';
 import { apiService } from '../lib/api';
@@ -9,9 +10,6 @@ import { featureOverrideService } from '../lib/feature-overrides';
 import { billingService } from '../lib/billing';
 import { GodAdminPanel } from './GodAdminPanel';
 import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Modal } from './ui/Modal';
-import { FileUpload } from './ui/FileUpload';
 import { EmbedCodeGenerator } from './EmbedCodeGenerator';
 import { PreviewChangelogWidget } from './PreviewChangelogWidget';
 import { AIAgentSettings } from './AIAgentSettings';
@@ -19,22 +17,19 @@ import { PostAnalyticsModal } from './PostAnalyticsModal';
 import { SegmentManager } from './SegmentManager';
 import { formatDate } from '../lib/utils';
 import { LanguageSettings as LanguageSettingsModal } from './LanguageSettings';
-import { MultiLanguageEditor } from './MultiLanguageEditor';
 import { AnalyticsChart } from './AnalyticsChart';
 import { AIChatAnalytics } from './AIChatAnalytics';
-import { DEFAULT_LANGUAGE_SETTINGS } from '../lib/languages';
 
 export const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { currentTeam } = useTeam();
   const { user } = useAuth();
-  const [showGodAdmin, setShowGodAdmin] = useState(false);
   const [posts, setPosts] = useState<ChangelogPost[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [visitorAnalytics, setVisitorAnalytics] = useState<any>(null);
   const [featureOverrides, setFeatureOverrides] = useState<any[]>([]);
   const [hasAdminAnalytics, setHasAdminAnalytics] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
   const [isPreviewWidgetOpen, setIsPreviewWidgetOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
@@ -43,27 +38,9 @@ export const AdminDashboard: React.FC = () => {
   const [isPostAnalyticsOpen, setIsPostAnalyticsOpen] = useState(false);
   const [selectedPostForAnalytics, setSelectedPostForAnalytics] = useState<ChangelogPost | null>(null);
   const [previewPostId, setPreviewPostId] = useState<string | null>(null);
-  const [editingPost, setEditingPost] = useState<ChangelogPost | null>(null);
   const [aiConfig, setAiConfig] = useState<AIAgentConfig>({ apiToken: '', apiUrl: '', enabled: false });
   const [languageSettings, setLanguageSettings] = useState<LanguageSettings>(DEFAULT_LANGUAGE_SETTINGS);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    translations: {} as { [key: string]: { title: string; content: string; isAIGenerated?: boolean } },
-    videoUrl: '',
-    imageUrl: '',
-    category: 'NOTIFICATION',
-    segmentId: null as string | null,
-    enableComments: false,
-    enableReactions: false,
-    openLinksInNewTab: true,
-    enableSocialSharing: true,
-    pinToTop: false,
-    autoOpenWidget: false,
-    expirationDate: '',
-  });
-  const [uploadingFile, setUploadingFile] = useState(false);
 
   useEffect(() => {
     if (!currentTeam) return;
@@ -144,45 +121,11 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleCreatePost = () => {
-    setEditingPost(null);
-    setFormData({ 
-      title: '', 
-      content: '', 
-      translations: {},
-      videoUrl: '', 
-      imageUrl: '',
-      category: 'NOTIFICATION',
-      segmentId: null,
-      enableComments: false,
-      enableReactions: false,
-      openLinksInNewTab: true,
-      enableSocialSharing: true,
-      pinToTop: false,
-      autoOpenWidget: false,
-      expirationDate: '',
-    });
-    setIsModalOpen(true);
+    navigate('/admin/posts/new');
   };
 
   const handleEditPost = (post: ChangelogPost) => {
-    setEditingPost(post);
-    setFormData({
-      title: post.title,
-      content: post.content,
-      translations: post.translations || {},
-      videoUrl: post.videoUrl || '',
-      imageUrl: post.imageUrl || '',
-      category: post.category || 'NOTIFICATION',
-      segmentId: post.segmentId || null,
-      enableComments: false,
-      enableReactions: false,
-      openLinksInNewTab: true,
-      enableSocialSharing: true,
-      pinToTop: false,
-      autoOpenWidget: false,
-      expirationDate: '',
-    });
-    setIsModalOpen(true);
+    navigate(`/admin/posts/${post.id}/edit`);
   };
 
   const handleDeletePost = async (id: string) => {
@@ -196,50 +139,6 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (uploadingFile || !currentTeam) return; // Prevent submission while uploading
-
-    setLoading(true);
-
-    try {
-      if (editingPost) {
-        const updatedPost = await apiService.updateChangelogPost(editingPost.id, {
-          ...formData,
-          category: formData.category
-        }, currentTeam.id);
-        setPosts(posts.map(post => post.id === editingPost.id ? updatedPost : post));
-      } else {
-        const newPost = await apiService.createChangelogPost({
-          ...formData,
-          category: formData.category
-        }, currentTeam.id);
-        setPosts([newPost, ...posts]);
-      }
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Failed to save post:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFileUpload = async (file: File) => {
-    setUploadingFile(true);
-    try {
-      const fileName = `changelog/${Date.now()}-${file.name}`;
-      const downloadURL = await apiService.uploadFile(file, fileName);
-      setFormData({ ...formData, imageUrl: downloadURL });
-    } catch (error) {
-      console.error('Failed to upload file:', error);
-    } finally {
-      setUploadingFile(false);
-    }
-  };
-
-  const handleFileRemove = () => {
-    setFormData({ ...formData, imageUrl: '' });
-  };
 
   const handlePreviewPost = (postId: string) => {
     setPreviewPostId(postId);
@@ -251,10 +150,6 @@ export const AdminDashboard: React.FC = () => {
     setIsPostAnalyticsOpen(true);
   };
   
-  // Show God Admin Panel if user is god and requested
-  if (user?.role === 'god' && showGodAdmin) {
-    return <GodAdminPanel />;
-  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -273,7 +168,7 @@ export const AdminDashboard: React.FC = () => {
             {user?.role === 'god' && (
               <Button
                 variant="outline"
-                onClick={() => setShowGodAdmin(true)}
+                onClick={() => navigate('/admin/god')}
                 className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400"
                 title="Access God Admin Panel to manage users and teams"
               >
@@ -690,205 +585,6 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Create/Edit Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingPost ? 'Edit Post' : 'Create New Post'}
-        size="xl"
-      >
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Content - Left Side */}
-            <div className="lg:col-span-2 space-y-6">
-              <MultiLanguageEditor
-                title={formData.title}
-                content={formData.content}
-                translations={formData.translations}
-                languageSettings={languageSettings}
-                onTitleChange={(title) => setFormData({ ...formData, title })}
-                onContentChange={(content) => setFormData({ ...formData, content })}
-                onTranslationsChange={(translations) => setFormData({ ...formData, translations })}
-              />
-              
-              <Input
-                label="Video URL (optional)"
-                value={formData.videoUrl}
-                onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                placeholder="https://youtube.com/watch?v=... or https://example.com/video.mp4"
-              />
-
-              <FileUpload
-                label="Upload Image or Video (optional)"
-                onFileSelect={handleFileUpload}
-                onFileRemove={handleFileRemove}
-                currentFile={formData.imageUrl}
-                accept="image/*,video/*"
-                maxSize={50}
-              />
-
-              {uploadingFile && (
-                <div className="flex items-center space-x-2 text-blue-600">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  <span className="text-sm">Uploading file...</span>
-                </div>
-              )}
-            </div>
-
-            {/* Settings Panel - Right Side */}
-            <div className="space-y-6">
-            {/* Publish Date */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Publish</h3>
-              <div className="text-sm text-gray-600 mb-2">
-                {new Date().toLocaleDateString('en-US', { 
-                  month: '2-digit', 
-                  day: '2-digit', 
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </div>
-            </div>
-
-            {/* Expiration Date */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Expiration Date <span className="text-gray-500 font-normal">OPTIONAL</span>
-              </label>
-              <Input
-                type="datetime-local"
-                value={formData.expirationDate}
-                onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
-                placeholder="Expiration date"
-              />
-            </div>
-
-            {/* Categories */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Categories
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="NOTIFICATION">🔔 NOTIFICATION</option>
-                <option value="FEATURE">✨ FEATURE</option>
-                <option value="IMPROVEMENT">🚀 IMPROVEMENT</option>
-                <option value="BUG_FIX">🐛 BUG FIX</option>
-                <option value="ANNOUNCEMENT">📢 ANNOUNCEMENT</option>
-              </select>
-            </div>
-
-            {/* Segment Selection */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Assign to Segment (optional)
-              </label>
-              <select
-                value={formData.segmentId || ''}
-                onChange={(e) => setFormData({ ...formData, segmentId: e.target.value || null })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="">None (visible on all domains)</option>
-                {segments.map((segment) => (
-                  <option key={segment.id} value={segment.id}>
-                    {segment.name} ({segment.domain})
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Posts assigned to a segment will only appear on the specified domain.
-              </p>
-            </div>
-            {/* Post Settings */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Post settings</h3>
-              <div className="space-y-3">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.enableComments}
-                    onChange={(e) => setFormData({ ...formData, enableComments: e.target.checked })}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Enable comments</span>
-                </label>
-                
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.enableReactions}
-                    onChange={(e) => setFormData({ ...formData, enableReactions: e.target.checked })}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Enable reactions</span>
-                </label>
-                
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.openLinksInNewTab}
-                    onChange={(e) => setFormData({ ...formData, openLinksInNewTab: e.target.checked })}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Open links in new tab</span>
-                </label>
-                
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.enableSocialSharing}
-                    onChange={(e) => setFormData({ ...formData, enableSocialSharing: e.target.checked })}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Enable social media sharing</span>
-                </label>
-                
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.pinToTop}
-                    onChange={(e) => setFormData({ ...formData, pinToTop: e.target.checked })}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Pin to top of feed</span>
-                </label>
-                
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.autoOpenWidget}
-                    onChange={(e) => setFormData({ ...formData, autoOpenWidget: e.target.checked })}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Auto open widget</span>
-                </label>
-              </div>
-            </div>
-          </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              loading={loading || uploadingFile} 
-              disabled={uploadingFile}
-            >
-              {!formData.publishNow && formData.scheduledFor 
-                ? (editingPost ? 'Update Schedule' : 'Schedule Post')
-                : (editingPost ? 'Update Post' : 'Publish Now')
-              }
-            </Button>
-          </div>
-        </form>
-      </Modal>
 
       {/* Embed Code Generator Modal */}
       <EmbedCodeGenerator 
