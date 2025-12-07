@@ -345,7 +345,6 @@ export const EditPostPage: React.FC = () => {
             </Button>
           </div>
         </form>
-      </div>
     </div>
   );
 };
