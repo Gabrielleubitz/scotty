@@ -310,7 +310,6 @@ export const CreatePostPage: React.FC = () => {
             </Button>
           </div>
         </form>
-      </div>
     </div>
   );
 };
