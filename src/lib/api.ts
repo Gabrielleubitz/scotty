@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage, auth } from './firebase';
-import { ChangelogPost, ChatMessage, Analytics, AIAgentConfig, ChatResponse, LanguageSettings, Segment } from '../types';
+import { ChangelogPost, ChatMessage, Analytics, AIAgentConfig, ChatResponse, LanguageSettings, Segment, User } from '../types';
 import { DEFAULT_LANGUAGE_SETTINGS } from './languages';
 import { FirestoreRetryUtil, FirestoreRateLimit, FirestoreBatchUtil } from './firestore-utils';
 import { isFeatureEnabledForTeam, FeatureKey } from './features';
@@ -29,6 +29,35 @@ import { teamService } from './teams';
 function getCurrentTeamId(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('currentTeamId');
+}
+
+/**
+ * Get current user document from Firestore
+ * Used for checking god role and other user-specific permissions
+ */
+async function getCurrentUserDoc(): Promise<User | null> {
+  try {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) return null;
+    
+    const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+    if (!userDoc.exists()) return null;
+    
+    const userData = userDoc.data();
+    return {
+      id: firebaseUser.uid,
+      email: firebaseUser.email || '',
+      name: userData.name || firebaseUser.displayName || 'User',
+      displayName: userData.displayName || userData.name || firebaseUser.displayName || 'User',
+      avatarUrl: firebaseUser.photoURL || userData.avatarUrl || undefined,
+      role: userData.role || 'user',
+      createdAt: userData.createdAt?.toDate() || new Date(),
+      updatedAt: userData.updatedAt?.toDate() || new Date(),
+    } as User;
+  } catch (error) {
+    console.error('Error fetching current user document:', error);
+    return null;
+  }
 }
 
 /**
@@ -783,7 +812,8 @@ export const apiService = {
         };
       }
       const overrides = await featureOverrideService.getTeamOverrides(currentTeamId);
-      if (!isFeatureEnabledForTeam(team, overrides, 'admin_analytics')) {
+      const currentUser = await getCurrentUserDoc();
+      if (!isFeatureEnabledForTeam(team, overrides, 'admin_analytics', currentUser)) {
         // Return empty analytics instead of throwing error
         console.warn(`Admin Analytics feature is not enabled for team ${currentTeamId}. Returning empty analytics.`);
         return {
@@ -907,7 +937,8 @@ export const apiService = {
         };
       }
       const overrides = await featureOverrideService.getTeamOverrides(currentTeamId);
-      if (!isFeatureEnabledForTeam(team, overrides, 'admin_analytics')) {
+      const currentUser = await getCurrentUserDoc();
+      if (!isFeatureEnabledForTeam(team, overrides, 'admin_analytics', currentUser)) {
         // Return empty analytics instead of throwing error
         console.warn(`Post Analytics feature is not enabled for team ${team.id}. Returning empty analytics.`);
         return {

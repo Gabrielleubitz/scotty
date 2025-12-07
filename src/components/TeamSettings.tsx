@@ -563,7 +563,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                     const planType = (currentTeam.subscriptionPlan || currentTeam.plan || 'basic') as keyof typeof PLAN_FEATURES;
                     const isInPlan = (PLAN_FEATURES[planType] || []).includes(key);
                     const override = featureOverrides.find(o => o.featureKey === key);
-                    const isEnabled = isFeatureEnabledForTeam(currentTeam, featureOverrides, key);
+                    const isEnabled = isFeatureEnabledForTeam(currentTeam, featureOverrides, key, user);
                     
                     return (
                       <div key={key} className="bg-gray-50 rounded-lg p-4">

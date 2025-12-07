@@ -32,6 +32,13 @@ service cloud.firestore {
       return role == 'owner' || role == 'admin';
     }
     
+    // Helper function to check if user is a god admin
+    function isGodUser() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(getUserId())) &&
+             get(/databases/$(database)/documents/users/$(getUserId())).data.role == 'god';
+    }
+    
     // Users collection
     match /users/{userId} {
       // Users can read their own document
@@ -44,6 +51,10 @@ service cloud.firestore {
       allow read: if isAuthenticated() && 
                      exists(/databases/$(database)/documents/users/$(getUserId())) &&
                      get(/databases/$(database)/documents/users/$(getUserId())).data.role == 'admin';
+      
+      // God users can read all users and update any user's role
+      allow read, list: if isGodUser();
+      allow update: if isGodUser();
     }
     
     // Teams collection
@@ -65,6 +76,9 @@ service cloud.firestore {
                        resource.data.ownerUserId == getUserId() ||
                        request.resource.data.ownerUserId == getUserId()
                      );
+      
+      // God users can update any team (for plan management)
+      allow update: if isGodUser();
       
       // Only team owners can delete teams
       allow delete: if isAuthenticated() && resource.data.ownerUserId == getUserId();
