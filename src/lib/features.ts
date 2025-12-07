@@ -1,4 +1,4 @@
-import { Team } from '../types';
+import { Team, User } from '../types';
 
 /**
  * Feature keys that can be enabled/disabled per plan
@@ -56,20 +56,28 @@ export interface TeamFeatureOverride {
  * Check if a feature is enabled for a team
  * 
  * Logic:
- * 1. Get base features from team's plan
- * 2. Apply any overrides for that team
- * 3. Return whether the feature is enabled
+ * 1. God users always have all features enabled
+ * 2. Get base features from team's plan
+ * 3. Apply any overrides for that team
+ * 4. Return whether the feature is enabled
  * 
  * @param team - The team to check
  * @param overrides - Array of feature overrides for the team
  * @param featureKey - The feature to check
+ * @param user - Optional user to check for god role
  * @returns true if the feature is enabled, false otherwise
  */
 export function isFeatureEnabledForTeam(
   team: Team,
   overrides: TeamFeatureOverride[],
-  featureKey: FeatureKey
+  featureKey: FeatureKey,
+  user?: User | null
 ): boolean {
+  // God users always have all features enabled
+  if (user?.role === 'god') {
+    return true;
+  }
+  
   // Get the team's plan (use subscriptionPlan if available, otherwise plan)
   const planType = (team.subscriptionPlan || team.plan || 'basic') as keyof typeof PLAN_FEATURES;
   

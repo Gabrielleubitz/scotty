@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, BarChart3, Users, Eye, BookOpen, Code, Globe, Bot, Languages, TrendingUp, Tag, Lock, Settings, HelpCircle, Layout, Bell } from 'lucide-react';
+import { Plus, Edit2, Trash2, BarChart3, Users, Eye, BookOpen, Code, Globe, Bot, Languages, TrendingUp, Tag, Lock, Settings, HelpCircle, Layout, Bell, Crown } from 'lucide-react';
 import { ChangelogPost, Analytics, AIAgentConfig, LanguageSettings, Segment } from '../types';
 import { apiService } from '../lib/api';
 import { useTeam } from '../hooks/useTeam';
+import { useAuth } from '../hooks/useAuth';
 import { isFeatureEnabledForTeam } from '../lib/features';
 import { featureOverrideService } from '../lib/feature-overrides';
 import { billingService } from '../lib/billing';
+import { GodAdminPanel } from './GodAdminPanel';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
@@ -24,6 +26,8 @@ import { DEFAULT_LANGUAGE_SETTINGS } from '../lib/languages';
 
 export const AdminDashboard: React.FC = () => {
   const { currentTeam } = useTeam();
+  const { user } = useAuth();
+  const [showGodAdmin, setShowGodAdmin] = useState(false);
   const [posts, setPosts] = useState<ChangelogPost[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -84,7 +88,7 @@ export const AdminDashboard: React.FC = () => {
     try {
       const overrides = await featureOverrideService.getTeamOverrides(currentTeam.id);
       setFeatureOverrides(overrides);
-      setHasAdminAnalytics(isFeatureEnabledForTeam(currentTeam, overrides, 'admin_analytics'));
+      setHasAdminAnalytics(isFeatureEnabledForTeam(currentTeam, overrides, 'admin_analytics', user));
     } catch (error) {
       console.error('Failed to load feature overrides:', error);
     }
@@ -247,6 +251,11 @@ export const AdminDashboard: React.FC = () => {
     setIsPostAnalyticsOpen(true);
   };
   
+  // Show God Admin Panel if user is god and requested
+  if (user?.role === 'god' && showGodAdmin) {
+    return <GodAdminPanel />;
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -260,6 +269,19 @@ export const AdminDashboard: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
+            {/* God Admin Button */}
+            {user?.role === 'god' && (
+              <Button
+                variant="outline"
+                onClick={() => setShowGodAdmin(true)}
+                className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400"
+                title="Access God Admin Panel to manage users and teams"
+              >
+                <Crown size={16} className="mr-2" />
+                <span className="hidden sm:inline">God Admin</span>
+                <span className="sm:hidden">God</span>
+              </Button>
+            )}
             {/* Settings Group - Organized with clear labels */}
             <div className="flex flex-wrap gap-2">
               <div className="relative group">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, UserPlus, Trash2, Edit2, Save, X, Crown, Shield, User, Eye, CreditCard, AlertCircle, Flag, Key, Copy, Trash } from 'lucide-react';
 import { useTeam } from '../hooks/useTeam';
+import { useAuth } from '../hooks/useAuth';
 import { teamService } from '../lib/teams';
 import { billingService } from '../lib/billing';
 import { getPlan, countContributors, getContributorLimitMessage } from '../lib/plans';
@@ -20,6 +21,7 @@ import { TeamMember, APIKey } from '../types';
 
 export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { currentTeam, userRole, refreshTeam, canManageTeam } = useTeam();
+  const { user } = useAuth();
   const [teamName, setTeamName] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [members, setMembers] = useState<(TeamMember & { user?: any })[]>([]);
@@ -498,10 +500,10 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm font-medium text-gray-900">Contributors</p>
                       <p className="text-sm text-gray-600">
-                        {countContributors(members)} / {getPlan(currentTeam).maxContributors}
+                        {countContributors(members)} / {getPlan(currentTeam, user).maxContributors}
                       </p>
                     </div>
-                    {countContributors(members) >= getPlan(currentTeam).maxContributors && (
+                    {countContributors(members) >= getPlan(currentTeam, user).maxContributors && (
                       <p className="text-sm text-blue-800 mt-2">
                         {getContributorLimitMessage(currentTeam)}
                       </p>

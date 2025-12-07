@@ -91,7 +91,7 @@ function App() {
     );
   }
 
-  if (showAdmin && user?.role === 'admin') {
+  if (showAdmin && (user?.role === 'admin' || user?.role === 'god')) {
     return (
       <React.Suspense fallback={
         <div className="min-h-screen flex items-center justify-center bg-white">
@@ -152,9 +152,9 @@ function App() {
                     Team Settings
                   </Button>
                 )}
-                {user.role === 'admin' && (
+                {(user.role === 'admin' || user.role === 'god') && (
                   <Button onClick={() => setShowAdmin(true)} className="bg-gray-900 hover:bg-gray-800 text-white">
-                    Admin
+                    {user.role === 'god' ? 'God Admin' : 'Admin'}
                   </Button>
                 )}
                 <Button variant="outline" onClick={handleSignOut} className="border-gray-300 text-gray-700 hover:bg-gray-50">
@@ -175,10 +175,10 @@ function App() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-semibold text-gray-900 mb-3">
-            {user?.role === 'admin' ? 'Admin Dashboard' : 'Product Dashboard'}
+            {(user?.role === 'admin' || user?.role === 'god') ? 'Admin Dashboard' : 'Product Dashboard'}
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-sm">
-            {user?.role === 'admin' 
+            {(user?.role === 'admin' || user?.role === 'god') 
               ? 'Manage your product updates and track user engagement with your changelog posts.'
               : 'Stay updated with the latest product improvements, new features, and announcements.'
             }
@@ -186,7 +186,7 @@ function App() {
         </div>
 
         {/* Admin Quick Actions */}
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'god') && (
           <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
@@ -280,7 +280,7 @@ function App() {
                 Sign Up / Sign In
               </Button>
             </>
-          ) : user.role !== 'admin' ? (
+              ) : (user.role !== 'admin' && user.role !== 'god') ? (
             <>
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <User className="w-6 h-6 text-gray-600" />
@@ -308,7 +308,7 @@ function App() {
       </main>
 
       {/* Floating Action Button for Admins */}
-      {user?.role === 'admin' && !showAdmin && (
+      {(user?.role === 'admin' || user?.role === 'god') && !showAdmin && (
         <button
           onClick={() => setShowAdmin(true)}
           className="fixed bottom-6 right-6 bg-gray-900 text-white p-3 rounded-lg shadow-lg z-40 hover:bg-gray-800 transition-colors"

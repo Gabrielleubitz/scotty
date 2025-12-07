@@ -29,7 +29,7 @@ export interface User {
   displayName: string;
   avatarUrl?: string;
   avatar?: string; // Legacy field, use avatarUrl
-  role: 'admin' | 'user'; // Legacy role, use team memberships for actual permissions
+  role: 'god' | 'admin' | 'user'; // 'god' = super admin with access to all features and user management
   createdAt: Date;
   updatedAt: Date;
 }

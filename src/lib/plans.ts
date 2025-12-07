@@ -1,4 +1,4 @@
-import { Team, TeamMember } from '../types';
+import { Team, TeamMember, User } from '../types';
 
 /**
  * Plan configuration
@@ -33,8 +33,14 @@ export interface PlanConfig {
 /**
  * Get plan configuration for a team
  * Uses subscriptionPlan if available, otherwise falls back to plan field
+ * God users always get pro plan access
  */
-export function getPlan(team: Team): PlanConfig {
+export function getPlan(team: Team, user?: User | null): PlanConfig {
+  // God users always get pro plan access
+  if (user?.role === 'god') {
+    return PLAN_CONFIG.pro;
+  }
+  
   // Use subscriptionPlan if available, otherwise use plan field
   const planType = (team.subscriptionPlan || team.plan || 'basic') as PlanType;
   return PLAN_CONFIG[planType] || PLAN_CONFIG.basic;
