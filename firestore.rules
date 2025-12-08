@@ -231,9 +231,12 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && userId == getUserId();
     }
     
-    // Language settings collection (user-scoped)
+    // Language settings collection (user-scoped, but allow public read for 'default' document for widgets)
     match /language_settings/{userId} {
-      allow read, write: if isAuthenticated() && userId == getUserId();
+      // Allow public read for 'default' document (used by embedded widgets)
+      allow read: if userId == 'default' || (isAuthenticated() && userId == getUserId());
+      // Only authenticated users can write their own settings
+      allow write: if isAuthenticated() && userId == getUserId();
     }
     
     // User read states collection (public read/write for widget)
