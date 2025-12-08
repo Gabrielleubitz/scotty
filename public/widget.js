@@ -1122,9 +1122,23 @@
     try {
       const postsContainer = document.getElementById('productflow-posts');
       
-      // Get posts from Firestore with retry logic
+      // Get teamId from config
+      const teamId = config.teamId;
+      if (!teamId) {
+        console.error('Team ID not configured in widget');
+        postsContainer.innerHTML = `
+          <div class="productflow-empty">
+            <h3>Configuration Error</h3>
+            <p>Widget is not properly configured. Please regenerate the embed code.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Get posts from Firestore filtered by teamId with retry logic
       const posts = await retryOperation(async () => {
         const snapshot = await db.collection('changelog')
+          .where('teamId', '==', teamId)
           .where('status', '==', 'published')
           .orderBy('createdAt', 'desc')
           .get();

@@ -5,16 +5,7 @@ import { Input } from './ui/Input';
 import { Modal } from './ui/Modal';
 import ChangelogWidget from './ChangelogWidget';
 import { AIAgentConfig } from '../types';
-
-// Firebase configuration - matches the main app configuration
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyD7tlbe2_A9JCOAcpS7QNRkn9wcoLQ6bE4",
-  authDomain: "scotty-acfe5.firebaseapp.com",
-  projectId: "scotty-acfe5",
-  storageBucket: "scotty-acfe5.firebasestorage.app",
-  messagingSenderId: "1048370427467",
-  appId: "1:1048370427467:web:90127c22dbebc20eacffce"
-};
+import { useTeam } from '../hooks/useTeam';
 
 interface EmbedCodeGeneratorProps {
   isOpen: boolean;
@@ -23,7 +14,19 @@ interface EmbedCodeGeneratorProps {
 }
 
 export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, onClose, aiConfig }) => {
+  const { currentTeam } = useTeam();
   const [copied, setCopied] = useState(false);
+  
+  // Get Firebase config from environment variables (same as main app)
+  const FIREBASE_CONFIG = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCOQBT98TQumcTJnCcXSKE1B0sycQkpoo0",
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "scotty-dccad.firebaseapp.com",
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "scotty-dccad",
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "scotty-dccad.firebasestorage.app",
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "966416224400",
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:966416224400:web:d0476a8418665d42a0c815",
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-VBCDSSQXR2"
+  };
   const [widgetType, setWidgetType] = useState<'full' | 'notification' | 'gtm'>('full');
   const [widgetPosition, setWidgetPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
   const [buttonText, setButtonText] = useState("What's New");
@@ -107,7 +110,8 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
       '      enabled: ' + aiConfig.enabled + ',\n' +
       '      apiUrl: \'' + aiConfig.apiUrl + '\',\n' +
       '      trackingUrl: \'' + baseUrl + '\'\n' +
-      '    }\n' +
+      '    },\n' +
+      '    teamId: \'' + (currentTeam?.id || '') + '\'\n' +
       '  };\n' +
       '\n' +
       '  // Script loader with CSP and error handling\n' +
@@ -250,7 +254,8 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
       '      enabled: ' + aiConfig.enabled + ',\n' +
       '      apiUrl: \'' + aiConfig.apiUrl + '\',\n' +
       '      trackingUrl: API_URL\n' +
-      '    }\n' +
+      '    },\n' +
+      '    teamId: \'' + (currentTeam?.id || '') + '\'\n' +
       '  };\n' +
       '\n' +
       '  // Notification Badge Configuration\n' +
