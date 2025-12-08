@@ -3,6 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { useTeam } from './hooks/useTeam';
 import { HomePage } from './pages/HomePage';
+import { PricingPage } from './pages/PricingPage';
+import { DocsPage } from './pages/DocsPage';
+import { SupportPage } from './pages/SupportPage';
+import { StatusPage } from './pages/StatusPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 import { AdminLayout } from './components/AdminLayout';
 import { AdminDashboard } from './components/AdminDashboard';
 import { CreatePostPage } from './pages/CreatePostPage';
@@ -31,6 +36,11 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/docs" element={<DocsPage />} />
+        <Route path="/support" element={<SupportPage />} />
+        <Route path="/status" element={<StatusPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
 
         {/* Protected admin routes with nested layout */}
         <Route

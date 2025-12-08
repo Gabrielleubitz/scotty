@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Zap, BookOpen, Bot, BarChart3, Settings } from 'lucide-react';
+import { BookOpen, Bot, BarChart3, Settings } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Logo } from '../Logo';
 
 interface NavItem {
   label: string;
@@ -37,7 +38,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
     <div className={cn('flex flex-col h-full bg-bg-surface border-r border-border', className)}>
       {/* Logo */}
       <div className="flex items-center space-x-2 px-6 py-6 border-b border-border">
-        <Zap size={24} className="text-accent" />
+        <Logo size={24} />
         <span className="text-h3 text-text-primary font-semibold">Scotty</span>
       </div>
 

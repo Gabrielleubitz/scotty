@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, User, Settings, BookOpen, Bot, BarChart3, ArrowRight, Check, FileText, Sparkles, Users, MessageSquare, ChevronRight } from 'lucide-react';
+import { Logo } from '../components/Logo';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
@@ -152,15 +153,15 @@ export const HomePage: React.FC = () => {
       {/* Global Navigation */}
       <header className="sticky top-0 z-50 bg-bg-surface/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Zap size={24} className="text-accent" />
+          <button onClick={() => navigate('/')} className="flex items-center space-x-2">
+            <Logo size={24} />
             <span className="text-h3 text-text-primary font-semibold">Scotty</span>
-          </div>
+          </button>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <a href="#product" className="text-body text-text-muted hover:text-text-primary transition-colors">Product</a>
-            <a href="#use-cases" className="text-body text-text-muted hover:text-text-primary transition-colors">Use cases</a>
-            <a href="#pricing" className="text-body text-text-muted hover:text-text-primary transition-colors">Pricing</a>
+            <button onClick={() => navigate('/#product')} className="text-body text-text-muted hover:text-text-primary transition-colors">Product</button>
+            <button onClick={() => navigate('/#use-cases')} className="text-body text-text-muted hover:text-text-primary transition-colors">Use cases</button>
+            <button onClick={() => navigate('/pricing')} className="text-body text-text-muted hover:text-text-primary transition-colors">Pricing</button>
           </nav>
           
           <div className="flex items-center space-x-3">
@@ -207,10 +208,10 @@ export const HomePage: React.FC = () => {
           <div className="relative">
             <Card className="p-0 overflow-hidden">
               <div className="bg-bg-surfaceAlt border-b border-border px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Zap size={20} className="text-accent" />
-                  <span className="text-body text-text-primary font-semibold">Scotty</span>
-                </div>
+              <div className="flex items-center space-x-2">
+                <Logo size={20} />
+                <span className="text-body text-text-primary font-semibold">Scotty</span>
+              </div>
                 <div className="flex items-center space-x-4">
                   <span className="text-caption text-text-muted">Changelog</span>
                   <span className="text-caption text-text-muted">AI assistant</span>
@@ -463,7 +464,7 @@ export const HomePage: React.FC = () => {
               <Button size="lg" onClick={() => setIsAuthModalOpen(true)}>
                 Start for free
               </Button>
-              <Button variant="secondary" size="lg">
+              <Button variant="secondary" size="lg" onClick={() => navigate('/support')}>
                 Talk to us
               </Button>
             </div>
@@ -477,16 +478,16 @@ export const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-3">
-                <Zap size={20} className="text-accent" />
+                <Logo size={20} />
                 <span className="text-h3 text-text-primary font-semibold">Scotty</span>
               </div>
               <p className="text-body text-text-muted">Product changelog and AI assistant.</p>
             </div>
             <div className="flex flex-wrap gap-6">
-              <a href="#" className="text-body text-text-muted hover:text-text-primary transition-colors">Docs</a>
-              <a href="#" className="text-body text-text-muted hover:text-text-primary transition-colors">Support</a>
-              <a href="#" className="text-body text-text-muted hover:text-text-primary transition-colors">Status</a>
-              <a href="#" className="text-body text-text-muted hover:text-text-primary transition-colors">Privacy</a>
+              <button onClick={() => navigate('/docs')} className="text-body text-text-muted hover:text-text-primary transition-colors">Docs</button>
+              <button onClick={() => navigate('/support')} className="text-body text-text-muted hover:text-text-primary transition-colors">Support</button>
+              <button onClick={() => navigate('/status')} className="text-body text-text-muted hover:text-text-primary transition-colors">Status</button>
+              <button onClick={() => navigate('/privacy')} className="text-body text-text-muted hover:text-text-primary transition-colors">Privacy</button>
             </div>
           </div>
         </div>
