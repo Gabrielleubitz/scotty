@@ -15,6 +15,9 @@ import { AuthModal } from '../components/AuthModal';
 import { ChangelogPost } from '../types';
 import { formatRelativeTime } from '../lib/utils';
 import { AnimatedText } from '../components/AnimatedText';
+import { WebsiteWidgetDemo } from '../components/WebsiteWidgetDemo';
+import { InlineChangelogDemo } from '../components/InlineChangelogDemo';
+import { MultiLanguageDemo } from '../components/MultiLanguageDemo';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -226,56 +229,9 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
 
-          {/* Right Column - Preview Card */}
+          {/* Right Column - Website Widget Demo */}
           <div className="relative">
-            <Card className="p-0 overflow-hidden">
-              <div className="bg-bg-surfaceAlt border-b border-border px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Logo size={20} />
-                <span className="text-body text-text-primary font-semibold">Scotty</span>
-              </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-caption text-text-muted">Changelog</span>
-                  <span className="text-caption text-text-muted">AI assistant</span>
-                  <span className="text-caption text-text-muted">Insights</span>
-                </div>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                {/* Sample changelog items */}
-                <div className="space-y-3">
-                  {samplePosts.slice(0, 3).map((post, idx) => (
-                    <div key={idx} className="flex items-start space-x-3 p-3 rounded-input bg-bg-cardAlt border border-border">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <Tag size="sm" variant="accent">{post.category || 'Update'}</Tag>
-                          <span className="text-caption text-text-muted">{formatRelativeTime(post.createdAt)}</span>
-                        </div>
-                        <h4 className="text-body text-text-primary font-medium">{post.title}</h4>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Chat bubble preview */}
-                <div className="mt-6 space-y-2">
-                  <div className="flex justify-end">
-                    <div className="bg-accent/20 border border-accent/30 rounded-input px-4 py-2 max-w-[80%]">
-                      <p className="text-caption text-text-primary">Draft a release note for our new reporting page</p>
-                    </div>
-                  </div>
-                  <div className="flex justify-start">
-                    <div className="bg-bg-cardAlt border border-border rounded-input px-4 py-2 max-w-[80%]">
-                      <p className="text-caption text-text-muted">Here is a clear update with title, summary, and bullet points you can publish.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="px-6 py-3 bg-bg-surfaceAlt border-t border-border">
-                <p className="text-caption text-text-muted text-center">Example view. Your data stays in your workspace.</p>
-              </div>
-            </Card>
+            <WebsiteWidgetDemo />
           </div>
         </div>
       </section>
@@ -435,54 +391,11 @@ export const HomePage: React.FC = () => {
         </section>
       )}
 
-      {/* AI assistant section */}
+      {/* Demo widgets section */}
       <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <h2 className="text-h2 text-text-primary">AI that helps you write and organize updates</h2>
-            <p className="text-body text-text-muted">
-              Give Scotty a rough draft. Ask for a clear, customer-ready update. Tag it, schedule it, and publish from one place.
-            </p>
-            <ul className="space-y-3">
-              <li className="flex items-start space-x-3">
-                <Check size={20} className="text-status-success mt-0.5 flex-shrink-0" />
-                <span className="text-body text-text-muted">Turn raw notes into updates in a few prompts.</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check size={20} className="text-status-success mt-0.5 flex-shrink-0" />
-                <span className="text-body text-text-muted">Keep tone and structure consistent.</span>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check size={20} className="text-status-success mt-0.5 flex-shrink-0" />
-                <span className="text-body text-text-muted">Summarize long threads into one clear entry.</span>
-              </li>
-            </ul>
-          </div>
-          
-          <Card>
-            <div className="space-y-4 p-4">
-              <div className="flex justify-end">
-                <div className="bg-accent/20 border border-accent/30 rounded-input px-4 py-3 max-w-[85%]">
-                  <p className="text-body text-text-primary">Draft a release note for our new reporting page.</p>
-                </div>
-              </div>
-              <div className="flex justify-start">
-                <div className="bg-bg-cardAlt border border-border rounded-input px-4 py-3 max-w-[85%]">
-                  <p className="text-body text-text-muted">Here is a clear update with title, summary, and bullet points you can publish.</p>
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <div className="bg-accent/20 border border-accent/30 rounded-input px-4 py-3 max-w-[85%]">
-                  <p className="text-body text-text-primary">Make it more customer-friendly.</p>
-                </div>
-              </div>
-              <div className="flex justify-start">
-                <div className="bg-bg-cardAlt border border-border rounded-input px-4 py-3 max-w-[85%]">
-                  <p className="text-body text-text-muted">I've refined the language to be more accessible. Here's the updated version...</p>
-                </div>
-              </div>
-            </div>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <InlineChangelogDemo />
+          <MultiLanguageDemo />
         </div>
       </section>
 
