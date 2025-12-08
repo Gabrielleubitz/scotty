@@ -41,6 +41,22 @@
   };
 
   // Create dynamic styles with dark mode support
+  // Pre-compute dark mode values to avoid nested template literal issues
+  const borderColor = isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(15, 23, 42, 0.5)';
+  const tabBg = isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)';
+  const tabBorder = isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.1)';
+  const tabHover = isDarkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(241, 245, 249, 0.8)';
+  const postBg = isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(255, 255, 255, 0.8)';
+  const postBorder = isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.3)';
+  const postHover = isDarkMode ? 'rgba(55, 65, 81, 0.8)' : 'rgba(255, 255, 255, 0.95)';
+  const chatBg = isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)';
+  const chatBorder = isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.2)';
+  const inputBg = isDarkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.9)';
+  const inputBorder = isDarkMode ? 'rgba(148, 163, 184, 0.4)' : 'rgba(148, 163, 184, 0.4)';
+  const focusShadow = isDarkMode ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)';
+  const welcomeBg = isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)';
+  const welcomeBorder = isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.3)';
+  
   const createStyles = () => `
     :root {
       --pf-primary: ${config.primaryColor};
@@ -164,7 +180,7 @@
       background: var(--pf-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-left: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(15, 23, 42, 0.5)'};
+      border-left: 1px solid ${borderColor};
       border-radius: 20px 0 0 20px;
       box-shadow: -10px 0 40px rgba(0, 0, 0, 0.12);
       display: flex;
@@ -299,8 +315,8 @@
     
     .productflow-view-toggle {
       display: flex;
-      background: ${isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)'};
-      border-bottom: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.1)'};
+      background: ${tabBg};
+      border-bottom: 1px solid ${tabBorder};
       padding: 6px;
       margin: 0 20px;
       border-radius: 12px;
@@ -333,7 +349,7 @@
     }
     
     .productflow-view-button:hover:not(.active) {
-      background: ${isDarkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(241, 245, 249, 0.8)'};
+      background: ${tabHover};
       color: var(--pf-text);
     }
     
@@ -506,7 +522,7 @@
       align-items: center;
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.2)'};
+      border-top: 1px solid ${chatBorder};
       font-size: 11px;
       color: var(--pf-text-muted);
     }
@@ -566,12 +582,12 @@
     .productflow-chat-welcome-icon {
       width: 64px;
       height: 64px;
-      background: ${isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)'};
+      background: ${welcomeBg};
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.3)'};
+      border: 1px solid ${welcomeBorder};
     }
     
     .productflow-chat-welcome h3 {
@@ -663,8 +679,8 @@
     
     .productflow-chat-input {
       padding: 20px;
-      background: ${isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)'};
-      border-top: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.2)'};
+      background: ${chatBg};
+      border-top: 1px solid ${chatBorder};
       display: flex;
       gap: 8px;
       align-items: center;
@@ -674,11 +690,11 @@
     .productflow-chat-input input {
       flex: 1;
       padding: 12px 16px;
-      border: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.4)' : 'rgba(148, 163, 184, 0.4)'};
+      border: 1px solid ${inputBorder};
       border-radius: 12px;
       outline: none;
       font-size: 14px;
-      background: ${isDarkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.9)'};
+      background: ${inputBg};
       color: var(--pf-text);
       transition: all 0.2s ease;
     }
@@ -689,7 +705,7 @@
     
     .productflow-chat-input input:focus {
       border-color: var(--pf-primary);
-      box-shadow: 0 0 0 3px ${isDarkMode ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)'};
+      box-shadow: 0 0 0 3px ${focusShadow};
     }
     
     .productflow-chat-input button {
