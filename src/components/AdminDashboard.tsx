@@ -508,12 +508,12 @@ export const AdminDashboard: React.FC = () => {
         )}
 
         {/* AI Chat Analytics */}
-        <div className="mb-8">
+        <div className="mb-8" data-section="analytics">
           <AIChatAnalytics />
         </div>
 
         {/* Posts Table */}
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden" data-section="posts">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-gray-900">Published Updates</h2>

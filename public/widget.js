@@ -1101,6 +1101,23 @@
         } catch (error) {
           console.warn('Could not update last seen:', error);
         }
+      },
+      
+      trackChatMessage: async function(message, isUser) {
+        try {
+          await db.collection('widget_events').add({
+            eventType: 'chat_message',
+            userId: this.userId,
+            domain: this.domain,
+            timestamp: new Date().toISOString(),
+            sessionId: this.sessionId,
+            message: message.substring(0, 100), // Truncate for privacy
+            isUser: isUser,
+            productId: config.product_id
+          });
+        } catch (error) {
+          console.warn('Could not track chat message:', error);
+        }
       }
     };
     
@@ -1567,6 +1584,12 @@
     if (!message || isTyping) return;
     
     addMessage(message, true);
+    
+    // Track user message
+    if (window.productflowTracking && window.productflowTracking.trackChatMessage) {
+      window.productflowTracking.trackChatMessage(message, true);
+    }
+    
     chatInput.value = '';
     chatSend.disabled = true;
     
@@ -1622,8 +1645,15 @@
         
         if (response.ok) {
           const data = await response.json();
+          const aiResponse = data.message || 'I apologize, but I encountered an issue processing your request.';
           hideTyping();
-          addMessage(data.message || 'I apologize, but I encountered an issue processing your request.');
+          addMessage(aiResponse, false);
+          
+          // Track AI response
+          if (window.productflowTracking && window.productflowTracking.trackChatMessage) {
+            window.productflowTracking.trackChatMessage(aiResponse, false);
+          }
+          
           if (data.session_id) {
             sessionId = data.session_id;
           }
@@ -1639,7 +1669,12 @@
       const errorMessage = error instanceof Error && error.message === 'AI agent is not configured'
         ? "I'm sorry, the AI chat feature is not configured. Please contact the administrator to enable AI chat support."
         : "I'm sorry, I'm having trouble responding right now. Please check the AI Agent settings or try again later.";
-      addMessage(errorMessage);
+      addMessage(errorMessage, false);
+      
+      // Track error message as AI response
+      if (window.productflowTracking && window.productflowTracking.trackChatMessage) {
+        window.productflowTracking.trackChatMessage(errorMessage, false);
+      }
     } finally {
       chatSend.disabled = false;
     }

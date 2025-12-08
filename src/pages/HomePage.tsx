@@ -138,14 +138,32 @@ export const HomePage: React.FC = () => {
                 <p className="text-sm text-gray-600">Add new product updates</p>
               </button>
               <button
-                onClick={() => navigate('/admin')}
+                onClick={() => {
+                  navigate('/admin');
+                  // Scroll to analytics section after navigation
+                  setTimeout(() => {
+                    const analyticsSection = document.querySelector('[data-section="analytics"]');
+                    if (analyticsSection) {
+                      analyticsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                }}
                 className="text-left p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 cursor-pointer"
               >
                 <h4 className="font-medium text-gray-900 mb-1">Track Engagement</h4>
                 <p className="text-sm text-gray-600">View analytics & metrics</p>
               </button>
               <button
-                onClick={() => navigate('/admin')}
+                onClick={() => {
+                  navigate('/admin');
+                  // Scroll to posts table after navigation
+                  setTimeout(() => {
+                    const postsSection = document.querySelector('[data-section="posts"]');
+                    if (postsSection) {
+                      postsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                }}
                 className="text-left p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 cursor-pointer"
               >
                 <h4 className="font-medium text-gray-900 mb-1">Manage Posts</h4>
