@@ -1623,18 +1623,7 @@
     if (!document.getElementById('productflow-fade-animation')) {
       const style = document.createElement('style');
       style.id = 'productflow-fade-animation';
-      style.textContent = \`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      \`;
+      style.textContent = '@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }';
       document.head.appendChild(style);
     }
     
