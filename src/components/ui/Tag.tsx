@@ -24,7 +24,7 @@ export const Tag: React.FC<TagProps> = ({
   };
 
   const sizes = {
-    sm: 'px-2.5 py-1 text-caption',
+    sm: 'px-2 py-0.5 text-caption',
     md: 'px-3 py-1.5 text-body',
   };
 

@@ -19,15 +19,17 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ className }) => {
 
   const navItems: NavItem[] = [
     { label: 'Changelog', icon: <BookOpen size={20} />, path: '/admin' },
-    { label: 'AI Assistant', icon: <Bot size={20} />, path: '/admin' }, // TODO: Add AI assistant route
-    { label: 'Insights', icon: <BarChart3 size={20} />, path: '/admin' }, // TODO: Add insights route
+    { label: 'AI Assistant', icon: <Bot size={20} />, path: '/admin/ai' },
+    { label: 'Insights', icon: <BarChart3 size={20} />, path: '/admin/insights' },
     { label: 'Settings', icon: <Settings size={20} />, path: '/settings' },
   ];
 
   const isActive = (path: string) => {
+    // Only highlight Changelog when on /admin (exact match, not sub-routes)
     if (path === '/admin') {
-      return location.pathname.startsWith('/admin') && !location.pathname.includes('/god');
+      return location.pathname === '/admin' || (location.pathname.startsWith('/admin') && !location.pathname.includes('/god') && !location.pathname.includes('/posts') && !location.pathname.includes('/ai') && !location.pathname.includes('/insights'));
     }
+    // For other paths, check exact match
     return location.pathname === path;
   };
 
