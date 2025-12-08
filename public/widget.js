@@ -790,6 +790,7 @@
   
   // Create widget button (only if showButton is not false)
   const showButton = config.showButton !== false; // Default to true if not specified
+  console.log('ProductFlow: showButton config =', config.showButton, 'will show button:', showButton);
   let button = null;
   
   if (showButton) {
@@ -801,6 +802,9 @@
       </svg>
       ${config.buttonText}
     `;
+    console.log('ProductFlow: Button created with text:', config.buttonText);
+  } else {
+    console.log('ProductFlow: Button creation skipped (showButton is false)');
   }
   
   // Create overlay and container
@@ -900,9 +904,29 @@
   // Add elements to page
   if (button) {
     document.body.appendChild(button);
+    console.log('ProductFlow: Button appended to DOM');
+    // Verify button is visible
+    setTimeout(() => {
+      const btn = document.getElementById('productflow-widget-button');
+      if (btn) {
+        const styles = window.getComputedStyle(btn);
+        console.log('ProductFlow: Button visibility check:', {
+          display: styles.display,
+          visibility: styles.visibility,
+          opacity: styles.opacity,
+          zIndex: styles.zIndex,
+          position: styles.position
+        });
+      } else {
+        console.warn('ProductFlow: Button not found in DOM after append');
+      }
+    }, 100);
+  } else {
+    console.log('ProductFlow: No button to append (showButton is false)');
   }
   document.body.appendChild(overlay);
   document.body.appendChild(container);
+  console.log('ProductFlow: Widget container and overlay appended to DOM');
   
   // Widget state
   let isOpen = false;

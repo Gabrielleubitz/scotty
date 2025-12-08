@@ -132,8 +132,12 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
       '    document.head.appendChild(script);\n' +
       '  }\n' +
       '\n' +
-      '  // Load the widget script\n' +
-      '  loadScript(\'' + baseUrl + '/widget.js\');\n' +
+      '  // Load the widget script with cache busting\n' +
+      '  loadScript(\'' + baseUrl + '/widget.js?v=' + Date.now() + '\');\n' +
+      '  \n' +
+      '  // Debug logging (remove in production if desired)\n' +
+      '  console.log(\'ProductFlow: Widget config loaded\', window.productflow_config);\n' +
+      '  console.log(\'ProductFlow: Loading widget script from\', \'' + baseUrl + '/widget.js\');\n' +
       '})();\n' +
       '</script>';
   };
