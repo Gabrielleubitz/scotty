@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, BarChart3, Users, Eye, BookOpen, Code, Globe, Bot, Languages, TrendingUp, Tag, Lock, Settings, HelpCircle, Layout, Bell, Crown } from 'lucide-react';
+import { Plus, Edit2, Trash2, BarChart3, Users, Eye, BookOpen, Code, Globe, Bot, Languages, TrendingUp, Tag as TagIcon, Lock, Settings, HelpCircle, Layout, Bell, Crown } from 'lucide-react';
 import { ChangelogPost, Analytics, AIAgentConfig, LanguageSettings, Segment } from '../types';
 import { apiService } from '../lib/api';
 import { useTeam } from '../hooks/useTeam';
@@ -11,6 +11,7 @@ import { billingService } from '../lib/billing';
 import { GodAdminPanel } from './GodAdminPanel';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+import { Tag } from './ui/Tag';
 import { EmbedCodeGenerator } from './EmbedCodeGenerator';
 import { PreviewChangelogWidget } from './PreviewChangelogWidget';
 import { AIAgentSettings } from './AIAgentSettings';
@@ -241,7 +242,7 @@ export const AdminDashboard: React.FC = () => {
                 onClick={() => setIsSegmentManagerOpen(true)}
                 title="Manage user segments and targeting"
               >
-                <Tag size={16} className="mr-2" />
+                <TagIcon size={16} className="mr-2" />
                 <span className="hidden sm:inline">Segments</span>
                 <span className="sm:hidden">Tags</span>
               </Button>
