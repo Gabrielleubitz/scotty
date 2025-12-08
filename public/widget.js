@@ -788,15 +788,20 @@
 
   updateTheme();
   
-  // Create widget button
-  const button = document.createElement('button');
-  button.id = 'productflow-widget-button';
-  button.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-    </svg>
-    ${config.buttonText}
-  `;
+  // Create widget button (only if showButton is not false)
+  const showButton = config.showButton !== false; // Default to true if not specified
+  let button = null;
+  
+  if (showButton) {
+    button = document.createElement('button');
+    button.id = 'productflow-widget-button';
+    button.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+      ${config.buttonText}
+    `;
+  }
   
   // Create overlay and container
   const overlay = document.createElement('div');
@@ -893,7 +898,9 @@
   `;
   
   // Add elements to page
-  document.body.appendChild(button);
+  if (button) {
+    document.body.appendChild(button);
+  }
   document.body.appendChild(overlay);
   document.body.appendChild(container);
   
@@ -908,7 +915,9 @@
   let widgetOpenTime = null;
   
   // Event listeners
-  button.addEventListener('click', openWidget);
+  if (button) {
+    button.addEventListener('click', openWidget);
+  }
   // overlay.addEventListener('click', closeWidget); // Removed to allow page interaction
   container.querySelector('.productflow-close').addEventListener('click', closeWidget);
   
@@ -953,7 +962,9 @@
     }, 50);
     
     // Remove notification indicator
-    button.classList.remove('has-updates');
+    if (button) {
+      button.classList.remove('has-updates');
+    }
     
     // Load posts when widget opens
     if (posts.length === 0) {
@@ -1255,7 +1266,7 @@
       displayPosts(localizedPosts);
       
       // Show notification if there are new posts
-      if (localizedPosts.length > 0) {
+      if (localizedPosts.length > 0 && button) {
         button.classList.add('has-updates');
       }
       
