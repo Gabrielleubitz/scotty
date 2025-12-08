@@ -590,7 +590,7 @@ export const apiService = {
         return configDoc.data() as AIAgentConfig;
       }
       
-      return { apiToken: '', apiUrl: 'https://aiagent.net2phone.com', enabled: false };
+      return { apiToken: '', apiUrl: 'https://api.openai.com/v1', enabled: false };
     } catch (error) {
       console.error('Failed to get AI config:', error);
       
@@ -601,7 +601,7 @@ export const apiService = {
       }
       
       // For other errors, still return default config to prevent app crashes
-      return { apiToken: '', apiUrl: 'https://aiagent.net2phone.com', enabled: false };
+      return { apiToken: '', apiUrl: 'https://api.openai.com/v1', enabled: false };
     }
   },
 

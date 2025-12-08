@@ -50,11 +50,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Get the API URL from headers (sent by frontend)
-    const apiBaseUrl = req.headers['x-api-url'] as string || '';
+    const apiBaseUrl = req.headers['x-api-url'] as string || 'https://api.openai.com/v1';
     
-    // Smart URL handling - remove /api if it exists, then add /api/chat
-    const cleanBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '');
-    const apiUrl = `${cleanBaseUrl}/api/chat`;
+    // For OpenAI API, use /chat/completions endpoint
+    // For custom APIs, use /api/chat
+    let apiUrl: string;
+    if (apiBaseUrl.includes('openai.com')) {
+      apiUrl = `${apiBaseUrl.replace(/\/$/, '')}/chat/completions`;
+    } else {
+      // Smart URL handling for custom APIs - remove /api if it exists, then add /api/chat
+      const cleanBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '');
+      apiUrl = `${cleanBaseUrl}/api/chat`;
+    }
     
     console.log('AI Proxy - Making request to:', apiUrl);
     
