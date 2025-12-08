@@ -1560,12 +1560,11 @@
       // Check if AI agent is configured
       const aiConfig = config.aiAgent || { enabled: false };
       
-      if (aiConfig.enabled && aiConfig.apiToken) {
-        // Use AI agent
+      if (aiConfig.enabled && aiConfig.apiUrl) {
+        // Use AI agent via proxy (no token needed - handled server-side)
         const response = await fetch(`${config.apiUrl}/api/ai-proxy`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${aiConfig.apiToken}`,
             'Content-Type': 'application/json',
             'X-API-URL': aiConfig.apiUrl,
           },
