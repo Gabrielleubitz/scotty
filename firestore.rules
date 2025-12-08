@@ -143,8 +143,8 @@ service cloud.firestore {
                        // Public view count increment: only allow updating views field on published posts
                        (resource.data.status == 'published' && 
                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']) &&
-                        request.resource.data.views is int &&
-                        request.resource.data.views >= resource.data.views);
+                        request.resource.data.views is number &&
+                        request.resource.data.views >= (resource.data.views is number ? resource.data.views : 0));
       
       // Allow delete if user is owner of the team
       allow delete: if isAuthenticated() && 
