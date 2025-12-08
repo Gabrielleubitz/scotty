@@ -44,22 +44,31 @@ export const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!currentTeam) return;
-    
-    loadData();
-    loadAIConfig();
-    loadLanguageSettings();
-    loadSegments(); // Load segments on component mount
+    // Always load feature overrides (handles god users without team)
     loadFeatureOverrides();
     
-    // Refresh data every 10 seconds to show updated view counts
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing admin dashboard data...');
-      loadData();
-    }, 10000);
+    // For god users without a team, they can still use the dashboard
+    // but won't have team-specific data
+    if (!currentTeam && user?.role !== 'god') {
+      return;
+    }
     
-    return () => clearInterval(interval);
-  }, [currentTeam]);
+    // Load team-specific data if team exists
+    if (currentTeam) {
+      loadData();
+      loadAIConfig();
+      loadLanguageSettings();
+      loadSegments(); // Load segments on component mount
+      
+      // Refresh data every 10 seconds to show updated view counts
+      const interval = setInterval(() => {
+        console.log('🔄 Auto-refreshing admin dashboard data...');
+        loadData();
+      }, 10000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [currentTeam, user]);
 
   const loadFeatureOverrides = async () => {
     // For god users, always enable analytics (they have all features)
