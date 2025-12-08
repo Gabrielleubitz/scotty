@@ -127,12 +127,14 @@ export default function ChangelogWidget() {
             <h2 className="font-bold text-xl mb-2">{selectedPost.title}</h2>
             <PostMeta post={selectedPost} />
             <PostTags tags={selectedPost.tags} />
-            <div
-              className="prose max-w-none dark:prose-invert text-sm"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(renderChatMarkdown(selectedPost.content)),
-              }}
-            />
+            {selectedPost.content && selectedPost.content.trim() && (
+              <div
+                className="prose max-w-none dark:prose-invert text-sm mt-4"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(renderChatMarkdown(selectedPost.content)),
+                }}
+              />
+            )}
             
             {selectedPost.imageUrl && (
               <div className="mt-6">

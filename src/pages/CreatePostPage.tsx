@@ -28,6 +28,7 @@ export const CreatePostPage: React.FC = () => {
     imageUrl: '',
     category: 'NOTIFICATION',
     segmentId: null as string | null,
+    status: 'published' as 'draft' | 'published' | 'scheduled',
     enableComments: false,
     enableReactions: false,
     openLinksInNewTab: true,

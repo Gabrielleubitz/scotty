@@ -30,6 +30,7 @@ export const EditPostPage: React.FC = () => {
     imageUrl: '',
     category: 'NOTIFICATION',
     segmentId: null as string | null,
+    status: 'published' as 'draft' | 'published' | 'scheduled',
     enableComments: false,
     enableReactions: false,
     openLinksInNewTab: true,
@@ -220,6 +221,25 @@ export const EditPostPage: React.FC = () => {
               placeholder="Optional video URL"
               className="block w-full"
             />
+          </div>
+
+          <div>
+            <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+            <select
+              id="status"
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' | 'scheduled' })}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md"
+            >
+              <option value="published">✅ Published (Visible to users)</option>
+              <option value="draft">📝 Draft (Hidden from users)</option>
+              <option value="scheduled">⏰ Scheduled</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              {formData.status === 'published' && 'Post will be visible to users immediately'}
+              {formData.status === 'draft' && 'Post will be hidden until you publish it'}
+              {formData.status === 'scheduled' && 'Post will be published at the scheduled time'}
+            </p>
           </div>
 
           <div>

@@ -124,8 +124,9 @@ service cloud.firestore {
     
     // Changelog posts collection
     match /changelog/{postId} {
-      // Allow authenticated users to read posts (app filters by teamId)
-      allow read: if isAuthenticated();
+      // Allow public read for published posts (for embedded widgets)
+      // Allow authenticated users to read all posts (app filters by teamId)
+      allow read: if resource.data.status == 'published' || isAuthenticated();
       
       // Allow authenticated users to create posts (app verifies team membership)
       allow create: if isAuthenticated() && 
@@ -144,8 +145,8 @@ service cloud.firestore {
     
     // Segments collection
     match /segments/{segmentId} {
-      // Allow authenticated users to read segments (app filters by teamId)
-      allow read: if isAuthenticated();
+      // Allow public read for segments (needed for widget domain filtering)
+      allow read: if true;
       
       // Allow authenticated users to create segments (app verifies team membership)
       allow create: if isAuthenticated() && 
@@ -210,22 +211,19 @@ service cloud.firestore {
                        get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
     }
     
-    // Visitors collection (public read, authenticated write)
+    // Visitors collection (public read/write for widget tracking)
     match /visitors/{visitorId} {
-      allow read: if true; // Public read for analytics
-      allow write: if isAuthenticated(); // Only authenticated users can write
+      allow read, write: if true; // Public for widget functionality
     }
     
-    // Post views collection (public read, authenticated write)
+    // Post views collection (public read/write for widget tracking)
     match /post_views/{viewId} {
-      allow read: if true; // Public read for analytics
-      allow write: if isAuthenticated(); // Only authenticated users can write
+      allow read, write: if true; // Public for widget functionality
     }
     
-    // Widget events collection (public read, authenticated write)
+    // Widget events collection (public read/write for widget tracking)
     match /widget_events/{eventId} {
-      allow read: if true; // Public read for analytics
-      allow write: if isAuthenticated(); // Only authenticated users can write
+      allow read, write: if true; // Public for widget functionality
     }
     
     // AI config collection (user-scoped)
