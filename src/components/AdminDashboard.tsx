@@ -381,8 +381,8 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Visitor Analytics - Show upgrade prompt if feature not enabled */}
-        {!hasAdminAnalytics && (
+        {/* Visitor Analytics - Show upgrade prompt if feature not enabled (but not for god users) */}
+        {!hasAdminAnalytics && user?.role !== 'god' && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
             <div className="flex items-start space-x-3">
               <Lock size={20} className="text-yellow-600 mt-0.5" />
