@@ -10,6 +10,7 @@ import { featureOverrideService } from '../lib/feature-overrides';
 import { billingService } from '../lib/billing';
 import { GodAdminPanel } from './GodAdminPanel';
 import { Button } from './ui/Button';
+import { Card } from './ui/Card';
 import { EmbedCodeGenerator } from './EmbedCodeGenerator';
 import { PreviewChangelogWidget } from './PreviewChangelogWidget';
 import { AIAgentSettings } from './AIAgentSettings';
