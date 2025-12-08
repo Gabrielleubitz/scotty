@@ -388,8 +388,8 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
         {/* Widget Configuration */}
         <div className="space-y-6">
           {/* Product ID */}
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <label className="flex items-center text-sm font-semibold text-gray-900 mb-2">
+          <div className="bg-bg-cardAlt rounded-card p-4 border border-border">
+            <label className="flex items-center text-body font-semibold text-text-primary mb-2">
               <Tag size={16} className="mr-2 text-gray-600" />
               Product ID
               <div className="ml-2 relative group">
@@ -417,7 +417,7 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
           {/* Widget Type Selection */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-semibold text-gray-900">
+              <label className="block text-body font-semibold text-text-primary">
                 Choose Widget Type
             </label>
               <div className="flex items-center text-xs text-gray-500">
@@ -430,23 +430,23 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                 onClick={() => setWidgetType('full')}
                 className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   widgetType === 'full'
-                    ? 'border-gray-900 bg-gray-50 shadow-md'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                    ? 'border-accent bg-accent/10 shadow-md'
+                    : 'border-border hover:border-accent/50 bg-bg-card'
                 }`}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className={`p-2.5 rounded-lg ${widgetType === 'full' ? 'bg-gray-900' : 'bg-gray-100'}`}>
-                    <Layout size={20} className={widgetType === 'full' ? 'text-white' : 'text-gray-700'} />
+                  <div className={`p-2.5 rounded-card ${widgetType === 'full' ? 'bg-accent' : 'bg-bg-cardAlt'}`}>
+                    <Layout size={20} className={widgetType === 'full' ? 'text-text-primary' : 'text-text-muted'} />
                   </div>
                   {widgetType === 'full' && (
-                    <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center">
-                      <Check size={14} className="text-white" />
+                    <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                      <Check size={14} className="text-text-primary" />
                     </div>
                   )}
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1.5">Full Widget</h4>
-                <p className="text-sm text-gray-600 mb-2">Complete changelog widget with all features</p>
-                <ul className="text-xs text-gray-500 space-y-1">
+                <h4 className="font-semibold text-text-primary mb-1.5">Full Widget</h4>
+                <p className="text-body text-text-muted mb-2">Complete changelog widget with all features</p>
+                <ul className="text-caption text-text-muted space-y-1">
                   <li className="flex items-center">
                     <Zap size={12} className="mr-1.5 text-gray-400" />
                     Floating button + popup
@@ -466,23 +466,23 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                 onClick={() => setWidgetType('notification')}
                 className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   widgetType === 'notification'
-                    ? 'border-gray-900 bg-gray-50 shadow-md'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                    ? 'border-accent bg-accent/10 shadow-md'
+                    : 'border-border hover:border-accent/50 bg-bg-card'
                 }`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className={`p-2.5 rounded-lg ${widgetType === 'notification' ? 'bg-gray-900' : 'bg-gray-100'}`}>
-                    <Bell size={20} className={widgetType === 'notification' ? 'text-white' : 'text-gray-700'} />
+                    <Bell size={20} className={widgetType === 'notification' ? 'text-text-primary' : 'text-text-muted'} />
                   </div>
                   {widgetType === 'notification' && (
-                    <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center">
-                      <Check size={14} className="text-white" />
+                    <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                      <Check size={14} className="text-text-primary" />
                     </div>
                   )}
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1.5">Notification Badge</h4>
-                <p className="text-sm text-gray-600 mb-2">Lightweight badge for existing UI elements</p>
-                <ul className="text-xs text-gray-500 space-y-1">
+                <h4 className="font-semibold text-text-primary mb-1.5">Notification Badge</h4>
+                <p className="text-body text-text-muted mb-2">Lightweight badge for existing UI elements</p>
+                <ul className="text-caption text-text-muted space-y-1">
                   <li className="flex items-center">
                     <Zap size={12} className="mr-1.5 text-gray-400" />
                     Attach to your icon
@@ -502,23 +502,23 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                 onClick={() => setWidgetType('gtm')}
                 className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   widgetType === 'gtm'
-                    ? 'border-gray-900 bg-gray-50 shadow-md'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                    ? 'border-accent bg-accent/10 shadow-md'
+                    : 'border-border hover:border-accent/50 bg-bg-card'
                 }`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className={`p-2.5 rounded-lg ${widgetType === 'gtm' ? 'bg-gray-900' : 'bg-gray-100'}`}>
-                    <Package size={20} className={widgetType === 'gtm' ? 'text-white' : 'text-gray-700'} />
+                    <Package size={20} className={widgetType === 'gtm' ? 'text-text-primary' : 'text-text-muted'} />
                   </div>
                   {widgetType === 'gtm' && (
-                    <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center">
-                      <Check size={14} className="text-white" />
+                    <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                      <Check size={14} className="text-text-primary" />
                     </div>
                   )}
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1.5">Google Tag Manager</h4>
-                <p className="text-sm text-gray-600 mb-2">Complete integration for GTM users</p>
-                <ul className="text-xs text-gray-500 space-y-1">
+                <h4 className="font-semibold text-text-primary mb-1.5">Google Tag Manager</h4>
+                <p className="text-body text-text-muted mb-2">Complete integration for GTM users</p>
+                <ul className="text-caption text-text-muted space-y-1">
                   <li className="flex items-center">
                     <Zap size={12} className="mr-1.5 text-gray-400" />
                     GTM optimized

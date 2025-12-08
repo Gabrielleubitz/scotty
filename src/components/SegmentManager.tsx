@@ -110,12 +110,12 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
       <Modal isOpen={isOpen} onClose={onClose} title="Manage Segments" size="lg">
         <div className="space-y-6">
           {/* Header */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-accent/10 border border-accent/30 rounded-card p-4">
             <div className="flex items-start space-x-3">
-              <Tag className="h-5 w-5 text-blue-600 mt-0.5" />
+              <Tag className="h-5 w-5 text-accent mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-blue-900 mb-1">Domain Segmentation</h3>
-                <p className="text-sm text-blue-800">
+                <h3 className="text-body font-medium text-text-primary mb-1">Domain Segmentation</h3>
+                <p className="text-body text-text-muted">
                   Create segments to control which posts appear on specific domains. 
                   Posts without segments will appear on all domains.
                 </p>
@@ -125,7 +125,7 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
 
           {/* Create Button */}
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-h3 font-semibold text-text-primary">
               Segments ({segments.length})
             </h3>
             <Button onClick={handleCreateSegment}>
@@ -137,13 +137,13 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
           {/* Segments List */}
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
             </div>
           ) : segments.length === 0 ? (
             <div className="text-center py-8">
-              <Globe size={48} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No segments yet</h3>
-              <p className="text-gray-500 mb-4">
+              <Globe size={48} className="mx-auto text-text-muted mb-4" />
+              <h3 className="text-h3 font-medium text-text-primary mb-2">No segments yet</h3>
+              <p className="text-text-muted mb-4">
                 Create segments to control which posts appear on specific domains
               </p>
               <Button onClick={handleCreateSegment}>
@@ -154,33 +154,33 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
           ) : (
             <div className="space-y-4">
               {segments.map((segment) => (
-                <div key={segment.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                <div key={segment.id} className="bg-bg-card border border-border rounded-card p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <div className="bg-blue-100 rounded-lg p-2">
-                          <Globe size={16} className="text-blue-600" />
+                        <div className="bg-accent/20 rounded-card p-2">
+                          <Globe size={16} className="text-accent" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900">{segment.name}</h4>
-                          <p className="text-sm text-gray-600">{segment.domain}</p>
+                          <h4 className="font-medium text-text-primary">{segment.name}</h4>
+                          <p className="text-body text-text-muted">{segment.domain}</p>
                         </div>
                       </div>
                       {segment.description && (
-                        <p className="text-sm text-gray-500 ml-11">{segment.description}</p>
+                        <p className="text-body text-text-muted ml-11">{segment.description}</p>
                       )}
                     </div>
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleEditSegment(segment)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-accent hover:text-accent-hover"
                         title="Edit segment"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
                         onClick={() => handleDeleteSegment(segment.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-status-error hover:text-status-error/80"
                         title="Delete segment"
                       >
                         <Trash2 size={16} />
@@ -193,9 +193,9 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
           )}
 
           {/* Examples */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">Example Segments</h4>
-            <div className="space-y-2 text-sm text-gray-600">
+          <div className="bg-bg-cardAlt rounded-card p-4">
+            <h4 className="font-medium text-text-primary mb-2">Example Segments</h4>
+            <div className="space-y-2 text-body text-text-muted">
               <div className="flex justify-between">
                 <span>Production</span>
                 <span className="font-mono">app.example.com</span>
@@ -244,14 +244,14 @@ export const SegmentManager: React.FC<SegmentManagerProps> = ({
             rows={3}
           />
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-            <p className="text-sm text-yellow-800">
+          <div className="bg-status-warning/10 border border-status-warning/30 rounded-card p-3">
+            <p className="text-body text-status-warning">
               <strong>Note:</strong> Posts assigned to this segment will only appear on the specified domain. 
               Posts without segments will appear on all domains.
             </p>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-border">
             <Button 
               type="button" 
               variant="outline" 

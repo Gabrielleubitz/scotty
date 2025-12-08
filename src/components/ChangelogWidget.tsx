@@ -141,7 +141,7 @@ export default function ChangelogWidget() {
                 <img
                   src={selectedPost.imageUrl}
                   alt="Update image"
-                  className="w-full rounded-lg shadow-sm border border-gray-200"
+                  className="w-full rounded-card shadow-sm border border-border"
                   style={{ maxHeight: '300px', objectFit: 'cover' }}
                 />
               </div>
@@ -164,7 +164,7 @@ export default function ChangelogWidget() {
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                       title="YouTube video player"
-                      className="rounded-lg shadow-sm border border-gray-200"
+                      className="rounded-card shadow-sm border border-border"
                     />
                   </div>
                 ) : isVideoUrl(selectedPost.videoUrl) ? (

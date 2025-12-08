@@ -330,7 +330,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
         <div className="space-y-6">
           {/* Team Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-body font-medium text-text-muted mb-2">
               Team Name
             </label>
             {isEditingName && canManageTeam ? (
@@ -360,7 +360,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
               </div>
             ) : (
               <div className="flex items-center justify-between">
-                <span className="text-gray-900 font-medium">{currentTeam.name}</span>
+                <span className="text-text-primary font-medium">{currentTeam.name}</span>
                 {canManageTeam && (
                   <Button
                     onClick={() => setIsEditingName(true)}
@@ -381,7 +381,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
           {/* Members */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Members</h3>
+              <h3 className="text-h3 text-text-primary font-semibold">Members</h3>
               {canManageTeam && (
                 <Button
                   onClick={() => setIsInviteModalOpen(true)}
@@ -402,15 +402,15 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                 {members.map((member) => (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-bg-cardAlt border border-border rounded-card"
                   >
                     <div className="flex items-center space-x-3">
                       {getRoleIcon(member.role)}
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-text-primary">
                           {member.user?.name || member.user?.displayName || member.user?.email || 'Unknown User'}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-body text-text-muted">
                           {member.user?.email}
                         </div>
                       </div>
@@ -421,7 +421,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                           <select
                             value={member.role}
                             onChange={(e) => handleUpdateRole(member.id, e.target.value as TeamMember['role'])}
-                            className="text-sm border border-gray-300 rounded px-2 py-1"
+                            className="text-body bg-bg-card border border-border rounded-input px-2 py-1 text-text-primary"
                             disabled={loading}
                           >
                             <option value="admin">Admin</option>
@@ -450,10 +450,10 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
 
           {/* Billing Section */}
           {canManageTeam && (
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-border">
               <div className="flex items-center space-x-2 mb-4">
                 <CreditCard size={20} className="text-gray-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Billing</h3>
+                <h3 className="text-h3 text-text-primary font-semibold">Billing</h3>
               </div>
               
               {isStripeConfigured === false ? (
@@ -473,8 +473,8 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                   <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600">Current Plan</p>
-                        <p className="text-lg font-semibold text-gray-900 capitalize">
+                        <p className="text-body text-text-muted">Current Plan</p>
+                        <p className="text-h3 font-semibold text-text-primary capitalize">
                           {currentTeam.subscriptionPlan || currentTeam.plan}
                         </p>
                       </div>
@@ -498,7 +498,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
 
                   <div className="bg-blue-50 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium text-gray-900">Contributors</p>
+                        <p className="text-body font-medium text-text-primary">Contributors</p>
                       <p className="text-sm text-gray-600">
                         {countContributors(members)} / {getPlan(currentTeam, user).maxContributors}
                       </p>
@@ -540,11 +540,11 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
 
           {/* Feature Flags Section - Only visible to owner/admin and when env flag is set */}
           {canManageTeam && import.meta.env.VITE_ENABLE_FEATURE_FLAGS === 'true' && (
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-border">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Flag size={20} className="text-gray-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Feature Flags</h3>
+                  <h3 className="text-h3 text-text-primary font-semibold">Feature Flags</h3>
                 </div>
                 <Button
                   variant="outline"
@@ -572,7 +572,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="font-medium text-gray-900">
+                              <h4 className="font-medium text-text-primary">
                                 {getFeatureDisplayName(key)}
                               </h4>
                               {isInPlan && (
@@ -613,11 +613,11 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
 
           {/* API Keys Section */}
           {canManageTeam && (
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-border">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Key size={20} className="text-gray-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">API Keys</h3>
+                  <h3 className="text-h3 text-text-primary font-semibold">API Keys</h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -655,7 +655,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 mb-1">
-                                <h4 className="font-medium text-gray-900">{key.name}</h4>
+                                <h4 className="font-medium text-text-primary">{key.name}</h4>
                                 {key.lastUsedAt && (
                                   <span className="text-xs text-gray-500">
                                     Last used: {new Date(key.lastUsedAt).toLocaleDateString()}
@@ -687,8 +687,8 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
           {/* Team Info */}
           <div className="pt-4 border-t border-gray-200">
             <div className="text-sm text-gray-500">
-              <p>Plan: <span className="font-medium text-gray-700 capitalize">{currentTeam.subscriptionPlan || currentTeam.plan}</span></p>
-              <p className="mt-1">Your role: <span className="font-medium text-gray-700 capitalize">{userRole}</span></p>
+              <p className="text-body text-text-muted">Plan: <span className="font-medium text-text-primary capitalize">{currentTeam.subscriptionPlan || currentTeam.plan}</span></p>
+              <p className="mt-1 text-body text-text-muted">Your role: <span className="font-medium text-text-primary capitalize">{userRole}</span></p>
             </div>
           </div>
         </div>
@@ -714,8 +714,8 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                 <p className="text-xs text-green-700 mb-3">
                   Copy this key now. You won't be able to see it again.
                 </p>
-                <div className="bg-white rounded border border-green-300 p-3 flex items-center justify-between">
-                  <code className="text-sm font-mono text-gray-900 break-all flex-1 mr-2">{newKeyValue}</code>
+                <div className="bg-bg-cardAlt rounded-card border border-status-success/30 p-3 flex items-center justify-between">
+                  <code className="text-body font-mono text-text-primary break-all flex-1 mr-2">{newKeyValue}</code>
                   <button
                     onClick={() => handleCopyKey(newKeyValue)}
                     className="text-green-600 hover:text-green-800"
@@ -785,7 +785,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
             placeholder="user@example.com"
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-body font-medium text-text-muted mb-2">
               Role
             </label>
             <select
@@ -794,7 +794,7 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                 setInviteRole(e.target.value as TeamMember['role']);
                 setInviteError(null);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 bg-bg-card border border-border rounded-input text-text-primary"
             >
               <option value="admin">Admin</option>
               <option value="contributor">Contributor</option>

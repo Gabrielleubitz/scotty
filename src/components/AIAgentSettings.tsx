@@ -74,12 +74,12 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} title="AI Agent Settings" size="lg">
       <div className="space-y-6">
         {/* Header Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-accent/10 border border-accent/30 rounded-card p-4">
           <div className="flex items-start space-x-3">
-            <Bot className="h-5 w-5 text-blue-600 mt-0.5" />
+            <Bot className="h-5 w-5 text-accent mt-0.5" />
             <div>
-              <h3 className="text-sm font-medium text-blue-900 mb-1">AI Agent Integration</h3>
-              <p className="text-sm text-blue-800">
+              <h3 className="text-body font-medium text-text-primary mb-1">AI Agent Integration</h3>
+              <p className="text-body text-text-muted">
                 Connect your changelog widget to an AI agent for intelligent customer support. 
                 The AI will have access to your latest product updates for context-aware responses.
               </p>
@@ -88,10 +88,10 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
         </div>
 
         {/* Enable/Disable Toggle */}
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-bg-cardAlt rounded-card">
           <div>
-            <h4 className="font-medium text-gray-900">Enable AI Agent</h4>
-            <p className="text-sm text-gray-600">Use AI agent for chat responses instead of mock responses</p>
+            <h4 className="font-medium text-text-primary">Enable AI Agent</h4>
+            <p className="text-body text-text-muted">Use AI agent for chat responses instead of mock responses</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -123,10 +123,10 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
               placeholder="This will be stored securely on the server"
               disabled={!formData.enabled}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-caption text-text-muted mt-1">
               Enter the base URL without /api (e.g., https://api.example.com). The system will automatically add /api/chat to your URL.
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-caption text-text-muted mt-1">
               Get your API token from the Admin interface under "Manage Tokens". The token is stored securely as a server environment variable.
               {(testResult && !testResult.success) && (
                 <span className="block mt-2 text-xs">
@@ -134,8 +134,8 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
                 </span>
               )}
             </p>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
-              <p className="text-xs text-green-800">
+            <div className="bg-status-success/10 border border-status-success/30 rounded-card p-3 mt-2">
+              <p className="text-caption text-status-success">
                 <strong>🔒 Security:</strong> Your API token is stored securely on the server and never exposed to client-side code.
               </p>
             </div>
@@ -146,7 +146,7 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
         {formData.enabled && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-gray-900">Test Connection</h4>
+              <h4 className="font-medium text-text-primary">Test Connection</h4>
               <Button
                 variant="outline"
                 size="sm"
@@ -160,18 +160,18 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
             </div>
 
             {testResult && (
-              <div className={`p-3 rounded-lg flex items-start space-x-2 ${
+              <div className={`p-3 rounded-card flex items-start space-x-2 ${
                 testResult.success 
-                  ? 'bg-green-50 border border-green-200' 
-                  : 'bg-red-50 border border-red-200'
+                  ? 'bg-status-success/10 border border-status-success/30' 
+                  : 'bg-status-error/10 border border-status-error/30'
               }`}>
                 {testResult.success ? (
-                  <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                  <Check className="h-4 w-4 text-status-success mt-0.5" />
                 ) : (
-                  <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
+                  <AlertCircle className="h-4 w-4 text-status-error mt-0.5" />
                 )}
-                <p className={`text-sm ${
-                  testResult.success ? 'text-green-800' : 'text-red-800'
+                <p className={`text-body ${
+                  testResult.success ? 'text-status-success' : 'text-status-error'
                 }`}>
                   {testResult.message}
                 </p>
@@ -181,9 +181,9 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
         )}
 
         {/* Documentation Link */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-medium text-gray-900 mb-2">API Documentation</h4>
-          <p className="text-sm text-gray-600 mb-3">
+        <div className="bg-bg-cardAlt rounded-card p-4">
+          <h4 className="font-medium text-text-primary mb-2">API Documentation</h4>
+          <p className="text-body text-text-muted mb-3">
             The AI agent will receive context about your recent changelog posts and can provide 
             intelligent responses about your product updates.
           </p>
@@ -191,7 +191,7 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+            className="inline-flex items-center text-body text-accent hover:text-accent-hover"
           >
             View API Documentation
             <ExternalLink size={14} className="ml-1" />
@@ -199,9 +199,9 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
         </div>
 
         {/* Context Information */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h4 className="font-medium text-yellow-800 mb-2">Context Provided to AI</h4>
-          <ul className="text-sm text-yellow-700 space-y-1">
+        <div className="bg-status-warning/10 border border-status-warning/30 rounded-card p-4">
+          <h4 className="font-medium text-status-warning mb-2">Context Provided to AI</h4>
+          <ul className="text-body text-text-muted space-y-1">
             <li>• Recent changelog posts (titles and content)</li>
             <li>• User's domain and timestamp</li>
             <li>• Session management for conversation continuity</li>
@@ -210,7 +210,7 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <div className="flex justify-end space-x-3 pt-4 border-t border-border">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
