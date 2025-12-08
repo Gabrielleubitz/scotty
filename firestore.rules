@@ -242,6 +242,22 @@ service cloud.firestore {
     match /user_read_states/{stateId} {
       allow read, write: if true; // Public for widget functionality
     }
+    
+    // Product deployments collection (team-scoped)
+    match /product_deployments/{deploymentId} {
+      allow read: if isAuthenticated() && 
+                     resource.data.teamId != null &&
+                     exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                     get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+      allow create, update: if isAuthenticated() && 
+                               request.resource.data.teamId != null &&
+                               exists(/databases/$(database)/documents/teams/$(request.resource.data.teamId)) &&
+                               get(/databases/$(database)/documents/teams/$(request.resource.data.teamId)).data.ownerUserId == getUserId();
+      allow delete: if isAuthenticated() && 
+                       resource.data.teamId != null &&
+                       exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                       get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
+    }
   }
 }
 
