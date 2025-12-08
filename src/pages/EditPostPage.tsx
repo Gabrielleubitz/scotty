@@ -15,8 +15,8 @@ import { LanguageSettings, Segment, ChangelogPost } from '../types';
 export const EditPostPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { currentTeam } = useTeam();
-  const { user } = useAuth();
+  const { currentTeam, loading: teamLoading } = useTeam();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [post, setPost] = useState<ChangelogPost | null>(null);
@@ -41,15 +41,30 @@ export const EditPostPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!currentTeam || !id) {
+    // Wait for auth and team to finish loading before making redirect decisions
+    if (authLoading || teamLoading) {
+      return;
+    }
+
+    // For god users, allow editing even without a team (they can create a team or use default)
+    if (!id) {
       navigate('/admin');
       return;
     }
 
-    loadPost();
-    loadSegments();
-    loadLanguageSettings();
-  }, [currentTeam, id, navigate]);
+    // If no team and not a god user, redirect
+    if (!currentTeam && user?.role !== 'god') {
+      navigate('/admin');
+      return;
+    }
+
+    // Load data if we have a team or if user is god
+    if (currentTeam || user?.role === 'god') {
+      loadPost();
+      loadSegments();
+      loadLanguageSettings();
+    }
+  }, [currentTeam, id, navigate, user, authLoading, teamLoading]);
 
   const loadPost = async () => {
     if (!currentTeam?.id || !id) return;
