@@ -18,21 +18,21 @@ export const Textarea: React.FC<TextareaProps> = ({
   return (
     <div className="space-y-1">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700">
+        <label htmlFor={inputId} className="block text-caption font-medium text-text-muted">
           {label}
         </label>
       )}
       <textarea
         id={inputId}
         className={cn(
-          'w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed resize-vertical',
-          error && 'border-red-500 focus:ring-red-500 focus:border-red-500',
+          'w-full px-3 py-2.5 bg-bg-card border border-border rounded-input text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent disabled:bg-bg-card disabled:cursor-not-allowed resize-vertical transition-colors',
+          error && 'border-status-error focus:ring-status-error focus:border-status-error',
           className
         )}
         {...props}
       />
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-caption text-status-error">{error}</p>
       )}
     </div>
   );

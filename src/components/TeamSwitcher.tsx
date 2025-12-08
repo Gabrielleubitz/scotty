@@ -9,8 +9,8 @@ export const TeamSwitcher: React.FC = () => {
 
   if (loading || !currentTeam) {
     return (
-      <div className="flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
-        <div className="animate-pulse bg-gray-300 h-4 w-24 rounded"></div>
+      <div className="flex items-center space-x-2 px-3 py-2 bg-bg-card border border-border rounded-input">
+        <div className="animate-pulse bg-border h-4 w-24 rounded"></div>
       </div>
     );
   }
@@ -34,13 +34,13 @@ export const TeamSwitcher: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        className="flex items-center space-x-2 px-3 py-2 bg-bg-card border border-border rounded-input hover:border-accent/50 transition-colors"
       >
-        <Users size={16} className="text-gray-600" />
-        <span className="font-medium text-gray-900 max-w-[150px] truncate">
+        <Users size={16} className="text-accent" />
+        <span className="font-medium text-text-primary max-w-[150px] truncate text-body">
           {currentTeam.name}
         </span>
-        <ChevronDown size={16} className="text-gray-500" />
+        <ChevronDown size={16} className="text-text-muted" />
       </button>
 
       {isOpen && (
@@ -49,37 +49,37 @@ export const TeamSwitcher: React.FC = () => {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+          <div className="absolute top-full left-0 mt-2 w-64 bg-bg-card border border-border rounded-card shadow-lg z-20">
             <div className="p-2">
-              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+              <div className="px-3 py-2 text-caption font-semibold text-text-muted uppercase">
                 Teams
               </div>
               {userTeams.map((team) => (
                 <button
                   key={team.id}
                   onClick={() => handleTeamSelect(team.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-input transition-colors text-body ${
                     team.id === currentTeam.id
-                      ? 'bg-blue-50 text-blue-900 font-medium'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'bg-accent/10 text-accent font-medium'
+                      : 'text-text-primary hover:bg-[#111827]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="truncate">{team.name}</span>
                     {team.id === currentTeam.id && (
-                      <span className="text-blue-600 text-xs">Current</span>
+                      <span className="text-accent text-caption">Current</span>
                     )}
                   </div>
                 </button>
               ))}
-              <div className="mt-2 pt-2 border-t border-gray-200">
+              <div className="mt-2 pt-2 border-t border-border">
                 <button
                   onClick={() => {
                     setIsOpen(false);
                     // TODO: Open create team modal
                     alert('Create team feature coming soon');
                   }}
-                  className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md flex items-center space-x-2"
+                  className="w-full text-left px-3 py-2 text-text-muted hover:bg-[#111827] rounded-input flex items-center space-x-2 text-body"
                 >
                   <Plus size={16} />
                   <span>Create new team</span>

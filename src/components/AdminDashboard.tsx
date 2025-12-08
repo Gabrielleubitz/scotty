@@ -179,13 +179,13 @@ export const AdminDashboard: React.FC = () => {
   
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+    <div className="space-y-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+            <h1 className="text-h1 text-text-primary mb-2">
               Admin Dashboard
             </h1>
-            <p className="text-sm text-gray-600">
+            <p className="text-body text-text-muted">
               Manage your product updates and track engagement
             </p>
           </div>
@@ -195,7 +195,7 @@ export const AdminDashboard: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate('/admin/god')}
-                className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400"
+                className="border-accent/30 text-accent hover:bg-accent/10"
                 title="Access God Admin Panel to manage users and teams"
               >
                 <Crown size={16} className="mr-2" />
@@ -203,89 +203,53 @@ export const AdminDashboard: React.FC = () => {
                 <span className="sm:hidden">God</span>
               </Button>
             )}
-            {/* Settings Group - Organized with clear labels */}
+            {/* Settings Group */}
             <div className="flex flex-wrap gap-2">
-              <div className="relative group">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsEmbedModalOpen(true)} 
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
-                  title="Get the embed code to add the widget to your website"
-                >
-                  <Code size={16} className="mr-2" />
-                  <span className="hidden sm:inline">Widget Code</span>
-                  <span className="sm:hidden">Code</span>
-                </Button>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
-                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                    Get embed code for your website
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-              </div>
+              <Button 
+                variant="secondary" 
+                onClick={() => setIsEmbedModalOpen(true)} 
+                title="Get the embed code to add the widget to your website"
+              >
+                <Code size={16} className="mr-2" />
+                <span className="hidden sm:inline">Widget Code</span>
+                <span className="sm:hidden">Code</span>
+              </Button>
               
-              <div className="relative group">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsAISettingsOpen(true)}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
-                  title="Configure AI assistant for your widget"
-                >
-                  <Bot size={16} className="mr-2" />
-                  <span className="hidden sm:inline">AI Assistant</span>
-                  <span className="sm:hidden">AI</span>
-                </Button>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
-                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                    Configure AI chat assistant
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-              </div>
+              <Button 
+                variant="secondary" 
+                onClick={() => setIsAISettingsOpen(true)}
+                title="Configure AI assistant for your widget"
+              >
+                <Bot size={16} className="mr-2" />
+                <span className="hidden sm:inline">AI Assistant</span>
+                <span className="sm:hidden">AI</span>
+              </Button>
               
-              <div className="relative group">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsLanguageSettingsOpen(true)}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
-                  title="Set up multi-language support"
-                >
-                  <Languages size={16} className="mr-2" />
-                  <span className="hidden sm:inline">Languages</span>
-                  <span className="sm:hidden">Lang</span>
-                </Button>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
-                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                    Configure multi-language support
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-              </div>
+              <Button 
+                variant="secondary" 
+                onClick={() => setIsLanguageSettingsOpen(true)}
+                title="Set up multi-language support"
+              >
+                <Languages size={16} className="mr-2" />
+                <span className="hidden sm:inline">Languages</span>
+                <span className="sm:hidden">Lang</span>
+              </Button>
               
-              <div className="relative group">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsSegmentManagerOpen(true)}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
-                  title="Manage user segments and targeting"
-                >
-                  <Tag size={16} className="mr-2" />
-                  <span className="hidden sm:inline">Segments</span>
-                  <span className="sm:hidden">Tags</span>
-                </Button>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-50">
-                  <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                    Manage user segments & targeting
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-              </div>
+              <Button 
+                variant="secondary" 
+                onClick={() => setIsSegmentManagerOpen(true)}
+                title="Manage user segments and targeting"
+              >
+                <Tag size={16} className="mr-2" />
+                <span className="hidden sm:inline">Segments</span>
+                <span className="sm:hidden">Tags</span>
+              </Button>
             </div>
             
-            {/* Primary Action - More prominent */}
+            {/* Primary Action */}
             <Button 
-              onClick={handleCreatePost} 
-              className="bg-gray-900 hover:bg-gray-800 text-white shadow-md hover:shadow-lg transition-all"
+              onClick={handleCreatePost}
+              size="lg"
             >
               <Plus size={18} className="mr-2" />
               <span className="font-semibold">Create New Update</span>
@@ -294,86 +258,86 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Quick Stats Summary */}
-        <div className="bg-gray-900 rounded-lg p-6 text-white mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Content Overview</h2>
-            <div className="flex items-center space-x-2 px-3 py-1 bg-gray-800 rounded-md">
-              <Bot size={16} />
-              <span className="text-sm">
+        <Card className="border-accent/30 bg-gradient-to-br from-bg-card to-bg-cardAlt">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-h2 text-text-primary">Content Overview</h2>
+            <div className="flex items-center space-x-2 px-3 py-1.5 bg-bg-card border border-border rounded-pill">
+              <Bot size={16} className="text-accent" />
+              <span className="text-caption text-text-muted">
                 AI Agent: {aiConfig.enabled ? 'Enabled' : 'Disabled'}
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-gray-400 text-sm mb-1">Total Posts</p>
-              <p className="text-3xl font-semibold">{posts.length}</p>
+              <p className="text-caption text-text-muted mb-2">Total Posts</p>
+              <p className="text-h1 text-text-primary">{posts.length}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-sm mb-1">Total Views</p>
-              <p className="text-3xl font-semibold">{analytics?.totalViews.toLocaleString() || '0'}</p>
+              <p className="text-caption text-text-muted mb-2">Total Views</p>
+              <p className="text-h1 text-text-primary">{analytics?.totalViews.toLocaleString() || '0'}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-sm mb-1">Unique Users</p>
-              <p className="text-3xl font-semibold">{analytics?.uniqueUsers.toLocaleString() || '0'}</p>
+              <p className="text-caption text-text-muted mb-2">Unique Users</p>
+              <p className="text-h1 text-text-primary">{analytics?.uniqueUsers.toLocaleString() || '0'}</p>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Analytics Cards */}
         {analytics && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="hover:border-accent/30 transition-colors">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Eye className="h-5 w-5 text-gray-700" />
+                <div className="w-10 h-10 bg-accent/20 rounded-card flex items-center justify-center">
+                  <Eye className="h-5 w-5 text-accent" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-xs font-medium text-gray-500 mb-1">Total Views</h3>
-                  <p className="text-xl font-semibold text-gray-900">{analytics.totalViews.toLocaleString()}</p>
+                  <h3 className="text-caption text-text-muted mb-1">Total Views</h3>
+                  <p className="text-h3 text-text-primary font-semibold">{analytics.totalViews.toLocaleString()}</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+            </Card>
+            <Card className="hover:border-accent/30 transition-colors">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Users className="h-5 w-5 text-gray-700" />
+                <div className="w-10 h-10 bg-accent/20 rounded-card flex items-center justify-center">
+                  <Users className="h-5 w-5 text-accent" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-xs font-medium text-gray-500 mb-1">Unique Users</h3>
-                  <p className="text-xl font-semibold text-gray-900">{analytics.uniqueUsers.toLocaleString()}</p>
+                  <h3 className="text-caption text-text-muted mb-1">Unique Users</h3>
+                  <p className="text-h3 text-text-primary font-semibold">{analytics.uniqueUsers.toLocaleString()}</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+            </Card>
+            <Card className="hover:border-accent/30 transition-colors">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="h-5 w-5 text-gray-700" />
+                <div className="w-10 h-10 bg-accent/20 rounded-card flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-accent" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-xs font-medium text-gray-500 mb-1">Avg. Daily Views</h3>
-                  <p className="text-xl font-semibold text-gray-900">
-                    {Math.round(analytics.viewsOverTime.reduce((sum, day) => sum + day.views, 0) / analytics.viewsOverTime.length)}
+                  <h3 className="text-caption text-text-muted mb-1">Avg. Daily Views</h3>
+                  <p className="text-h3 text-text-primary font-semibold">
+                    {analytics.viewsOverTime.length > 0
+                      ? Math.round(analytics.viewsOverTime.reduce((sum, day) => sum + day.views, 0) / analytics.viewsOverTime.length).toLocaleString()
+                      : '0'
+                    }
                   </p>
                 </div>
               </div>
-            </div>
-            
-            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+            </Card>
+            <Card className="hover:border-accent/30 transition-colors">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Globe className="h-5 w-5 text-gray-700" />
+                <div className="w-10 h-10 bg-accent/20 rounded-card flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-accent" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-xs font-medium text-gray-500">Domains</h3>
-                  <p className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-caption text-text-muted">Domains</h3>
+                  <p className="text-h3 text-text-primary font-semibold">
                     {visitorAnalytics?.domainStats?.length || 0}
                   </p>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         )}
 
@@ -513,11 +477,11 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Posts Table */}
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden" data-section="posts">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <Card className="overflow-hidden p-0" data-section="posts">
+          <div className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900">Published Updates</h2>
-              <span className="text-sm text-gray-600">
+              <h2 className="text-h3 text-text-primary font-semibold">Published Updates</h2>
+              <span className="text-body text-text-muted">
                 {posts.length} {posts.length === 1 ? 'post' : 'posts'}
               </span>
             </div>
@@ -526,82 +490,82 @@ export const AdminDashboard: React.FC = () => {
           <div className="overflow-x-auto">
             {posts.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <BookOpen size={32} className="text-gray-400" />
+                <div className="w-16 h-16 bg-bg-cardAlt rounded-card flex items-center justify-center mx-auto mb-4">
+                  <BookOpen size={32} className="text-text-muted" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No updates yet</h3>
-                <p className="text-gray-600 mb-4 text-sm">Create your first product update to get started</p>
+                <h3 className="text-h3 text-text-primary mb-2">No updates yet</h3>
+                <p className="text-body text-text-muted mb-4">Create your first product update to get started</p>
                 <Button 
                   onClick={handleCreatePost}
-                  className="bg-gray-900 hover:bg-gray-800 text-white"
                 >
                   <Plus size={16} className="mr-2" />
                   Create First Update
                 </Button>
               </div>
             ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Views
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {posts.map((post) => (
-                  <tr key={post.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{post.title}</div>
-                      <div className="text-sm text-gray-500 mt-1">{post.content.replace(/<[^>]*>/g, '').substring(0, 60)}...</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(post.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        post.status === 'published' 
-                          ? 'bg-green-100 text-green-800' 
-                          : post.status === 'draft'
-                          ? 'bg-gray-100 text-gray-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {post.status === 'published' && '✅ Published'}
-                        {post.status === 'draft' && '📝 Draft'}
-                        {post.status === 'scheduled' && '⏰ Scheduled'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900">
-                        {post.views.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handlePreviewPost(post.id)}
-                          className="text-gray-600 hover:text-gray-900 transition-colors"
-                          title="Preview in widget"
+              <table className="min-w-full divide-y divide-border">
+                <thead className="bg-bg-card">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-caption font-medium text-text-muted uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th className="px-6 py-3 text-left text-caption font-medium text-text-muted uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-3 text-left text-caption font-medium text-text-muted uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-caption font-medium text-text-muted uppercase tracking-wider">
+                      Views
+                    </th>
+                    <th className="px-6 py-3 text-left text-caption font-medium text-text-muted uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-bg-card divide-y divide-border">
+                  {posts.map((post) => (
+                    <tr key={post.id} className="hover:bg-[#111827] transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="text-body font-medium text-text-primary">{post.title}</div>
+                        <div className="text-caption text-text-muted mt-1">{post.content.replace(/<[^>]*>/g, '').substring(0, 60)}...</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-body text-text-muted">
+                        {formatDate(post.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Tag 
+                          variant={
+                            post.status === 'published' ? 'success' :
+                            post.status === 'draft' ? 'default' : 'warning'
+                          }
+                          size="sm"
                         >
-                          <Eye size={16} />
-                        </button>
+                          {post.status === 'published' && 'Published'}
+                          {post.status === 'draft' && 'Draft'}
+                          {post.status === 'scheduled' && 'Scheduled'}
+                        </Tag>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-body font-medium text-text-primary">
+                          {post.views.toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handlePreviewPost(post.id)}
+                            className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-input hover:bg-[#111827]"
+                            title="Preview in widget"
+                          >
+                            <Eye size={16} />
+                          </button>
                         {hasAdminAnalytics ? (
                           <button
                             onClick={() => handleViewPostAnalytics(post)}
-                            className="text-gray-600 hover:text-gray-900 transition-colors"
+                            className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-input hover:bg-[#111827]"
                             title="View analytics"
+                            type="button"
                           >
                             <TrendingUp size={16} />
                           </button>
@@ -610,8 +574,9 @@ export const AdminDashboard: React.FC = () => {
                             onClick={() => {
                               alert('Post analytics are available on the Pro plan. Upgrade to unlock detailed post analytics.');
                             }}
-                            className="text-gray-400 cursor-not-allowed"
+                            className="text-text-muted/50 cursor-not-allowed p-1"
                             title="Upgrade to Pro to view analytics"
+                            type="button"
                           >
                             <Lock size={16} />
                           </button>
@@ -622,7 +587,7 @@ export const AdminDashboard: React.FC = () => {
                             e.stopPropagation();
                             handleEditPost(post);
                           }}
-                          className="text-gray-600 hover:text-gray-900 transition-colors"
+                          className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-input hover:bg-[#111827]"
                           title="Edit post"
                           type="button"
                         >
@@ -630,7 +595,9 @@ export const AdminDashboard: React.FC = () => {
                         </button>
                         <button
                           onClick={() => handleDeletePost(post.id)}
-                          className="text-red-600 hover:text-red-700 transition-colors"
+                          className="text-status-error hover:text-status-error/80 transition-colors p-1 rounded-input hover:bg-status-error/10"
+                          title="Delete post"
+                          type="button"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -638,11 +605,11 @@ export const AdminDashboard: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
             )}
           </div>
-        </div>
+        </Card>
 
       {/* Embed Code Generator Modal */}
       <EmbedCodeGenerator 

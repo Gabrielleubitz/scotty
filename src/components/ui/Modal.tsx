@@ -47,21 +47,21 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
       <div className={cn(
-        'relative bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-hidden',
+        'relative bg-bg-card border border-border rounded-card shadow-xl w-full max-h-[90vh] overflow-hidden',
         sizes[size]
       )}>
         {title && (
-          <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-h3 text-text-primary font-semibold">{title}</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-text-muted hover:text-text-primary transition-colors p-1 rounded-input hover:bg-[#111827]"
             >
-              <X size={24} />
+              <X size={20} />
             </button>
           </div>
         )}

@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Image, Video, Tag, Calendar, Settings, Save, LayoutList } from 'lucide-react';
 import { useTeam } from '../hooks/useTeam';
 import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { FileUpload } from '../components/ui/FileUpload';
 import { MultiLanguageEditor } from '../components/MultiLanguageEditor';
 import { LanguageSettings as LanguageSettingsModal } from '../components/LanguageSettings';
 import { DEFAULT_LANGUAGE_SETTINGS } from '../lib/languages';
 import { LanguageSettings, Segment, ChangelogPost } from '../types';
+import { AppShell } from '../components/layout/AppShell';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
+import { Checkbox } from '../components/ui/Checkbox';
+import { Label } from '../components/ui/Label';
 
 export const EditPostPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,24 +46,20 @@ export const EditPostPage: React.FC = () => {
   });
 
   useEffect(() => {
-    // Wait for auth and team to finish loading before making redirect decisions
     if (authLoading || teamLoading) {
       return;
     }
 
-    // For god users, allow editing even without a team (they can create a team or use default)
     if (!id) {
       navigate('/admin');
       return;
     }
 
-    // If no team and not a god user, redirect
     if (!currentTeam && user?.role !== 'god') {
       navigate('/admin');
       return;
     }
 
-    // Load data if we have a team or if user is god
     if (currentTeam || user?.role === 'god') {
       loadPost();
       loadSegments();
@@ -71,7 +72,6 @@ export const EditPostPage: React.FC = () => {
     
     let teamId = currentTeam?.id;
     
-    // For god users without a team, try to get or create a default team
     if (!teamId && user?.role === 'god') {
       try {
         const { teamService } = await import('../lib/teams');
@@ -131,9 +131,26 @@ export const EditPostPage: React.FC = () => {
   };
 
   const loadSegments = async () => {
-    if (!currentTeam?.id) return;
+    if (!currentTeam?.id && user?.role !== 'god') return;
+    let teamId = currentTeam?.id;
+    if (!teamId && user?.role === 'god') {
+      try {
+        const { teamService } = await import('../lib/teams');
+        const teams = await teamService.getUserTeams(user.id);
+        if (teams.length > 0) {
+          teamId = teams[0].id;
+        } else {
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to get team for god user to load segments:', error);
+        return;
+      }
+    }
+    if (!teamId) return;
+
     try {
-      const fetchedSegments = await apiService.getSegments(currentTeam.id);
+      const fetchedSegments = await apiService.getSegments(teamId);
       setSegments(fetchedSegments);
     } catch (error) {
       console.error('Failed to load segments:', error);
@@ -141,9 +158,26 @@ export const EditPostPage: React.FC = () => {
   };
 
   const loadLanguageSettings = async () => {
-    if (!currentTeam?.id) return;
+    if (!currentTeam?.id && user?.role !== 'god') return;
+    let teamId = currentTeam?.id;
+    if (!teamId && user?.role === 'god') {
+      try {
+        const { teamService } = await import('../lib/teams');
+        const teams = await teamService.getUserTeams(user.id);
+        if (teams.length > 0) {
+          teamId = teams[0].id;
+        } else {
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to get team for god user to load language settings:', error);
+        return;
+      }
+    }
+    if (!teamId) return;
+
     try {
-      const settings = await apiService.getLanguageSettings(currentTeam.id);
+      const settings = await apiService.getLanguageSettings(teamId);
       if (settings) {
         setLanguageSettings(settings);
       }
@@ -158,7 +192,6 @@ export const EditPostPage: React.FC = () => {
 
     let teamId = currentTeam?.id;
     
-    // For god users without a team, try to get or create a default team
     if (!teamId && user?.role === 'god') {
       try {
         const { teamService } = await import('../lib/teams');
@@ -214,261 +247,312 @@ export const EditPostPage: React.FC = () => {
     setFormData({ ...formData, imageUrl: '' });
   };
 
-  // Show loading state while auth or team is loading
   if (authLoading || teamLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-gray-600">Loading...</p>
+      <AppShell>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-border border-t-accent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-body text-text-muted">Loading...</p>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
-  // Show loading state while post is being loaded
   if (!post && !loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-gray-600">Loading post...</p>
+      <AppShell>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-border border-t-accent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-body text-text-muted">Loading post...</p>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
-  // If no post found after loading, show error
   if (!post) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-4">Post not found</p>
-          <button
-            onClick={() => navigate('/admin')}
-            className="text-sm text-gray-900 hover:text-gray-700 underline"
-          >
-            Back to Admin Dashboard
-          </button>
+      <AppShell>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-body text-text-muted mb-4">Post not found</p>
+            <Button onClick={() => navigate('/admin')} variant="secondary">
+              Back to Admin Dashboard
+            </Button>
+          </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <button
+    <AppShell>
+      <div className="space-y-6">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
             onClick={() => navigate('/admin')}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="text-text-muted hover:text-text-primary"
           >
-            <ArrowLeft size={20} className="mr-2" />
-            Back to Admin Dashboard
-          </button>
-          <h1 className="text-2xl font-semibold text-gray-900">Edit Post</h1>
+            <ArrowLeft size={16} className="mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+
+        <div>
+          <h1 className="text-h1 text-text-primary mb-2">Edit Post</h1>
+          <p className="text-body text-text-muted">Modify your product update</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
-            <Input
-              id="title"
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Enter post title"
-              required
-              className="block w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Content</label>
-            <MultiLanguageEditor
-              title={formData.title}
-              content={formData.content}
-              onTitleChange={(title) => setFormData({ ...formData, title })}
-              onContentChange={(content) => setFormData({ ...formData, content })}
-              translations={formData.translations}
-              onTranslationsChange={(translations) => setFormData({ ...formData, translations })}
-              languageSettings={languageSettings}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="imageUrl" className="block text-sm font-semibold text-gray-700 mb-1">Image URL</label>
-            <Input
-              id="imageUrl"
-              type="text"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="Optional image URL"
-              className="block w-full"
-            />
-            <FileUpload 
-              onFileUpload={handleFileUpload} 
-              onFileRemove={handleFileRemove} 
-              currentImageUrl={formData.imageUrl} 
-              uploading={uploadingFile} 
-            />
-          </div>
-
-          <div>
-            <label htmlFor="videoUrl" className="block text-sm font-semibold text-gray-700 mb-1">Video URL (YouTube or MP4)</label>
-            <Input
-              id="videoUrl"
-              type="text"
-              value={formData.videoUrl}
-              onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-              placeholder="Optional video URL"
-              className="block w-full"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-1">Status</label>
-            <select
-              id="status"
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' | 'scheduled' })}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md"
-            >
-              <option value="published">✅ Published (Visible to users)</option>
-              <option value="draft">📝 Draft (Hidden from users)</option>
-              <option value="scheduled">⏰ Scheduled</option>
-            </select>
-            <p className="mt-1 text-xs text-gray-500">
-              {formData.status === 'published' && 'Post will be visible to users immediately'}
-              {formData.status === 'draft' && 'Post will be hidden until you publish it'}
-              {formData.status === 'scheduled' && 'Post will be published at the scheduled time'}
-            </p>
-          </div>
-
-          <div>
-            <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-            <select
-              id="category"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md"
-            >
-              <option value="NOTIFICATION">Notification</option>
-              <option value="FEATURE">Feature</option>
-              <option value="IMPROVEMENT">Improvement</option>
-              <option value="BUGFIX">Bugfix</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="segmentId" className="block text-sm font-semibold text-gray-700 mb-1">Target Segment (Optional)</label>
-            <select
-              id="segmentId"
-              value={formData.segmentId || ''}
-              onChange={(e) => setFormData({ ...formData, segmentId: e.target.value || null })}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md"
-            >
-              <option value="">No Segment (All Users)</option>
-              {segments.map((segment) => (
-                <option key={segment.id} value={segment.id}>
-                  {segment.name} ({segment.domain})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="expirationDate" className="block text-sm font-semibold text-gray-700 mb-1">Expiration Date (Optional)</label>
-            <Input
-              id="expirationDate"
-              type="date"
-              value={formData.expirationDate}
-              onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
-              className="block w-full"
-            />
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center">
-              <input
-                id="enableComments"
-                type="checkbox"
-                checked={formData.enableComments}
-                onChange={(e) => setFormData({ ...formData, enableComments: e.target.checked })}
-                className="h-4 w-4 text-gray-600 border-gray-300 rounded"
+          {/* Content Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <LayoutList size={20} className="mr-2 text-accent" />
+                Content
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MultiLanguageEditor
+                title={formData.title}
+                content={formData.content}
+                onTitleChange={(title) => setFormData({ ...formData, title })}
+                onContentChange={(content) => setFormData({ ...formData, content })}
+                translations={formData.translations}
+                onTranslationsChange={(translations) => setFormData({ ...formData, translations })}
+                languageSettings={languageSettings}
               />
-              <label htmlFor="enableComments" className="ml-2 block text-sm text-gray-900">Enable Comments</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="enableReactions"
-                type="checkbox"
-                checked={formData.enableReactions}
-                onChange={(e) => setFormData({ ...formData, enableReactions: e.target.checked })}
-                className="h-4 w-4 text-gray-600 border-gray-300 rounded"
-              />
-              <label htmlFor="enableReactions" className="ml-2 block text-sm text-gray-900">Enable Reactions</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="openLinksInNewTab"
-                type="checkbox"
-                checked={formData.openLinksInNewTab}
-                onChange={(e) => setFormData({ ...formData, openLinksInNewTab: e.target.checked })}
-                className="h-4 w-4 text-gray-600 border-gray-300 rounded"
-              />
-              <label htmlFor="openLinksInNewTab" className="ml-2 block text-sm text-gray-900">Open Links in New Tab</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="enableSocialSharing"
-                type="checkbox"
-                checked={formData.enableSocialSharing}
-                onChange={(e) => setFormData({ ...formData, enableSocialSharing: e.target.checked })}
-                className="h-4 w-4 text-gray-600 border-gray-300 rounded"
-              />
-              <label htmlFor="enableSocialSharing" className="ml-2 block text-sm text-gray-900">Enable Social Sharing</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="pinToTop"
-                type="checkbox"
-                checked={formData.pinToTop}
-                onChange={(e) => setFormData({ ...formData, pinToTop: e.target.checked })}
-                className="h-4 w-4 text-gray-600 border-gray-300 rounded"
-              />
-              <label htmlFor="pinToTop" className="ml-2 block text-sm text-gray-900">Pin to Top</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="autoOpenWidget"
-                type="checkbox"
-                checked={formData.autoOpenWidget}
-                onChange={(e) => setFormData({ ...formData, autoOpenWidget: e.target.checked })}
-                className="h-4 w-4 text-gray-600 border-gray-300 rounded"
-              />
-              <label htmlFor="autoOpenWidget" className="ml-2 block text-sm text-gray-900">Auto-open Widget</label>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          {/* Media Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Image size={20} className="mr-2 text-accent" />
+                Media
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="imageUrl">Image</Label>
+                <Input
+                  id="imageUrl"
+                  type="text"
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  placeholder="Paste image URL or upload below"
+                  className="mt-1"
+                />
+                <div className="mt-2">
+                  <FileUpload 
+                    onFileUpload={handleFileUpload} 
+                    onFileRemove={handleFileRemove} 
+                    currentImageUrl={formData.imageUrl} 
+                    uploading={uploadingFile} 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="videoUrl" className="flex items-center">
+                  <Video size={16} className="mr-2" />
+                  Video URL
+                </Label>
+                <Input
+                  id="videoUrl"
+                  type="text"
+                  value={formData.videoUrl}
+                  onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                  placeholder="YouTube or MP4 video URL"
+                  className="mt-1"
+                />
+                <p className="mt-1 text-caption text-text-muted">Supports YouTube links and direct MP4 URLs</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Settings Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Settings size={20} className="mr-2 text-accent" />
+                Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: 'draft' | 'published' | 'scheduled') => setFormData({ ...formData, status: value })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="published">✅ Published (Visible to users)</SelectItem>
+                    <SelectItem value="draft">📝 Draft (Hidden)</SelectItem>
+                    <SelectItem value="scheduled">⏰ Scheduled (Publish later)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="mt-1 text-caption text-text-muted">
+                  {formData.status === 'published' && 'Post will be visible to users immediately'}
+                  {formData.status === 'draft' && 'Post will be hidden until you publish it'}
+                  {formData.status === 'scheduled' && 'Post will be published at the scheduled time'}
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NOTIFICATION">📢 Notification</SelectItem>
+                    <SelectItem value="FEATURE">✨ Feature</SelectItem>
+                    <SelectItem value="IMPROVEMENT">🚀 Improvement</SelectItem>
+                    <SelectItem value="BUGFIX">🐛 Bug Fix</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="segmentId" className="flex items-center">
+                  <Tag size={16} className="mr-2" />
+                  Target Segment
+                </Label>
+                <Select
+                  value={formData.segmentId || ''}
+                  onValueChange={(value) => setFormData({ ...formData, segmentId: value || null })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="All Users" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Users</SelectItem>
+                    {segments.map((segment) => (
+                      <SelectItem key={segment.id} value={segment.id}>
+                        {segment.name} ({segment.domain})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="mt-1 text-caption text-text-muted">Optional: Target specific domains</p>
+              </div>
+
+              <div>
+                <Label htmlFor="expirationDate" className="flex items-center">
+                  <Calendar size={16} className="mr-2" />
+                  Expiration Date
+                </Label>
+                <Input
+                  id="expirationDate"
+                  type="date"
+                  value={formData.expirationDate}
+                  onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
+                  className="mt-1"
+                />
+                <p className="mt-1 text-caption text-text-muted">Optional: Auto-hide after this date</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Options Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Options</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="enableComments"
+                    checked={formData.enableComments}
+                    onCheckedChange={(checked) => setFormData({ ...formData, enableComments: !!checked })}
+                  />
+                  <Label htmlFor="enableComments" className="cursor-pointer">Enable Comments</Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="enableReactions"
+                    checked={formData.enableReactions}
+                    onCheckedChange={(checked) => setFormData({ ...formData, enableReactions: !!checked })}
+                  />
+                  <Label htmlFor="enableReactions" className="cursor-pointer">Enable Reactions</Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="openLinksInNewTab"
+                    checked={formData.openLinksInNewTab}
+                    onCheckedChange={(checked) => setFormData({ ...formData, openLinksInNewTab: !!checked })}
+                  />
+                  <Label htmlFor="openLinksInNewTab" className="cursor-pointer">Open Links in New Tab</Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="enableSocialSharing"
+                    checked={formData.enableSocialSharing}
+                    onCheckedChange={(checked) => setFormData({ ...formData, enableSocialSharing: !!checked })}
+                  />
+                  <Label htmlFor="enableSocialSharing" className="cursor-pointer">Enable Social Sharing</Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="pinToTop"
+                    checked={formData.pinToTop}
+                    onCheckedChange={(checked) => setFormData({ ...formData, pinToTop: !!checked })}
+                  />
+                  <Label htmlFor="pinToTop" className="cursor-pointer">Pin to Top</Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="autoOpenWidget"
+                    checked={formData.autoOpenWidget}
+                    onCheckedChange={(checked) => setFormData({ ...formData, autoOpenWidget: !!checked })}
+                  />
+                  <Label htmlFor="autoOpenWidget" className="cursor-pointer">Auto-open Widget</Label>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-border">
             <Button 
               type="button" 
-              variant="outline" 
-              onClick={() => navigate('/admin')} 
-              className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              variant="secondary" 
+              onClick={() => navigate('/admin')}
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
-              className="bg-gray-900 hover:bg-gray-800 text-white" 
-              disabled={loading}
+              disabled={loading || !formData.title.trim() || !formData.content.trim()}
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-text-primary border-t-transparent rounded-full animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={16} className="mr-2" />
+                  Save Changes
+                </>
+              )}
             </Button>
           </div>
         </form>
-    </div>
+      </div>
+    </AppShell>
   );
 };
-

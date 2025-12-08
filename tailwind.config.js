@@ -4,6 +4,32 @@ export default {
   theme: {
     extend: {
       colors: {
+        // New dark design system
+        bg: {
+          page: '#050816',
+          surface: '#0B1020',
+          surfaceAlt: '#0F172A',
+          card: '#020617',
+          cardAlt: '#0B1120',
+        },
+        text: {
+          primary: '#F9FAFB',
+          muted: '#9CA3AF',
+        },
+        accent: {
+          DEFAULT: '#6366F1',
+          hover: '#4F46E5',
+        },
+        border: {
+          DEFAULT: '#1F2937',
+          subtle: '#1F2937',
+        },
+        status: {
+          success: '#22C55E',
+          warning: '#F97316',
+          error: '#EF4444',
+        },
+        // Legacy colors for backward compatibility
         primary: {
           50: '#f8f9fa',
           100: '#e9ecef',
@@ -16,18 +42,30 @@ export default {
           800: '#212529',
           900: '#0d1117',
         },
-        accent: {
-          50: '#fafafa',
-          100: '#f5f5f5',
-          200: '#e5e5e5',
-          300: '#d4d4d4',
-          400: '#a3a3a3',
-          500: '#737373',
-          600: '#525252',
-          700: '#404040',
-          800: '#262626',
-          900: '#171717',
-        },
+      },
+      fontFamily: {
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Text"',
+          'system-ui',
+          'sans-serif',
+        ],
+      },
+      fontSize: {
+        'h1': ['32px', { lineHeight: '1.4', fontWeight: '600' }],
+        'h2': ['24px', { lineHeight: '1.4', fontWeight: '600' }],
+        'h3': ['20px', { lineHeight: '1.4', fontWeight: '600' }],
+        'body': ['14px', { lineHeight: '1.6', fontWeight: '400' }],
+        'caption': ['12px', { lineHeight: '1.4', fontWeight: '400' }],
+      },
+      spacing: {
+        '18': '4.5rem',
+      },
+      borderRadius: {
+        'card': '16px',
+        'input': '10px',
+        'pill': '9999px',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

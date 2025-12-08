@@ -17,10 +17,10 @@ function App() {
   // Show loading state while auth or team is loading
   if (authLoading || teamLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-bg-page">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-gray-600 font-medium">Loading...</p>
+          <div className="w-8 h-8 border-2 border-border border-t-accent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-body text-text-muted font-medium">Loading...</p>
         </div>
       </div>
     );

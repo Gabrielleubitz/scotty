@@ -2,23 +2,28 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { GodAdminPanel } from '../components/GodAdminPanel';
+import { AppShell } from '../components/layout/AppShell';
+import { Button } from '../components/ui/Button';
 
 export const GodAdminPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="mb-6">
-        <button
-          onClick={() => navigate('/admin')}
-          className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft size={20} className="mr-2" />
-          Back to Admin Dashboard
-        </button>
+    <AppShell>
+      <div className="space-y-6">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/admin')}
+            className="text-text-muted hover:text-text-primary"
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Back to Admin Dashboard
+          </Button>
+        </div>
+        <GodAdminPanel />
       </div>
-      <GodAdminPanel />
-    </div>
+    </AppShell>
   );
 };
 

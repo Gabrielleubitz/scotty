@@ -16,19 +16,19 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-page disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500',
-    outline: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-blue-500',
-    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+    primary: 'bg-accent text-text-primary hover:bg-accent-hover focus:ring-accent rounded-pill',
+    secondary: 'bg-transparent border border-border text-text-primary hover:bg-[#111827] focus:ring-accent rounded-input',
+    outline: 'border border-border bg-transparent text-text-primary hover:bg-[#111827] focus:ring-accent rounded-input',
+    ghost: 'text-text-muted hover:text-text-primary hover:bg-[#111827] focus:ring-accent rounded-input',
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
+    sm: 'px-3 py-1.5 text-caption',
+    md: 'px-5 py-2.5 text-body',
+    lg: 'px-6 py-3 text-h3',
   };
 
   return (
