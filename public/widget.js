@@ -164,23 +164,26 @@
       background: var(--pf-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-left: 1px solid var(--pf-border);
+      border-left: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(15, 23, 42, 0.5)'};
+      border-radius: 20px 0 0 20px;
       box-shadow: -10px 0 40px rgba(0, 0, 0, 0.12);
       display: flex;
       flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(100%) translateY(20px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease-out;
       z-index: 10001;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     
     #productflow-widget-container.active {
-      transform: translateX(0);
+      transform: translateX(0) translateY(0);
+      opacity: 1;
     }
     
     .productflow-header {
-      padding: 28px 32px 24px;
-      background: linear-gradient(135deg, var(--pf-primary), #8b5cf6);
+      padding: 24px;
+      background: var(--pf-primary);
       color: white;
       display: flex;
       justify-content: space-between;
@@ -188,36 +191,57 @@
       flex-shrink: 0;
       position: relative;
       overflow: hidden;
-    }
-    
-    .productflow-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
-      pointer-events: none;
+      border-radius: 20px 0 0 0;
     }
     
     .productflow-header-left {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
+    }
+    
+    .productflow-logo {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .productflow-logo svg {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .productflow-header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .productflow-header h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: white;
+    }
+    
+    .productflow-powered-by {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.2;
     }
     
     .productflow-header-right {
       display: flex;
       align-items: center;
       gap: 12px;
-    }
-    
-    .productflow-header h2 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 700;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
     .productflow-dark-mode-toggle {
@@ -240,25 +264,29 @@
     }
     
     .productflow-close {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
       border-radius: 50%;
-      font-size: 20px;
       cursor: pointer;
       color: white;
       padding: 0;
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
+      flex-shrink: 0;
     }
     
     .productflow-close:hover {
-      background: rgba(239, 68, 68, 0.2);
-      color: #fef2f2;
-      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+    
+    .productflow-close svg {
+      width: 18px;
+      height: 18px;
     }
     
     .productflow-content {
@@ -271,18 +299,19 @@
     
     .productflow-view-toggle {
       display: flex;
-      background: var(--pf-surface);
-      border-bottom: 1px solid var(--pf-border);
-      padding: 8px;
-      margin: 0 24px 0 24px;
+      background: ${isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)'};
+      border-bottom: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.1)'};
+      padding: 6px;
+      margin: 0 20px;
       border-radius: 12px;
-      margin-top: 24px;
+      margin-top: 0;
       gap: 4px;
+      flex-shrink: 0;
     }
     
     .productflow-view-button {
       flex: 1;
-      padding: 12px 16px;
+      padding: 10px 16px;
       background: none;
       border: none;
       font-size: 14px;
@@ -304,7 +333,7 @@
     }
     
     .productflow-view-button:hover:not(.active) {
-      background: var(--pf-hover);
+      background: ${isDarkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(241, 245, 249, 0.8)'};
       color: var(--pf-text);
     }
     
@@ -320,18 +349,18 @@
       left: 0;
       width: 100%;
       height: 100%;
-      padding: 24px;
+      padding: 20px;
       overflow-y: auto;
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
-      transform: translateX(20px);
+      transform: translateY(10px);
     }
     
     .productflow-posts.active, .productflow-chat.active {
       opacity: 1;
       visibility: visible;
-      transform: translateX(0);
+      transform: translateY(0);
     }
     
     .productflow-loading {
@@ -473,15 +502,13 @@
     
     .productflow-post-footer {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid var(--pf-border);
-      font-size: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.2)'};
+      font-size: 11px;
       color: var(--pf-text-muted);
-      position: relative;
-      z-index: 1;
     }
     
     .productflow-empty {
@@ -522,7 +549,7 @@
     .productflow-chat-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 20px;
       padding-bottom: 0;
     }
     
@@ -533,37 +560,36 @@
       justify-content: center;
       height: 300px;
       text-align: center;
-      gap: 20px;
+      gap: 16px;
     }
     
     .productflow-chat-welcome-icon {
-      width: 80px;
-      height: 80px;
-      background: var(--pf-surface);
+      width: 64px;
+      height: 64px;
+      background: ${isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)'};
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid var(--pf-border);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      border: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.3)'};
     }
     
     .productflow-chat-welcome h3 {
       margin: 0;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--pf-text);
     }
     
     .productflow-chat-welcome p {
       margin: 0;
-      font-size: 16px;
+      font-size: 14px;
       color: var(--pf-text-muted);
       line-height: 1.5;
     }
     
     .productflow-message {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       display: flex;
       gap: 12px;
       animation: messageSlide 0.3s ease-out;
@@ -586,16 +612,14 @@
     
     .productflow-message-content {
       max-width: 75%;
-      padding: 16px 20px;
-      border-radius: 20px;
+      padding: 12px 16px;
+      border-radius: 16px;
       font-size: 14px;
       line-height: 1.5;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
     }
     
     .productflow-message.user .productflow-message-content {
-      background: linear-gradient(135deg, var(--pf-primary), #8b5cf6);
+      background: var(--pf-primary);
       color: white;
       border-bottom-right-radius: 6px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -638,24 +662,25 @@
     }
     
     .productflow-chat-input {
-      padding: 24px;
-      background: var(--pf-surface);
-      border-top: 1px solid var(--pf-border);
+      padding: 20px;
+      background: ${isDarkMode ? 'rgba(31, 41, 55, 0.6)' : 'rgba(248, 250, 252, 0.8)'};
+      border-top: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.2)'};
       display: flex;
-      gap: 12px;
+      gap: 8px;
       align-items: center;
+      flex-shrink: 0;
     }
     
     .productflow-chat-input input {
       flex: 1;
-      padding: 14px 20px;
-      border: 1px solid var(--pf-border);
-      border-radius: 25px;
+      padding: 12px 16px;
+      border: 1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.4)' : 'rgba(148, 163, 184, 0.4)'};
+      border-radius: 12px;
       outline: none;
       font-size: 14px;
-      background: var(--pf-glass);
+      background: ${isDarkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.9)'};
       color: var(--pf-text);
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
     
     .productflow-chat-input input::placeholder {
@@ -664,15 +689,15 @@
     
     .productflow-chat-input input:focus {
       border-color: var(--pf-primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      box-shadow: 0 0 0 3px ${isDarkMode ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)'};
     }
     
     .productflow-chat-input button {
-      padding: 14px 24px;
-      background: linear-gradient(135deg, var(--pf-primary), #8b5cf6);
+      padding: 12px 20px;
+      background: var(--pf-primary);
       color: white;
       border: none;
-      border-radius: 25px;
+      border-radius: 12px;
       cursor: pointer;
       font-weight: 600;
       transition: all 0.3s ease;
@@ -782,10 +807,37 @@
   container.innerHTML = `
     <div class="productflow-header">
       <div class="productflow-header-left">
-        <h2>${config.widgetTitle || 'Product Updates'}</h2>
+        <div class="productflow-logo">
+          <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#22D3EE" stop-opacity="1" />
+                <stop offset="100%" stop-color="#9333EA" stop-opacity="1" />
+              </linearGradient>
+            </defs>
+            <path d="M50 10 L85 25 L85 75 L50 90 L15 75 L15 25 Z" stroke="url(#logoGradient)" stroke-width="4" fill="none" />
+            <circle cx="35" cy="35" r="4" fill="url(#logoGradient)" opacity="0.8" />
+            <circle cx="50" cy="30" r="3" fill="url(#logoGradient)" opacity="0.7" />
+            <circle cx="65" cy="35" r="4" fill="url(#logoGradient)" opacity="0.8" />
+            <circle cx="40" cy="50" r="3" fill="url(#logoGradient)" opacity="0.6" />
+            <circle cx="60" cy="50" r="3" fill="url(#logoGradient)" opacity="0.6" />
+            <circle cx="50" cy="60" r="4" fill="url(#logoGradient)" opacity="0.8" />
+            <circle cx="35" cy="65" r="3" fill="url(#logoGradient)" opacity="0.7" />
+            <circle cx="65" cy="65" r="3" fill="url(#logoGradient)" opacity="0.7" />
+          </svg>
+        </div>
+        <div class="productflow-header-text">
+          <h2>${config.widgetTitle || 'Product Updates'}</h2>
+          <p class="productflow-powered-by">Powered by Scotty</p>
+        </div>
       </div>
       <div class="productflow-header-right">
-        <button class="productflow-close">&times;</button>
+        <button class="productflow-close" aria-label="Close widget">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
     </div>
     
@@ -828,7 +880,12 @@
           </div>
           <div class="productflow-chat-input">
             <input type="text" placeholder="Ask about our updates..." id="productflow-chat-input">
-            <button id="productflow-chat-send">Send</button>
+            <button id="productflow-chat-send" aria-label="Send message">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -889,9 +946,11 @@
     isOpen = true;
     widgetOpenTime = Date.now();
     
-    // Add classes to trigger animations
+    // Add classes to trigger animations with slight delay for smoother entry
     overlay.classList.add('active');
-    container.classList.add('active');
+    setTimeout(() => {
+      container.classList.add('active');
+    }, 50);
     
     // Remove notification indicator
     button.classList.remove('has-updates');
@@ -1468,55 +1527,65 @@
       return;
     }
     
-    // Helper function to get category color
-    function getCategoryColor(category) {
-      switch (category) {
-        case 'FEATURE': return '#10b981'; // green
-        case 'IMPROVEMENT': return '#3b82f6'; // blue
-        case 'BUG_FIX': return '#ef4444'; // red
-        case 'ANNOUNCEMENT': return '#8b5cf6'; // purple
-        case 'NOTIFICATION':
-        default: return '#3b82f6'; // blue
-      }
+    // Helper function to get category class
+    function getCategoryClass(category) {
+      const cat = (category || 'NOTIFICATION').toLowerCase();
+      if (cat.includes('feature') || cat.includes('new')) return 'new';
+      if (cat.includes('improvement') || cat.includes('improve')) return 'improvement';
+      if (cat.includes('fix') || cat.includes('bug')) return 'fix';
+      return 'new';
     }
     
-    // Helper function to get category icon
-    function getCategoryIcon(category) {
-      switch (category) {
-        case 'FEATURE': return '✨';
-        case 'IMPROVEMENT': return '🚀';
-        case 'BUG_FIX': return '🐛';
-        case 'ANNOUNCEMENT': return '📢';
-        case 'NOTIFICATION':
-        default: return '🔔';
-      }
+    // Helper function to get category label
+    function getCategoryLabel(category) {
+      const cat = (category || 'NOTIFICATION').toLowerCase();
+      if (cat.includes('feature') || cat.includes('new')) return 'New';
+      if (cat.includes('improvement') || cat.includes('improve')) return 'Improvement';
+      if (cat.includes('fix') || cat.includes('bug')) return 'Fix';
+      return 'Update';
     }
     
-    postsContainer.innerHTML = posts.map(post => `
-      <div class="productflow-post" data-post-id="${post.id}">
+    postsContainer.innerHTML = posts.map((post, index) => `
+      <div class="productflow-post" data-post-id="${post.id}" style="animation: fadeInUp 0.4s ease-out ${index * 0.05}s both;">
         <div class="productflow-post-header">
           <div class="productflow-post-meta">
-            <span class="productflow-post-badge" style="background: ${getCategoryColor(post.category || 'NOTIFICATION')}">
-              ${getCategoryIcon(post.category || 'NOTIFICATION')} ${post.category || 'NOTIFICATION'}
+            <span class="productflow-post-badge ${getCategoryClass(post.category)}">
+              ${getCategoryLabel(post.category)}
             </span>
-            <span class="productflow-post-date">${formatRelativeTime(post.createdAt)}</span>
           </div>
+          <span class="productflow-post-date">${formatRelativeTime(post.createdAt)}</span>
         </div>
         <h3 class="productflow-post-title">${post.title}</h3>
         ${post.content && post.content.trim() ? `<div class="productflow-post-content">${renderMarkdown(post.content)}</div>` : ''}
-        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Update image" style="max-width: 100%; border-radius: 12px; margin: 16px 0;" />` : ''}
+        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Update image" style="max-width: 100%; border-radius: 12px; margin: 12px 0;" />` : ''}
         ${post.videoUrl ? (
           post.videoUrl.includes('youtube.com') || post.videoUrl.includes('youtu.be') 
-            ? `<div class="productflow-video-container" style="margin: 16px 0;">
+            ? `<div class="productflow-video-container" style="margin: 12px 0;">
                 <iframe width="100%" height="315" src="https://www.youtube.com/embed/${post.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="border-radius: 12px; pointer-events: auto; position: relative; z-index: 10;"></iframe>
               </div>`
-            : `<video controls width="100%" style="border-radius: 12px; margin: 16px 0;"><source src="${post.videoUrl}" type="video/mp4"></video>`
+            : `<video controls width="100%" style="border-radius: 12px; margin: 12px 0;"><source src="${post.videoUrl}" type="video/mp4"></video>`
         ) : ''}
-        <div class="productflow-post-footer">
-          <span>${post.views || 0} views</span>
-        </div>
       </div>
     `).join('');
+    
+    // Add fadeInUp animation if not already added
+    if (!document.getElementById('productflow-fade-animation')) {
+      const style = document.createElement('style');
+      style.id = 'productflow-fade-animation';
+      style.textContent = \`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      \`;
+      document.head.appendChild(style);
+    }
     
     // Track post views when they come into view
     const postElements = postsContainer.querySelectorAll('.productflow-post');
