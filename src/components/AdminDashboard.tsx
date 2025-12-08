@@ -141,7 +141,18 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleEditPost = (post: ChangelogPost) => {
-    navigate(`/admin/posts/${post.id}/edit`);
+    try {
+      if (!post || !post.id) {
+        console.error('Invalid post data:', post);
+        alert('Cannot edit post: Invalid post data');
+        return;
+      }
+      console.log('Navigating to edit post:', post.id);
+      navigate(`/admin/posts/${post.id}/edit`);
+    } catch (error) {
+      console.error('Error navigating to edit post:', error);
+      alert('Failed to open edit page. Please try again.');
+    }
   };
 
   const handleDeletePost = async (id: string) => {
@@ -606,8 +617,14 @@ export const AdminDashboard: React.FC = () => {
                           </button>
                         )}
                         <button
-                          onClick={() => handleEditPost(post)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleEditPost(post);
+                          }}
                           className="text-gray-600 hover:text-gray-900 transition-colors"
+                          title="Edit post"
+                          type="button"
                         >
                           <Edit2 size={16} />
                         </button>
