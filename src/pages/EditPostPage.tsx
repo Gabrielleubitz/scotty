@@ -182,11 +182,12 @@ export const EditPostPage: React.FC = () => {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Content</label>
             <MultiLanguageEditor
-              value={formData.content}
-              onChange={(value) => setFormData({ ...formData, content: value })}
+              title={formData.title}
+              content={formData.content}
+              onTitleChange={(title) => setFormData({ ...formData, title })}
+              onContentChange={(content) => setFormData({ ...formData, content })}
               translations={formData.translations}
               onTranslationsChange={(translations) => setFormData({ ...formData, translations })}
-              currentTeamId={currentTeam.id}
               languageSettings={languageSettings}
             />
           </div>
