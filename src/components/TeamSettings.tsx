@@ -511,7 +511,8 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                   </div>
 
                   <div className="flex space-x-2">
-                    {currentTeam.subscriptionPlan !== 'pro' && (
+                    {/* Don't show upgrade button for god users - they already have pro access */}
+                    {user?.role !== 'god' && getPlan(currentTeam, user).name !== 'Pro' && (
                       <Button
                         onClick={handleUpgradeToPro}
                         disabled={billingLoading}
@@ -520,7 +521,8 @@ export const TeamSettings: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                         {billingLoading ? 'Loading...' : 'Upgrade to Pro'}
                       </Button>
                     )}
-                    {currentTeam.subscriptionPlan === 'pro' && (
+                    {/* Show change plan button for pro users or god users */}
+                    {(user?.role === 'god' || getPlan(currentTeam, user).name === 'Pro') && (
                       <Button
                         onClick={handleChangePlan}
                         variant="outline"

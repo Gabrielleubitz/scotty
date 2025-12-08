@@ -62,6 +62,12 @@ export const AdminDashboard: React.FC = () => {
   }, [currentTeam]);
 
   const loadFeatureOverrides = async () => {
+    // For god users, always enable analytics (they have all features)
+    if (user?.role === 'god') {
+      setHasAdminAnalytics(true);
+      return;
+    }
+    
     if (!currentTeam) return;
     try {
       const overrides = await featureOverrideService.getTeamOverrides(currentTeam.id);
