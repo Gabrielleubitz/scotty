@@ -14,8 +14,8 @@ import { LanguageSettings, Segment } from '../types';
 
 export const CreatePostPage: React.FC = () => {
   const navigate = useNavigate();
-  const { currentTeam } = useTeam();
-  const { user } = useAuth();
+  const { currentTeam, loading: teamLoading } = useTeam();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [segments, setSegments] = useState<Segment[]>([]);
@@ -38,6 +38,11 @@ export const CreatePostPage: React.FC = () => {
   });
 
   useEffect(() => {
+    // Wait for auth and team to finish loading before making redirect decisions
+    if (authLoading || teamLoading) {
+      return;
+    }
+
     // God users can create posts even without a currentTeam
     // They'll need to select a team or we'll use the first available team
     if (!currentTeam && user?.role !== 'god') {
@@ -51,7 +56,7 @@ export const CreatePostPage: React.FC = () => {
       loadSegments();
       loadLanguageSettings();
     }
-  }, [currentTeam, navigate, user]);
+  }, [currentTeam, navigate, user, authLoading, teamLoading]);
 
   const loadSegments = async () => {
     if (!currentTeam?.id) return;
@@ -137,8 +142,19 @@ export const CreatePostPage: React.FC = () => {
     setFormData({ ...formData, imageUrl: '' });
   };
 
-  // For god users, allow them to proceed even without a currentTeam
-  // They'll need to have a team available when submitting
+  // Show loading state while auth or team is loading
+  if (authLoading || teamLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // For non-god users without a team, redirect
   if (!currentTeam && user?.role !== 'god') {
     return (
       <div className="min-h-screen flex items-center justify-center">
