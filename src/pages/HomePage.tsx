@@ -45,7 +45,13 @@ export const HomePage: React.FC = () => {
         }
       } else if (!user) {
         // For logged out users, try to load some public posts if available
-        // This is optional - you might want to show demo data instead
+        try {
+          const posts = await apiService.getChangelogPosts(undefined, true);
+          setSamplePosts(posts.slice(0, 6)); // Get up to 6 posts for preview
+        } catch (error) {
+          console.error('Failed to load public posts:', error);
+          // Silently fail for public posts - it's okay if there are none
+        }
       }
     };
 

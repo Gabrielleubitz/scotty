@@ -73,7 +73,7 @@ function requireTeamId(): string {
 
 export const apiService = {
   // Changelog API
-  async getChangelogPosts(teamId?: string): Promise<ChangelogPost[]> {
+  async getChangelogPosts(teamId?: string, publicOnly: boolean = false): Promise<ChangelogPost[]> {
     try {
       if (!FirestoreRateLimit.canPerformOperation('getChangelogPosts')) {
         console.warn('Rate limit reached for getChangelogPosts, using cached data if available');
@@ -81,6 +81,49 @@ export const apiService = {
       }
 
       const currentTeamId = teamId || getCurrentTeamId();
+      
+      // If publicOnly is true and no teamId, fetch only published posts
+      if (publicOnly && !currentTeamId) {
+        try {
+          const changelogRef = collection(db, 'changelog');
+          const q = query(
+            changelogRef,
+            where('status', '==', 'published'),
+            orderBy('createdAt', 'desc')
+          );
+          
+          const querySnapshot = await getDocs(q);
+          const posts: ChangelogPost[] = [];
+          
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            posts.push({
+              id: doc.id,
+              title: data.title || '',
+              content: data.content || '',
+              category: data.category || 'Update',
+              status: data.status || 'published',
+              teamId: data.teamId || '',
+              createdAt: data.createdAt?.toDate() || new Date(),
+              updatedAt: data.updatedAt?.toDate() || new Date(),
+              views: data.views || 0,
+              imageUrl: data.imageUrl || undefined,
+              videoUrl: data.videoUrl || undefined,
+              tags: data.tags || [],
+              segmentIds: data.segmentIds || [],
+            });
+          });
+          
+          return posts.slice(0, 10); // Limit to 10 for public view
+        } catch (error: any) {
+          console.error('Error fetching public changelogs:', error);
+          if (error.code === 'permission-denied') {
+            console.warn('Firestore permissions not configured. Returning empty changelog.');
+          }
+          return [];
+        }
+      }
+      
       if (!currentTeamId) {
         return []; // No team context, return empty
       }

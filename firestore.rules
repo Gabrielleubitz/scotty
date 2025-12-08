@@ -124,9 +124,15 @@ service cloud.firestore {
     
     // Changelog posts collection
     match /changelog/{postId} {
-      // Allow public read for published posts (for embedded widgets)
+      // Allow public read for published posts (for embedded widgets and public pages)
       // Allow authenticated users to read all posts (app filters by teamId)
       allow read: if resource.data.status == 'published' || isAuthenticated();
+      
+      // Allow public list queries for published posts (needed for public home page)
+      // This allows querying the collection without authentication
+      allow list: if request.query.limit <= 10 && 
+                     (request.query.where == null || 
+                      request.query.where[0].field == 'status' && request.query.where[0].value == 'published');
       
       // Allow authenticated users to create posts (app verifies team membership)
       allow create: if isAuthenticated() && 
