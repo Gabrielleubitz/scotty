@@ -67,9 +67,37 @@ export const EditPostPage: React.FC = () => {
   }, [currentTeam, id, navigate, user, authLoading, teamLoading]);
 
   const loadPost = async () => {
-    if (!currentTeam?.id || !id) return;
+    if (!id) return;
+    
+    let teamId = currentTeam?.id;
+    
+    // For god users without a team, try to get or create a default team
+    if (!teamId && user?.role === 'god') {
+      try {
+        const { teamService } = await import('../lib/teams');
+        const teams = await teamService.getUserTeams(user.id);
+        if (teams.length > 0) {
+          teamId = teams[0].id;
+        } else {
+          const defaultTeam = await teamService.getOrCreateDefaultTeam(user.id, user.name);
+          teamId = defaultTeam.id;
+        }
+      } catch (error) {
+        console.error('Failed to get/create team for god user:', error);
+        alert('Failed to load post: No team available. Please create a team first.');
+        navigate('/admin');
+        return;
+      }
+    }
+    
+    if (!teamId) {
+      console.error('No team ID available');
+      navigate('/admin');
+      return;
+    }
+    
     try {
-      const posts = await apiService.getChangelogPosts(currentTeam.id);
+      const posts = await apiService.getChangelogPosts(teamId);
       const foundPost = posts.find(p => p.id === id);
       if (foundPost) {
         setPost(foundPost);
@@ -91,10 +119,13 @@ export const EditPostPage: React.FC = () => {
           expirationDate: foundPost.expirationDate ? new Date(foundPost.expirationDate).toISOString().split('T')[0] : '',
         });
       } else {
+        console.error('Post not found:', id, 'in team:', teamId);
+        alert('Post not found');
         navigate('/admin');
       }
     } catch (error) {
       console.error('Failed to load post:', error);
+      alert('Failed to load post. Please try again.');
       navigate('/admin');
     }
   };
@@ -123,7 +154,32 @@ export const EditPostPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (uploadingFile || !currentTeam || !id) return;
+    if (uploadingFile || !id) return;
+
+    let teamId = currentTeam?.id;
+    
+    // For god users without a team, try to get or create a default team
+    if (!teamId && user?.role === 'god') {
+      try {
+        const { teamService } = await import('../lib/teams');
+        const teams = await teamService.getUserTeams(user.id);
+        if (teams.length > 0) {
+          teamId = teams[0].id;
+        } else {
+          const defaultTeam = await teamService.getOrCreateDefaultTeam(user.id, user.name);
+          teamId = defaultTeam.id;
+        }
+      } catch (error) {
+        console.error('Failed to get/create team for god user:', error);
+        alert('Failed to update post: No team available. Please create a team first.');
+        return;
+      }
+    }
+    
+    if (!teamId) {
+      alert('Please select a team first.');
+      return;
+    }
 
     setLoading(true);
 
@@ -131,7 +187,7 @@ export const EditPostPage: React.FC = () => {
       await apiService.updateChangelogPost(id, {
         ...formData,
         category: formData.category
-      }, currentTeam.id);
+      }, teamId);
       navigate('/admin');
     } catch (error) {
       console.error('Failed to update post:', error);
@@ -158,12 +214,42 @@ export const EditPostPage: React.FC = () => {
     setFormData({ ...formData, imageUrl: '' });
   };
 
-  if (!currentTeam || !post) {
+  // Show loading state while auth or team is loading
+  if (authLoading || teamLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
           <p className="text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while post is being loaded
+  if (!post && !loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-600">Loading post...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If no post found after loading, show error
+  if (!post) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-sm text-gray-600 mb-4">Post not found</p>
+          <button
+            onClick={() => navigate('/admin')}
+            className="text-sm text-gray-900 hover:text-gray-700 underline"
+          >
+            Back to Admin Dashboard
+          </button>
         </div>
       </div>
     );
