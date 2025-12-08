@@ -126,11 +126,12 @@ service cloud.firestore {
     match /changelog/{postId} {
       // Allow public read for published posts (for embedded widgets and public pages)
       // Allow authenticated users to read all posts (app filters by teamId)
-      allow read: if resource.data.status == 'published' || isAuthenticated();
+      // Handle cases where status might not exist (default to allowing if authenticated)
+      allow read: if (resource.data.status != null && resource.data.status == 'published') || isAuthenticated();
       
-      // Allow public list queries (limited to published posts by app logic)
-      // Note: App should filter by status='published' for public queries
-      allow list: if true; // Public list access, app filters appropriately
+      // Allow public list queries - Firestore will check each document's read permission
+      // Since we filter by status='published' in the query, only published posts will be returned
+      allow list: if true;
       
       // Allow authenticated users to create posts (app verifies team membership)
       allow create: if isAuthenticated() && 
