@@ -56,7 +56,7 @@ export const CreatePostPage: React.FC = () => {
   const loadSegments = async () => {
     if (!currentTeam?.id) return;
     try {
-      const fetchedSegments = await apiService.getSegments(currentTeam.id);
+      const fetchedSegments = await apiService.getSegments(currentTeam!.id);
       setSegments(fetchedSegments);
     } catch (error) {
       console.error('Failed to load segments:', error);
@@ -66,7 +66,7 @@ export const CreatePostPage: React.FC = () => {
   const loadLanguageSettings = async () => {
     if (!currentTeam?.id) return;
     try {
-      const settings = await apiService.getLanguageSettings(currentTeam.id);
+      const settings = await apiService.getLanguageSettings(currentTeam!.id);
       if (settings) {
         setLanguageSettings(settings);
       }
@@ -165,20 +165,7 @@ export const CreatePostPage: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
-            <Input
-              id="title"
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Enter post title"
-              required
-              className="block w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Content</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Title & Content</label>
             <MultiLanguageEditor
               title={formData.title}
               content={formData.content}
