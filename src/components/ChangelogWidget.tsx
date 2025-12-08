@@ -9,7 +9,7 @@ import {
   useLocalStorage,
   useIntersect
 } from '@/hooks'
-import { cn, renderChatMarkdown } from '@/lib/utils'
+import { cn, renderChatMarkdown, isYouTubeUrl, getYouTubeEmbedUrl, isVideoUrl } from '@/lib/utils'
 import { ChatAgent } from './ChatAgent'
 import FeedbackForm from './FeedbackForm'
 import PostTags from './PostTags'
@@ -133,6 +133,63 @@ export default function ChangelogWidget() {
                 __html: DOMPurify.sanitize(renderChatMarkdown(selectedPost.content)),
               }}
             />
+            
+            {selectedPost.imageUrl && (
+              <div className="mt-6">
+                <img
+                  src={selectedPost.imageUrl}
+                  alt="Update image"
+                  className="w-full rounded-lg shadow-sm border border-gray-200"
+                  style={{ maxHeight: '300px', objectFit: 'cover' }}
+                />
+              </div>
+            )}
+
+            {selectedPost.videoUrl && (
+              <div className="mt-6">
+                {isYouTubeUrl(selectedPost.videoUrl) ? (
+                  <div className="youtube-container" style={{ position: 'relative', zIndex: 20, pointerEvents: 'auto' }}>
+                    <iframe
+                      width="100%"
+                      height="250"
+                      src={getYouTubeEmbedUrl(selectedPost.videoUrl)}
+                      frameBorder="0"
+                      style={{ 
+                        border: 'none',
+                        outline: 'none',
+                        borderRadius: '8px'
+                      }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      title="YouTube video player"
+                      className="rounded-lg shadow-sm border border-gray-200"
+                    />
+                  </div>
+                ) : isVideoUrl(selectedPost.videoUrl) ? (
+                  <video
+                    controls
+                    width="100%"
+                    className="rounded-lg shadow-sm border border-gray-200"
+                  >
+                    <source src={selectedPost.videoUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <p className="text-sm text-blue-700 mb-2">Video Link</p>
+                    <a 
+                      href={selectedPost.videoUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline text-sm font-medium"
+                    >
+                      {selectedPost.videoUrl}
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <FeedbackForm
               formState={formState}
               submitFeedback={(rating, text) =>

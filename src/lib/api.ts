@@ -284,8 +284,8 @@ export const apiService = {
       }
       
       const postData: any = {
-        title: post.title,
-        content: post.content,
+        title: post.title || '',
+        content: post.content || '',
         translations: post.translations || {},
         status,
         teamId: currentTeamId,
@@ -306,6 +306,27 @@ export const apiService = {
       }
       if (post.category) {
         postData.category = post.category;
+      }
+      if (post.enableComments !== undefined) {
+        postData.enableComments = post.enableComments;
+      }
+      if (post.enableReactions !== undefined) {
+        postData.enableReactions = post.enableReactions;
+      }
+      if (post.openLinksInNewTab !== undefined) {
+        postData.openLinksInNewTab = post.openLinksInNewTab;
+      }
+      if (post.enableSocialSharing !== undefined) {
+        postData.enableSocialSharing = post.enableSocialSharing;
+      }
+      if (post.pinToTop !== undefined) {
+        postData.pinToTop = post.pinToTop;
+      }
+      if (post.autoOpenWidget !== undefined) {
+        postData.autoOpenWidget = post.autoOpenWidget;
+      }
+      if (post.expirationDate) {
+        postData.expirationDate = Timestamp.fromDate(new Date(post.expirationDate));
       }
       if (publishedAt) {
         postData.publishedAt = publishedAt;

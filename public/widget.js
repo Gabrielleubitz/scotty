@@ -1162,6 +1162,20 @@
       });
       const localizedPosts = localizePosts(filteredPosts, languageSettings);
       
+      console.log('📝 Final posts to display:', localizedPosts.length);
+      if (localizedPosts.length > 0) {
+        console.log('📄 Sample post:', {
+          id: localizedPosts[0].id,
+          title: localizedPosts[0].title,
+          hasContent: !!localizedPosts[0].content,
+          contentLength: localizedPosts[0].content?.length || 0,
+          hasVideo: !!localizedPosts[0].videoUrl,
+          hasImage: !!localizedPosts[0].imageUrl,
+          status: localizedPosts[0].status,
+          teamId: localizedPosts[0].teamId
+        });
+      }
+      
       displayPosts(localizedPosts);
       
       // Show notification if there are new posts
@@ -1472,11 +1486,13 @@
           </div>
         </div>
         <h3 class="productflow-post-title">${post.title}</h3>
-        <div class="productflow-post-content">${renderMarkdown(post.content)}</div>
+        ${post.content && post.content.trim() ? `<div class="productflow-post-content">${renderMarkdown(post.content)}</div>` : ''}
         ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Update image" style="max-width: 100%; border-radius: 12px; margin: 16px 0;" />` : ''}
         ${post.videoUrl ? (
           post.videoUrl.includes('youtube.com') || post.videoUrl.includes('youtu.be') 
-            ? `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${post.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="border-radius: 12px; margin: 16px 0;"></iframe>`
+            ? `<div class="productflow-video-container" style="margin: 16px 0;">
+                <iframe width="100%" height="315" src="https://www.youtube.com/embed/${post.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="border-radius: 12px; pointer-events: auto; position: relative; z-index: 10;"></iframe>
+              </div>`
             : `<video controls width="100%" style="border-radius: 12px; margin: 16px 0;"><source src="${post.videoUrl}" type="video/mp4"></video>`
         ) : ''}
         <div class="productflow-post-footer">
@@ -1709,6 +1725,8 @@
   }
   
   function renderMarkdown(content) {
+    if (!content || typeof content !== 'string') return '';
+    
     return content
       .replace(/^# (.*$)/gm, '<h1>$1</h1>')
       .replace(/^## (.*$)/gm, '<h2>$1</h2>')
@@ -1722,6 +1740,7 @@
         '<video controls width="100%" style="border-radius: 8px; margin: 12px 0;"><source src="$1" type="video/mp4"></video>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\n\n/g, '<br><br>')
       .replace(/\n/g, '<br>');
   }
