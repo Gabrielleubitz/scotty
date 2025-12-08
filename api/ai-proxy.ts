@@ -55,15 +55,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // For OpenAI API, use /chat/completions endpoint
     // For custom APIs, use /api/chat
     let apiUrl: string;
+    let requestBody: any;
+    
     if (apiBaseUrl.includes('openai.com')) {
       apiUrl = `${apiBaseUrl.replace(/\/$/, '')}/chat/completions`;
+      // Transform request to OpenAI format
+      requestBody = {
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'user',
+            content: req.body.message || 'Hello'
+          }
+        ],
+        stream: false
+      };
     } else {
       // Smart URL handling for custom APIs - remove /api if it exists, then add /api/chat
       const cleanBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '');
       apiUrl = `${cleanBaseUrl}/api/chat`;
+      requestBody = req.body; // Use original body for custom APIs
     }
     
     console.log('AI Proxy - Making request to:', apiUrl);
+    console.log('AI Proxy - Request body:', JSON.stringify(requestBody));
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -72,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify(requestBody),
     });
     
     console.log('AI Proxy - Response status:', response.status);
@@ -85,6 +100,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let formattedData = rawData;
     try {
       const jsonData = JSON.parse(rawData);
+      
+      // Handle OpenAI response format
+      if (apiBaseUrl.includes('openai.com') && jsonData.choices && jsonData.choices[0]) {
+        const openAIResponse = {
+          message: jsonData.choices[0].message?.content || '',
+          session_id: req.body.session_id || jsonData.id,
+        };
+        openAIResponse.message = formatResponse(openAIResponse.message);
+        return res.status(response.status).json(openAIResponse);
+      }
+      
+      // Handle custom API response format
       if (jsonData.message) {
         jsonData.message = formatResponse(jsonData.message);
         formattedData = JSON.stringify(jsonData);
