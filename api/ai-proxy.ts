@@ -59,16 +59,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     if (apiBaseUrl.includes('openai.com')) {
       apiUrl = `${apiBaseUrl.replace(/\/$/, '')}/chat/completions`;
-      // Transform request to OpenAI format
+      
+      // Get context data from request (recent updates)
+      const contextData = req.body.stored_values || {};
+      const recentUpdates = contextData.recent_updates || [];
+      
+      // Build system prompt that restricts AI to only answer questions about product updates
+      let systemPrompt = `You are a helpful AI assistant for a product changelog widget. Your ONLY job is to answer questions about the product updates and features that have been released. 
+
+IMPORTANT RULES:
+1. You MUST ONLY answer questions about the product updates provided in the context below
+2. If a question is NOT about the product updates, politely decline and redirect to product updates
+3. Do NOT answer general knowledge questions, definitions, or questions unrelated to the product
+4. If you don't have information about a specific update, say so clearly
+5. Be concise and helpful, but stay strictly within the bounds of the product updates provided
+
+Product Updates Context:`;
+
+      // Add recent updates to the system prompt
+      if (recentUpdates.length > 0) {
+        systemPrompt += '\n\nRecent Product Updates:\n';
+        recentUpdates.forEach((update: any, index: number) => {
+          systemPrompt += `\n${index + 1}. ${update.title} (${new Date(update.date).toLocaleDateString()})\n   ${update.content}\n`;
+        });
+      } else {
+        systemPrompt += '\n\nNo recent updates available at this time.';
+      }
+      
+      // Transform request to OpenAI format with system prompt
       requestBody = {
         model: 'gpt-3.5-turbo',
         messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
           {
             role: 'user',
             content: req.body.message || 'Hello'
           }
         ],
-        stream: false
+        stream: false,
+        temperature: 0.7,
+        max_tokens: 500
       };
     } else {
       // Smart URL handling for custom APIs - remove /api if it exists, then add /api/chat

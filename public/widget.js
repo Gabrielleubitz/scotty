@@ -1561,6 +1561,30 @@
       const aiConfig = config.aiAgent || { enabled: false };
       
       if (aiConfig.enabled && aiConfig.apiUrl) {
+        // Get recent posts for context (same posts shown in widget)
+        let recentUpdates = [];
+        try {
+          if (db && config.teamId) {
+            const postsSnapshot = await db.collection('changelog')
+              .where('teamId', '==', config.teamId)
+              .where('status', '==', 'published')
+              .orderBy('createdAt', 'desc')
+              .limit(5)
+              .get();
+            
+            recentUpdates = postsSnapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                title: data.title || '',
+                content: (data.content || '').substring(0, 200),
+                date: data.createdAt ? data.createdAt.toDate().toISOString() : new Date().toISOString()
+              };
+            });
+          }
+        } catch (error) {
+          console.warn('Failed to load recent updates for AI context:', error);
+        }
+        
         // Use AI agent via proxy (no token needed - handled server-side)
         const response = await fetch(`${config.apiUrl}/api/ai-proxy`, {
           method: 'POST',
@@ -1572,6 +1596,11 @@
             message,
             session_id: sessionId,
             stream: false,
+            stored_values: {
+              recent_updates: recentUpdates,
+              domain: window.location.hostname,
+              timestamp: new Date().toISOString()
+            }
           }),
         });
         

@@ -38,14 +38,20 @@ export const CreatePostPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!currentTeam) {
+    // God users can create posts even without a currentTeam
+    // They'll need to select a team or we'll use the first available team
+    if (!currentTeam && user?.role !== 'god') {
       navigate('/admin');
       return;
     }
 
-    loadSegments();
-    loadLanguageSettings();
-  }, [currentTeam, navigate]);
+    // For god users without a team, we'll still allow them to proceed
+    // They can create posts but may need to select a team
+    if (currentTeam) {
+      loadSegments();
+      loadLanguageSettings();
+    }
+  }, [currentTeam, navigate, user]);
 
   const loadSegments = async () => {
     if (!currentTeam?.id) return;
@@ -71,7 +77,32 @@ export const CreatePostPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (uploadingFile || !currentTeam) return;
+    if (uploadingFile) return;
+
+    // For god users without a team, try to get or create a default team
+    let teamId = currentTeam?.id;
+    if (!teamId && user?.role === 'god') {
+      try {
+        // Try to get user's teams or create a default one
+        const { teamService } = await import('../lib/teams');
+        const teams = await teamService.getUserTeams(user.id);
+        if (teams.length > 0) {
+          teamId = teams[0].id;
+        } else {
+          const defaultTeam = await teamService.getOrCreateDefaultTeam(user.id, user.name);
+          teamId = defaultTeam.id;
+        }
+      } catch (error) {
+        console.error('Failed to get/create team for god user:', error);
+        alert('Failed to create post: No team available. Please create a team first.');
+        return;
+      }
+    }
+
+    if (!teamId) {
+      alert('Please select a team first.');
+      return;
+    }
 
     setLoading(true);
 
@@ -79,7 +110,7 @@ export const CreatePostPage: React.FC = () => {
       await apiService.createChangelogPost({
         ...formData,
         category: formData.category
-      }, currentTeam.id);
+      }, teamId);
       navigate('/admin');
     } catch (error) {
       console.error('Failed to create post:', error);
@@ -106,7 +137,9 @@ export const CreatePostPage: React.FC = () => {
     setFormData({ ...formData, imageUrl: '' });
   };
 
-  if (!currentTeam) {
+  // For god users, allow them to proceed even without a currentTeam
+  // They'll need to have a team available when submitting
+  if (!currentTeam && user?.role !== 'god') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
