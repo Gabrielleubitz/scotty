@@ -138,8 +138,13 @@ service cloud.firestore {
                        request.resource.data.teamId != null;
       
       // Allow authenticated users to update posts (app verifies team membership and role)
-      allow update: if isAuthenticated() && 
-                       resource.data.teamId != null;
+      // Also allow public users to increment view counts on published posts (for embedded widgets)
+      allow update: if (isAuthenticated() && resource.data.teamId != null) ||
+                       // Public view count increment: only allow updating views field on published posts
+                       (resource.data.status == 'published' && 
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']) &&
+                        request.resource.data.views is int &&
+                        request.resource.data.views >= resource.data.views);
       
       // Allow delete if user is owner of the team
       allow delete: if isAuthenticated() && 
