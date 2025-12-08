@@ -6,6 +6,7 @@ import { Modal } from './ui/Modal';
 import ChangelogWidget from './ChangelogWidget';
 import { AIAgentConfig } from '../types';
 import { useTeam } from '../hooks/useTeam';
+import { productDeploymentService } from '../lib/product-deployments';
 
 interface EmbedCodeGeneratorProps {
   isOpen: boolean;
@@ -343,6 +344,15 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
       await navigator.clipboard.writeText(generateEmbedCode());
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      
+      // Save product deployment
+      if (currentTeam?.id && productId && productId !== 'YOUR_PRODUCT_ID') {
+        await productDeploymentService.saveDeployment(
+          currentTeam.id,
+          productId,
+          widgetType
+        );
+      }
     } catch (err) {
       console.error('Failed to copy:', err);
     }
@@ -409,7 +419,7 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
             <div className="flex items-center justify-between mb-3">
               <label className="block text-sm font-semibold text-gray-900">
                 Choose Widget Type
-              </label>
+            </label>
               <div className="flex items-center text-xs text-gray-500">
                 <HelpCircle size={14} className="mr-1" />
                 <span>Select the type that fits your needs</span>
@@ -533,88 +543,88 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
               <h3 className="text-lg font-semibold text-gray-900">Customize Appearance</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {(widgetType === 'full' || widgetType === 'gtm') ? (
-                <>
-                  <div>
+            {(widgetType === 'full' || widgetType === 'gtm') ? (
+              <>
+                <div>
                     <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                       <Layout size={16} className="mr-2 text-gray-500" />
-                      Widget Position
-                    </label>
-                    <select
-                      value={widgetPosition}
-                      onChange={(e) => setWidgetPosition(e.target.value as any)}
+                    Widget Position
+                  </label>
+                  <select
+                    value={widgetPosition}
+                    onChange={(e) => setWidgetPosition(e.target.value as any)}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white"
-                    >
+                  >
                       <option value="bottom-right">Bottom Right (Recommended)</option>
-                      <option value="bottom-left">Bottom Left</option>
-                      <option value="top-right">Top Right</option>
-                      <option value="top-left">Top Left</option>
-                    </select>
+                    <option value="bottom-left">Bottom Left</option>
+                    <option value="top-right">Top Right</option>
+                    <option value="top-left">Top Left</option>
+                  </select>
                     <p className="text-xs text-gray-500 mt-1.5">Where the widget button appears on your site</p>
-                  </div>
+                </div>
 
-                  <div>
+                <div>
                     <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                       <Sparkles size={16} className="mr-2 text-gray-500" />
                       Button Text
                     </label>
-                    <Input
-                      value={buttonText}
-                      onChange={(e) => setButtonText(e.target.value)}
-                      placeholder="What's New"
+                  <Input
+                    value={buttonText}
+                    onChange={(e) => setButtonText(e.target.value)}
+                    placeholder="What's New"
                       className="w-full"
-                    />
+                  />
                     <p className="text-xs text-gray-500 mt-1.5">Text displayed on the widget button</p>
-                  </div>
+                </div>
 
-                  <div>
+                <div>
                     <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                       <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: primaryColor }}></div>
-                      Primary Color
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="color"
-                        value={primaryColor}
-                        onChange={(e) => setPrimaryColor(e.target.value)}
+                    Primary Color
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="color"
+                      value={primaryColor}
+                      onChange={(e) => setPrimaryColor(e.target.value)}
                         className="w-14 h-12 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors"
                         title="Choose button color"
-                      />
-                      <Input
-                        value={primaryColor}
-                        onChange={(e) => setPrimaryColor(e.target.value)}
-                        placeholder="#2563eb"
-                        className="flex-1"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1.5">Main color for the widget button</p>
+                    />
+                    <Input
+                      value={primaryColor}
+                      onChange={(e) => setPrimaryColor(e.target.value)}
+                      placeholder="#2563eb"
+                      className="flex-1"
+                    />
                   </div>
+                    <p className="text-xs text-gray-500 mt-1.5">Main color for the widget button</p>
+                </div>
 
-                  <div>
+                <div>
                     <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                       <Tag size={16} className="mr-2 text-gray-500" />
                       Widget Title
                     </label>
-                    <Input
-                      value={widgetTitle}
-                      onChange={(e) => setWidgetTitle(e.target.value)}
-                      placeholder="Product Updates"
+                  <Input
+                    value={widgetTitle}
+                    onChange={(e) => setWidgetTitle(e.target.value)}
+                    placeholder="Product Updates"
                       className="w-full"
-                    />
+                  />
                     <p className="text-xs text-gray-500 mt-1.5">Title shown inside the widget popup</p>
-                  </div>
+                </div>
 
-                  <div>
+                <div>
                     <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                       <Eye size={16} className="mr-2 text-gray-500" />
                       Button Visibility
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setShowButton(true)}
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowButton(true)}
                         className={`p-4 rounded-xl border-2 text-left transition-all ${
-                          showButton
+                        showButton
                             ? 'border-gray-900 bg-gray-50 shadow-md'
                             : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
@@ -622,16 +632,16 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                         <div className="flex items-center space-x-2 mb-2">
                           <div className="w-5 h-5 bg-gray-900 rounded-lg flex items-center justify-center">
                             <Eye size={12} className="text-white" />
-                          </div>
+                      </div>
                           <span className="font-semibold text-gray-900">Visible</span>
                         </div>
                         <p className="text-xs text-gray-600">Display floating button for users</p>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowButton(false)}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowButton(false)}
                         className={`p-4 rounded-xl border-2 text-left transition-all ${
-                          !showButton
+                        !showButton
                             ? 'border-gray-900 bg-gray-50 shadow-md'
                             : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
@@ -639,31 +649,31 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                         <div className="flex items-center space-x-2 mb-2">
                           <div className="w-5 h-5 bg-gray-300 rounded-lg flex items-center justify-center">
                             <Eye size={12} className="text-gray-600" />
-                          </div>
+                      </div>
                           <span className="font-semibold text-gray-900">Hidden</span>
                         </div>
                         <p className="text-xs text-gray-600">Open programmatically only</p>
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      {showButton 
-                        ? '✓ Button will be visible for users to click'
-                        : 'Use window.productflow_openWidget() to open programmatically'
-                      }
-                    </p>
+                    </button>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {showButton 
+                        ? '✓ Button will be visible for users to click'
+                      : 'Use window.productflow_openWidget() to open programmatically'
+                    }
+                  </p>
+                </div>
 
-                  <div>
+                <div>
                     <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                       <Sparkles size={16} className="mr-2 text-gray-500" />
-                      Widget Theme
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setEnableDarkMode(false)}
+                    Widget Theme
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setEnableDarkMode(false)}
                         className={`p-4 rounded-xl border-2 text-left transition-all ${
-                          !enableDarkMode
+                        !enableDarkMode
                             ? 'border-gray-900 bg-gray-50 shadow-md'
                             : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
@@ -671,14 +681,14 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                         <div className="flex items-center space-x-3 mb-2">
                           <div className="w-6 h-6 bg-white border-2 border-gray-300 rounded-lg shadow-sm"></div>
                           <span className="font-semibold text-gray-900">Light Mode</span>
-                        </div>
-                        <p className="text-xs text-gray-600">Clean white background</p>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEnableDarkMode(true)}
+                      </div>
+                      <p className="text-xs text-gray-600">Clean white background</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEnableDarkMode(true)}
                         className={`p-4 rounded-xl border-2 text-left transition-all ${
-                          enableDarkMode
+                        enableDarkMode
                             ? 'border-gray-900 bg-gray-50 shadow-md'
                             : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
@@ -686,14 +696,14 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                         <div className="flex items-center space-x-3 mb-2">
                           <div className="w-6 h-6 bg-gray-800 border-2 border-gray-600 rounded-lg shadow-sm"></div>
                           <span className="font-semibold text-gray-900">Dark Mode</span>
-                        </div>
-                        <p className="text-xs text-gray-600">Dark background theme</p>
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1.5">Color scheme for the widget popup</p>
+                      </div>
+                      <p className="text-xs text-gray-600">Dark background theme</p>
+                    </button>
                   </div>
-                </>
-              ) : widgetType === 'notification' ? (
+                    <p className="text-xs text-gray-500 mt-1.5">Color scheme for the widget popup</p>
+                </div>
+              </>
+            ) : widgetType === 'notification' ? (
               <>
                 <div>
                   <Input
@@ -774,7 +784,7 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
               {showPreview ? 'Hide' : 'Show'} Preview
             </button>
           </div>
-          {showPreview && (
+        {showPreview && (
             <div className="p-6 bg-white">
               <div className="relative bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg h-96 overflow-hidden mb-4" style={{ minHeight: '400px' }}>
                 {/* Simulated website background */}
@@ -792,13 +802,13 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                       buttonShape === 'square' ? 'rounded-none' :
                       'rounded-lg'
                     }`}
-                    style={{
-                      backgroundColor: primaryColor,
+                style={{
+                  backgroundColor: primaryColor,
                       [widgetPosition.includes('bottom') ? 'bottom' : 'top']: '20px',
                       [widgetPosition.includes('right') ? 'right' : 'left']: '20px',
-                    }}
-                    onClick={() => setIsPreviewWidgetOpen(true)}
-                  >
+                }}
+                onClick={() => setIsPreviewWidgetOpen(true)}
+              >
                     <svg 
                       width={buttonSize === 'small' ? 14 : buttonSize === 'large' ? 20 : 18} 
                       height={buttonSize === 'small' ? 14 : buttonSize === 'large' ? 20 : 18} 
@@ -807,8 +817,8 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                       stroke="currentColor" 
                       strokeWidth="2"
                     >
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                    </svg>
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
                     <span>{buttonText}</span>
                     <span 
                       className={`absolute bg-red-500 rounded-full border-2 border-white ${
@@ -817,8 +827,8 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                         'w-3 h-3 -top-1 -right-1'
                       }`}
                     ></span>
-                  </div>
-                )}
+                </div>
+              )}
 
                 {/* Notification Badge Preview */}
                 {widgetType === 'notification' && (
@@ -839,14 +849,14 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                         }}
                       >
                         3
-                      </div>
+            </div>
                     </div>
                   </div>
                 )}
 
                 {!showButton && (widgetType === 'full' || widgetType === 'gtm') && (
                   <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-                    <div className="text-center">
+            <div className="text-center">
                       <p className="mb-2">Button hidden</p>
                       <p className="text-xs">Use <code className="bg-gray-200 px-1 rounded">window.productflow_openWidget()</code> to open</p>
                     </div>
@@ -888,18 +898,18 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                 <div className="text-sm text-gray-600">
                   Preview updates in real-time as you customize
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsPreviewWidgetOpen(true)}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPreviewWidgetOpen(true)}
                   className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  <Eye size={16} className="mr-2" />
+              >
+                <Eye size={16} className="mr-2" />
                   Test Full Widget
-                </Button>
-              </div>
+              </Button>
             </div>
-          )}
+          </div>
+        )}
         </div>
 
         {/* GTM Instructions */}

@@ -258,7 +258,8 @@ export const MultiLanguageEditor: React.FC<MultiLanguageEditorProps> = ({
               size="sm"
               onClick={() => handleTranslate(activeLanguage)}
               loading={translatingLanguage === activeLanguage}
-              disabled={!title.trim() || !content.trim() || showApiKeyWarning}
+              disabled={(!title.trim() && !content.trim()) || showApiKeyWarning}
+              title={(!title.trim() && !content.trim()) ? 'Please add title and content to translate' : 'Translate both title and content'}
             >
               <Wand2 size={16} className="mr-2" />
               Auto-Translate
@@ -271,7 +272,8 @@ export const MultiLanguageEditor: React.FC<MultiLanguageEditorProps> = ({
               size="sm"
               onClick={() => handleTranslate(activeLanguage)}
               loading={translatingLanguage === activeLanguage}
-              disabled={!title.trim() || !content.trim() || showApiKeyWarning}
+              disabled={(!title.trim() && !content.trim()) || showApiKeyWarning}
+              title="Re-translate both title and content"
             >
               <Wand2 size={16} className="mr-2" />
               Re-translate

@@ -418,33 +418,45 @@ export const AdminDashboard: React.FC = () => {
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-base font-semibold text-gray-900">Domain Analytics</h3>
+                <p className="text-xs text-gray-500 mt-1">Shows domains and product IDs from your embedded widgets</p>
               </div>
               <div className="p-6">
                 {visitorAnalytics.domainStats?.length > 0 ? (
                   <div className="space-y-4">
                     {visitorAnalytics.domainStats.slice(0, 5).map((domain: any, index: number) => (
-                      <div key={`domain-${domain.domain}-${index}`} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
+                      <div key={`domain-${domain.domain}-${domain.productId}-${index}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center space-x-3 flex-1">
                           <div className="bg-blue-100 rounded-lg p-2">
                             <Globe size={16} className="text-blue-600" />
                           </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{domain.domain}</p>
-                            <p className="text-sm text-gray-500">
-                              {domain.countries.slice(0, 2).join(', ')}
-                              {domain.countries.length > 2 && ` +${domain.countries.length - 2} more`}
-                            </p>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{domain.domain || 'Unknown Domain'}</p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                                {domain.productId || 'unknown'}
+                              </span>
+                              {domain.countries && domain.countries.length > 0 && (
+                                <p className="text-xs text-gray-500 truncate">
+                                  {domain.countries.slice(0, 2).join(', ')}
+                                  {domain.countries.length > 2 && ` +${domain.countries.length - 2}`}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">{domain.uniqueVisitors}</p>
-                          <p className="text-sm text-gray-500">{domain.totalViews} views</p>
+                        <div className="text-right ml-4">
+                          <p className="font-semibold text-gray-900">{domain.uniqueVisitors || 0}</p>
+                          <p className="text-xs text-gray-500">{domain.totalViews || 0} views</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-4">No domain data yet</p>
+                  <div className="text-center py-8">
+                    <Globe size={32} className="mx-auto text-gray-300 mb-2" />
+                    <p className="text-gray-500">No domain data yet</p>
+                    <p className="text-xs text-gray-400 mt-1">Data will appear when users interact with your embedded widgets</p>
+                  </div>
                 )}
               </div>
             </div>

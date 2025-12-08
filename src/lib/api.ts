@@ -847,28 +847,45 @@ export const apiService = {
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(view => teamPostIds.has(view.postId));
 
-      // Aggregate data by domain
-      const domainStats = {};
+      // Aggregate data by domain and product ID
+      const domainStats: any = {};
       visitors.forEach(visitor => {
         const domain = visitor.domain;
-        if (!domainStats[domain]) {
-          domainStats[domain] = {
+        const productId = visitor.productId || 'unknown';
+        const key = `${domain}_${productId}`;
+        
+        if (!domainStats[key]) {
+          domainStats[key] = {
             domain,
+            productId,
             uniqueVisitors: 0,
             totalViews: 0,
             countries: new Set(),
             browsers: new Set()
           };
         }
-        domainStats[domain].uniqueVisitors++;
-        if (visitor.country) domainStats[domain].countries.add(visitor.country);
-        if (visitor.browser) domainStats[domain].browsers.add(visitor.browser);
+        domainStats[key].uniqueVisitors++;
+        if (visitor.country) domainStats[key].countries.add(visitor.country);
+        if (visitor.browser) domainStats[key].browsers.add(visitor.browser);
       });
 
       postViews.forEach(view => {
         const domain = view.domain;
-        if (domainStats[domain]) {
-          domainStats[domain].totalViews++;
+        const productId = view.productId || 'unknown';
+        const key = `${domain}_${productId}`;
+        
+        if (domainStats[key]) {
+          domainStats[key].totalViews++;
+        } else {
+          // Create entry if it doesn't exist (from post views)
+          domainStats[key] = {
+            domain,
+            productId,
+            uniqueVisitors: 0,
+            totalViews: 1,
+            countries: new Set(),
+            browsers: new Set()
+          };
         }
       });
 
