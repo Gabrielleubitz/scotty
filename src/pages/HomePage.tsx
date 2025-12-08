@@ -14,6 +14,7 @@ import ChangelogWidget from '../components/ChangelogWidget';
 import { AuthModal } from '../components/AuthModal';
 import { ChangelogPost } from '../types';
 import { formatRelativeTime } from '../lib/utils';
+import { AnimatedText } from '../components/AnimatedText';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -189,24 +190,39 @@ export const HomePage: React.FC = () => {
             <Tag variant="accent">Product changelog + AI assistant</Tag>
             
             <h1 className="text-h1 text-text-primary">
-              Turn your product updates into a clear story
+              Scotty keeps your product updates clear, searchable, and shareable.
             </h1>
             
+            <div className="text-h2 text-accent font-semibold min-h-[3rem] flex items-center">
+              <AnimatedText 
+                phrases={[
+                  'AI-powered product updates',
+                  'Automatic multi-language changelogs',
+                  'Targeted updates by domain and segment',
+                  'Changelog analytics and engagement tracking',
+                  'Integrated AI assistant for help and guidance',
+                  'Role-based access for admins and users'
+                ]}
+                className="text-h2 text-accent font-semibold"
+                interval={3000}
+              />
+            </div>
+            
             <p className="text-body text-text-muted max-w-xl">
-              Scotty helps you publish changelogs, keep teams aligned, and use AI to draft and refine updates in minutes.
+              Create and publish changelogs, use AI to clean up your release notes, translate updates for every market, and see who actually reads them.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" onClick={() => setIsAuthModalOpen(true)}>
-                Start for free
+                Start your changelog
               </Button>
               <Button variant="secondary" size="lg" onClick={() => setIsWidgetOpen(true)}>
-                View sample changelog
+                View live demo
               </Button>
             </div>
             
             <p className="text-caption text-text-muted">
-              Teams use Scotty to share releases, fix communication gaps, and keep everyone on the same page.
+              Built for teams that want one place for product updates, AI assistance, and multi-language support.
             </p>
           </div>
 
@@ -264,44 +280,56 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-20">
-        <h2 className="text-h2 text-text-primary text-center mb-12">How Scotty works</h2>
+      {/* Feature Highlights */}
+      <section id="features" className="max-w-7xl mx-auto px-6 py-20">
+        <h2 className="text-h2 text-text-primary text-center mb-12">Everything you need for product updates</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <div className="w-12 h-12 bg-accent/20 rounded-card flex items-center justify-center mb-4">
               <FileText size={24} className="text-accent" />
             </div>
             <CardHeader>
-              <CardTitle>1. Capture updates</CardTitle>
+              <CardTitle>Changelog management that fits your workflow</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-body text-text-muted">Drop release notes, internal notes, or Jira text. Scotty turns them into clean entries.</p>
+              <p className="text-body text-text-muted">Create, edit, and schedule product updates, organize them by category and tags, and keep everything in one place.</p>
             </CardContent>
           </Card>
           
           <Card>
             <div className="w-12 h-12 bg-accent/20 rounded-card flex items-center justify-center mb-4">
-              <Sparkles size={24} className="text-accent" />
+              <Bot size={24} className="text-accent" />
             </div>
             <CardHeader>
-              <CardTitle>2. Let AI clean it up</CardTitle>
+              <CardTitle>AI assistant built into your updates</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-body text-text-muted">Refine wording, add tags, and keep the tone consistent with your product.</p>
+              <p className="text-body text-text-muted">Use an integrated chat agent to draft release notes, discover features, and guide users through your product changes.</p>
             </CardContent>
           </Card>
           
           <Card>
             <div className="w-12 h-12 bg-accent/20 rounded-card flex items-center justify-center mb-4">
-              <Users size={24} className="text-accent" />
+              <MessageSquare size={24} className="text-accent" />
             </div>
             <CardHeader>
-              <CardTitle>3. Share with your team</CardTitle>
+              <CardTitle>Multi-language changelogs out of the box</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-body text-text-muted">Publish to a central changelog and keep everyone aligned.</p>
+              <p className="text-body text-text-muted">Translate your posts automatically using OpenAI, Google, or DeepL, and control which languages your users see.</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <div className="w-12 h-12 bg-accent/20 rounded-card flex items-center justify-center mb-4">
+              <BarChart3 size={24} className="text-accent" />
+            </div>
+            <CardHeader>
+              <CardTitle>Analytics, audiences, and targeting</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-body text-text-muted">Track views and engagement, group users by domain, and deliver the right updates to the right people.</p>
             </CardContent>
           </Card>
         </div>
@@ -487,7 +515,7 @@ export const HomePage: React.FC = () => {
                 <Logo size={20} />
                 <span className="text-h3 text-text-primary font-semibold">Scotty</span>
               </div>
-              <p className="text-body text-text-muted">Product changelog and AI assistant.</p>
+              <p className="text-body text-text-muted">Changelogs, AI assistance, and multi-language product updates in one place.</p>
             </div>
             <div className="flex flex-wrap gap-6">
               <button onClick={() => navigate('/docs')} className="text-body text-text-muted hover:text-text-primary transition-colors">Docs</button>
