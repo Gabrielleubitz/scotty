@@ -275,12 +275,12 @@ export const apiService = {
       let publishedAt = null;
       let scheduledFor = null;
       
-      if (post.scheduledFor && post.scheduledFor > now) {
-        status = 'scheduled';
+      if (status === 'scheduled' && post.scheduledFor && post.scheduledFor > now) {
         scheduledFor = Timestamp.fromDate(post.scheduledFor);
-      } else {
-        status = 'published';
+      } else if (status === 'published') {
         publishedAt = Timestamp.fromDate(now);
+      } else if (status === 'draft') {
+        // Draft posts don't get publishedAt
       }
       
       const postData: any = {

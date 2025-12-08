@@ -66,6 +66,7 @@ export const EditPostPage: React.FC = () => {
           imageUrl: foundPost.imageUrl || '',
           category: foundPost.category || 'NOTIFICATION',
           segmentId: foundPost.segmentId || null,
+          status: foundPost.status || 'published',
           enableComments: foundPost.enableComments || false,
           enableReactions: foundPost.enableReactions || false,
           openLinksInNewTab: foundPost.openLinksInNewTab ?? true,
