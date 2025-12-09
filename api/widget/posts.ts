@@ -52,12 +52,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'teamId is required' });
     }
 
-    const db = getFirebaseAdmin();
+    console.log('📥 Widget posts request:', { teamId, domain, productId });
+
+    let db;
+    try {
+      db = getFirebaseAdmin();
+      console.log('✅ Firebase Admin initialized');
+    } catch (initError: any) {
+      console.error('❌ Firebase Admin initialization failed:', initError);
+      return res.status(500).json({ 
+        error: 'Database initialization failed',
+        message: initError.message 
+      });
+    }
 
     // Get published posts for the team
     // Note: If orderBy fails due to missing index, we'll fetch all and sort in memory
     let snapshot;
     try {
+      console.log('🔍 Querying posts for team:', teamId);
       const postsRef = db.collection('changelog');
       const query = postsRef
         .where('teamId', '==', teamId)
@@ -66,28 +79,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .limit(50);
       
       snapshot = await query.get();
+      console.log(`✅ Found ${snapshot.docs.length} posts with index`);
     } catch (queryError: any) {
+      console.warn('⚠️ Query with orderBy failed:', queryError.code, queryError.message);
+      
       // If orderBy fails (missing index), fetch without orderBy and sort in memory
-      if (queryError.code === 'failed-precondition' || queryError.message?.includes('index')) {
-        console.warn('Composite index missing, fetching without orderBy and sorting in memory');
-        const postsRef = db.collection('changelog');
-        const query = postsRef
-          .where('teamId', '==', teamId)
-          .where('status', '==', 'published')
-          .limit(50);
+      if (queryError.code === 'failed-precondition' || 
+          queryError.code === 9 || 
+          queryError.message?.includes('index') ||
+          queryError.message?.includes('requires an index')) {
+        console.log('📋 Composite index missing, fetching without orderBy and sorting in memory');
         
-        snapshot = await query.get();
-        
-        // Sort in memory by createdAt
-        const docs = snapshot.docs.sort((a, b) => {
-          const aTime = a.data().createdAt?.toMillis?.() || 0;
-          const bTime = b.data().createdAt?.toMillis?.() || 0;
-          return bTime - aTime; // Descending
-        });
-        
-        // Create a mock snapshot-like object
-        snapshot = { docs } as any;
+        try {
+          const postsRef = db.collection('changelog');
+          const query = postsRef
+            .where('teamId', '==', teamId)
+            .where('status', '==', 'published')
+            .limit(50);
+          
+          snapshot = await query.get();
+          console.log(`✅ Found ${snapshot.docs.length} posts without orderBy`);
+          
+          // Sort in memory by createdAt
+          const docs = snapshot.docs.sort((a, b) => {
+            const aData = a.data();
+            const bData = b.data();
+            const aTime = aData.createdAt?.toMillis?.() || 
+                         (aData.createdAt?.seconds ? aData.createdAt.seconds * 1000 : 0) ||
+                         (aData.createdAt ? new Date(aData.createdAt).getTime() : 0);
+            const bTime = bData.createdAt?.toMillis?.() || 
+                         (bData.createdAt?.seconds ? bData.createdAt.seconds * 1000 : 0) ||
+                         (bData.createdAt ? new Date(bData.createdAt).getTime() : 0);
+            return bTime - aTime; // Descending
+          });
+          
+          // Create a mock snapshot-like object
+          snapshot = { docs } as any;
+        } catch (fallbackError: any) {
+          console.error('❌ Fallback query also failed:', fallbackError);
+          throw fallbackError;
+        }
       } else {
+        console.error('❌ Query error (not index-related):', queryError);
         throw queryError;
       }
     }
@@ -160,10 +193,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error: any) {
-    console.error('Error fetching widget posts:', error);
+    console.error('❌ Error fetching widget posts:', error);
+    console.error('Error details:', {
+      name: error.name,
+      code: error.code,
+      message: error.message,
+      stack: error.stack
+    });
+    
     return res.status(500).json({ 
       error: 'Failed to fetch posts',
-      message: error.message 
+      message: error.message || 'Unknown error',
+      code: error.code || 'UNKNOWN'
     });
   }
 }
