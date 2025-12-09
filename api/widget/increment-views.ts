@@ -2,23 +2,61 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-// Initialize Firebase Admin
-if (!getApps().length) {
-  try {
-    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-    if (serviceAccount) {
-      initializeApp({
-        credential: cert(JSON.parse(serviceAccount))
-      });
-    } else {
-      initializeApp();
-    }
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
+// Helper to clean and fix common JSON issues (same as posts.ts)
+function cleanJSONString(jsonString: string): string {
+  let cleaned = jsonString.trim();
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || 
+      (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1);
+    cleaned = cleaned.replace(/\\"/g, '"').replace(/\\'/g, "'");
   }
+  cleaned = cleaned.replace(/\\n/g, ' ').replace(/\\r/g, ' ');
+  cleaned = cleaned.replace(/\n/g, ' ').replace(/\r/g, ' ');
+  cleaned = cleaned.replace(/'/g, '"');
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  return cleaned;
 }
 
-const db = getFirestore();
+// Initialize Firebase Admin
+function getFirebaseAdmin() {
+  if (getApps().length === 0) {
+    let serviceAccount: any = null;
+    const envVar = process.env.FIREBASE_SERVICE_ACCOUNT || process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    
+    if (envVar) {
+      try {
+        if (typeof envVar === 'string') {
+          try {
+            serviceAccount = JSON.parse(envVar);
+          } catch (firstAttempt: any) {
+            console.warn('⚠️ First parse failed, trying cleaned version...');
+            const cleaned = cleanJSONString(envVar);
+            serviceAccount = JSON.parse(cleaned);
+          }
+        } else {
+          serviceAccount = envVar;
+        }
+      } catch (parseError: any) {
+        console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT:', parseError.message);
+        throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT JSON: ${parseError.message}`);
+      }
+    }
+    
+    if (serviceAccount) {
+      initializeApp({ credential: cert(serviceAccount) });
+    } else {
+      try {
+        initializeApp();
+      } catch (error: any) {
+        console.error('Failed to initialize Firebase Admin:', error);
+        throw new Error('Firebase Admin not configured');
+      }
+    }
+  }
+  return getFirestore();
+}
+
+// db will be initialized per-request
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
@@ -35,6 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const db = getFirebaseAdmin();
     const { postId, incrementBy = 1 } = req.body;
 
     if (!postId || typeof postId !== 'string') {
