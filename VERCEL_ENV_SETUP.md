@@ -51,11 +51,14 @@ The JSON file will look like this:
    - **Name:** `FIREBASE_SERVICE_ACCOUNT`
    - **Value:** Paste the **entire JSON as a single line** (minified)
    
-   **Important:** 
+   **CRITICAL:** 
+   - The JSON should be **1500-2000+ characters long**
+   - If it's only 50-100 characters, you only pasted part of it!
    - Remove all line breaks
    - Keep it as one continuous string
    - Make sure all quotes are double quotes (`"`), not single quotes (`'`)
    - The entire JSON should be on one line
+   - **Copy the ENTIRE file contents**, not just the first few lines
 
 ### Example (minified):
 

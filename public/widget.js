@@ -140,7 +140,9 @@
     ` : ''}
     
     #productflow-widget-button:hover {
-      transform: translateY(-2px) scale(1.02);
+      ${config.position === 'left-notch' || config.position === 'right-notch' 
+        ? 'transform: translateY(-50%) scale(1.05);' // Preserve centering for notch positions
+        : 'transform: translateY(-2px) scale(1.02);'} // Normal hover for corner positions
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 6px 20px rgba(0, 0, 0, 0.1);
       background: var(--pf-hover);
     }
