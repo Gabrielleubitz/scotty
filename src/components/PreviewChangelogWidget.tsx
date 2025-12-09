@@ -74,6 +74,9 @@ export const PreviewChangelogWidget: React.FC<PreviewChangelogWidgetProps> = ({
 
   if (!isOpen) return null;
 
+  // Determine slide direction based on position (if passed as prop, otherwise default to right)
+  const slideFrom = 'right'; // Default, can be made configurable
+  
   return (
     <div id="productflow-preview-widget-overlay" className="fixed inset-0 z-50 flex items-center justify-end p-4 bg-black/20 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl w-[500px] h-[700px] flex flex-col overflow-hidden animate-slide-in-right">

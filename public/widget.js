@@ -19,15 +19,10 @@
   // Set API URL based on product_id or use current origin
   config.apiUrl = config.apiUrl || window.location.origin;
   
-  // Firebase configuration
-  config.firebaseConfig = config.firebaseConfig || {
-    apiKey: "AIzaSyD7tlbe2_A9JCOAcpS7QNRkn9wcoLQ6bE4",
-    authDomain: "scotty-acfe5.firebaseapp.com",
-    projectId: "scotty-acfe5",
-    storageBucket: "scotty-acfe5.firebasestorage.app",
-    messagingSenderId: "1048370427467",
-    appId: "1:1048370427467:web:90127c22dbebc20eacffce"
-  };
+  // Team ID is required for API calls
+  if (!config.teamId) {
+    console.error('ProductFlow: teamId is required in config');
+  }
 
   // Dark mode state
   let isDarkMode = config.darkMode || false;
@@ -37,7 +32,9 @@
     'bottom-right': 'bottom: 24px; right: 24px;',
     'bottom-left': 'bottom: 24px; left: 24px;',
     'top-right': 'top: 24px; right: 24px;',
-    'top-left': 'top: 24px; left: 24px;'
+    'top-left': 'top: 24px; left: 24px;',
+    'left-notch': 'left: 0; top: 50%; transform: translateY(-50%); border-radius: 0 12px 12px 0;',
+    'right-notch': 'right: 0; top: 50%; transform: translateY(-50%); border-radius: 12px 0 0 12px;'
   };
 
   // Create dynamic styles with dark mode support
@@ -104,23 +101,43 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--pf-border);
-      border-radius: 50px;
-      padding: 14px 24px;
+      border-radius: ${config.position === 'left-notch' || config.position === 'right-notch' ? '0 12px 12px 0' : '50px'};
+      padding: ${config.position === 'left-notch' || config.position === 'right-notch' ? '12px 8px' : '14px 24px'};
       color: var(--pf-text);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
+      font-size: ${config.position === 'left-notch' || config.position === 'right-notch' ? '12px' : '14px'};
       font-weight: 600;
       cursor: pointer;
       z-index: 9999;
       display: flex;
+      flex-direction: ${config.position === 'left-notch' || config.position === 'right-notch' ? 'column' : 'row'};
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: ${config.position === 'left-notch' || config.position === 'right-notch' ? '4px' : '10px'};
+      writing-mode: ${config.position === 'left-notch' || config.position === 'right-notch' ? 'vertical-rl' : 'horizontal-tb'};
+      text-orientation: ${config.position === 'left-notch' || config.position === 'right-notch' ? 'mixed' : 'mixed'};
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
       text-decoration: none;
       outline: none;
+      min-width: ${config.position === 'left-notch' || config.position === 'right-notch' ? '48px' : 'auto'};
+      min-height: ${config.position === 'left-notch' || config.position === 'right-notch' ? '120px' : 'auto'};
     }
+    
+    ${config.position === 'left-notch' ? `
+      #productflow-widget-button {
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+      }
+    ` : ''}
+    
+    ${config.position === 'right-notch' ? `
+      #productflow-widget-button {
+        border-right: none;
+        border-radius: 12px 0 0 12px;
+      }
+    ` : ''}
     
     #productflow-widget-button:hover {
       transform: translateY(-2px) scale(1.02);
@@ -172,20 +189,21 @@
     
     #productflow-widget-container {
       position: fixed;
+      ${config.position === 'left-notch' ? 'left: 0;' : 'right: 0;'}
       top: 0;
-      right: 0;
       width: 480px;
       max-width: 90vw;
       height: 100vh;
       background: var(--pf-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-left: 1px solid ${borderColor};
-      border-radius: 20px 0 0 20px;
-      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.12);
+      ${config.position === 'left-notch' ? 
+        `border-right: 1px solid ${borderColor}; border-radius: 0 20px 20px 0;` : 
+        `border-left: 1px solid ${borderColor}; border-radius: 20px 0 0 20px;`}
+      box-shadow: ${config.position === 'left-notch' ? '10px 0 40px rgba(0, 0, 0, 0.12);' : '-10px 0 40px rgba(0, 0, 0, 0.12);'}
       display: flex;
       flex-direction: column;
-      transform: translateX(100%) translateY(20px);
+      transform: ${config.position === 'left-notch' ? 'translateX(-100%)' : 'translateX(100%)'} translateY(20px);
       opacity: 0;
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease-out;
       z-index: 10001;
@@ -811,13 +829,13 @@
   
   if (showButton) {
     button = document.createElement('button');
-    button.id = 'productflow-widget-button';
-    button.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-      </svg>
-      ${config.buttonText}
-    `;
+  button.id = 'productflow-widget-button';
+  button.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+    ${config.buttonText}
+  `;
     console.log('ProductFlow: Button created with text:', config.buttonText);
   } else {
     console.log('ProductFlow: Button creation skipped (showButton is false)');
@@ -852,7 +870,7 @@
           </svg>
         </div>
         <div class="productflow-header-text">
-          <h2>${config.widgetTitle || 'Product Updates'}</h2>
+        <h2>${config.widgetTitle || 'Product Updates'}</h2>
           <p class="productflow-powered-by">Powered by Scotty</p>
         </div>
       </div>
@@ -919,7 +937,7 @@
   
   // Add elements to page
   if (button) {
-    document.body.appendChild(button);
+  document.body.appendChild(button);
     console.log('ProductFlow: Button appended to DOM');
     // Verify button is visible
     setTimeout(() => {
@@ -956,7 +974,7 @@
   
   // Event listeners
   if (button) {
-    button.addEventListener('click', openWidget);
+  button.addEventListener('click', openWidget);
   }
   // overlay.addEventListener('click', closeWidget); // Removed to allow page interaction
   container.querySelector('.productflow-close').addEventListener('click', closeWidget);
@@ -998,12 +1016,12 @@
     // Add classes to trigger animations with slight delay for smoother entry
     overlay.classList.add('active');
     setTimeout(() => {
-      container.classList.add('active');
+    container.classList.add('active');
     }, 50);
     
     // Remove notification indicator
     if (button) {
-      button.classList.remove('has-updates');
+    button.classList.remove('has-updates');
     }
     
     // Load posts when widget opens
@@ -1071,9 +1089,24 @@
 }
   
   function initializeFirebase() {
-    // Initialize Firebase
-    firebase.initializeApp(config.firebaseConfig);
-    db = firebase.firestore();
+    // Firebase is now optional - only used for tracking and language settings
+    // Main data fetching uses secure API endpoints
+    // For now, we'll skip Firebase initialization if config doesn't have it
+    // Tracking will gracefully degrade if Firebase is not available
+    if (!config.firebaseConfig) {
+      console.log('ProductFlow: Firebase config not provided. Using API-only mode.');
+      db = null;
+      return;
+    }
+    
+    try {
+      // Initialize Firebase
+      firebase.initializeApp(config.firebaseConfig);
+      db = firebase.firestore();
+    } catch (error) {
+      console.warn('ProductFlow: Firebase initialization failed, using API-only mode:', error);
+      db = null;
+    }
     
     // Initialize tracking
     const trackingService = {
@@ -1241,11 +1274,6 @@
   }
   
   async function loadPosts() {
-    if (!db) {
-      console.error('Firebase not initialized');
-      return;
-    }
-    
     try {
       const postsContainer = document.getElementById('productflow-posts');
       
@@ -1259,35 +1287,43 @@
             <p>Widget is not properly configured. Please regenerate the embed code.</p>
           </div>
         `;
-        return;
+      return;
+    }
+    
+      // Get posts from API endpoint (secure, no Firebase keys exposed)
+      const currentDomain = window.location.hostname;
+      const response = await fetch(`${config.apiUrl}/api/widget/posts?teamId=${encodeURIComponent(teamId)}&domain=${encodeURIComponent(currentDomain)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
       }
       
-      // Get posts from Firestore filtered by teamId with retry logic
-      const posts = await retryOperation(async () => {
-        const snapshot = await db.collection('changelog')
-          .where('teamId', '==', teamId)
-          .where('status', '==', 'published')
-          .orderBy('createdAt', 'desc')
-          .get();
-        
-        return snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt.toDate()
-        }));
-      });
+      const data = await response.json();
+      if (!data.success || !data.posts) {
+        throw new Error('Invalid API response');
+      }
       
-      // Filter posts by current domain with retry logic
-      const currentDomain = window.location.hostname;
-      const filteredPosts = await retryOperation(async () => {
-        return await filterPostsByDomain(posts, currentDomain);
-      });
+      // Convert ISO date strings back to Date objects
+      const posts = data.posts.map(post => ({
+        ...post,
+        createdAt: new Date(post.createdAt)
+      }));
       
-      // Load language settings and localize posts
-      const languageSettings = await retryOperation(async () => {
-        return await loadLanguageSettings();
-      });
-      const localizedPosts = localizePosts(filteredPosts, languageSettings);
+      // Load language settings and localize posts (still using Firebase for this, but it's less sensitive)
+      let languageSettings = { defaultLanguage: 'en', enabledLanguages: ['en'] };
+      if (db) {
+        try {
+          languageSettings = await loadLanguageSettings();
+        } catch (error) {
+          console.warn('Could not load language settings, using defaults:', error);
+        }
+      }
+      const localizedPosts = localizePosts(posts, languageSettings);
       
       console.log('📝 Final posts to display:', localizedPosts.length);
       if (localizedPosts.length > 0) {
@@ -1511,22 +1547,35 @@
     }
   };
   
-  // Function to increment post view count directly
+  // Function to increment post view count via API (secure, no Firebase keys exposed)
   async function incrementPostViewCount(postId, incrementBy = 1) {
-    if (!db || !postId) {
-      console.warn('Cannot increment view count: missing database or postId');
+    if (!postId) {
+      console.warn('Cannot increment view count: missing postId');
       return;
     }
     
     try {
       console.log('🔄 Incrementing view count for post:', postId, 'by', incrementBy);
       
-      const postRef = db.collection('changelog').doc(postId);
-      
-      // Simple update with increment - more efficient than transaction for this use case
-      await postRef.update({
-        views: firebase.firestore.FieldValue.increment(incrementBy)
+      const response = await fetch(`${config.apiUrl}/api/widget/increment-views`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          postId: postId,
+          incrementBy: incrementBy
+        })
       });
+      
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error('Failed to increment views');
+      }
       
       console.log('✅ Successfully incremented views for post:', postId, 'by', incrementBy);
       
@@ -1604,7 +1653,7 @@
               ${getCategoryLabel(post.category)}
             </span>
           </div>
-          <span class="productflow-post-date">${formatRelativeTime(post.createdAt)}</span>
+            <span class="productflow-post-date">${formatRelativeTime(post.createdAt)}</span>
         </div>
         <h3 class="productflow-post-title">${post.title}</h3>
         ${post.content && post.content.trim() ? `<div class="productflow-post-content">${renderMarkdown(post.content)}</div>` : ''}
@@ -1927,7 +1976,17 @@
   }
   
   // Initialize widget
-  loadFirebase();
+  // Firebase is optional - only needed for advanced tracking
+  // Main functionality works via secure API endpoints
+  if (config.firebaseConfig) {
+    loadFirebase();
+  } else {
+    console.log('ProductFlow: Running in API-only mode (no Firebase config)');
+    // Initialize tracking without Firebase
+    if (window.productflowTracking) {
+      window.productflowTracking.db = null; // Disable Firebase-dependent tracking
+    }
+  }
   
   // Public API
   window.productflow_openWidget = openWidget;

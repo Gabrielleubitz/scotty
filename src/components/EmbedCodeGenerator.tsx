@@ -29,7 +29,7 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-VBCDSSQXR2"
   };
   const [widgetType, setWidgetType] = useState<'full' | 'notification' | 'gtm'>('full');
-  const [widgetPosition, setWidgetPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
+  const [widgetPosition, setWidgetPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'left-notch' | 'right-notch'>('bottom-right');
   const [buttonText, setButtonText] = useState("What's New");
   const [primaryColor, setPrimaryColor] = useState('#2563eb');
   const [targetSelector, setTargetSelector] = useState('#my-notification-icon');
@@ -99,20 +99,12 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
       '    darkMode: ' + enableDarkMode + ',\n' +
       '    showButton: ' + showButton + ',\n' +
       '    apiUrl: \'' + baseUrl + '\',\n' +
-      '    firebaseConfig: {\n' +
-      '      apiKey: \'' + FIREBASE_CONFIG.apiKey + '\',\n' +
-      '      authDomain: \'' + FIREBASE_CONFIG.authDomain + '\',\n' +
-      '      projectId: \'' + FIREBASE_CONFIG.projectId + '\',\n' +
-      '      storageBucket: \'' + FIREBASE_CONFIG.storageBucket + '\',\n' +
-      '      messagingSenderId: \'' + FIREBASE_CONFIG.messagingSenderId + '\',\n' +
-      '      appId: \'' + FIREBASE_CONFIG.appId + '\'\n' +
-      '    },\n' +
+      '    teamId: \'' + (currentTeam?.id || '') + '\',\n' +
       '    aiAgent: {\n' +
       '      enabled: ' + aiConfig.enabled + ',\n' +
       '      apiUrl: \'' + aiConfig.apiUrl + '\',\n' +
       '      trackingUrl: \'' + baseUrl + '\'\n' +
-      '    },\n' +
-      '    teamId: \'' + (currentTeam?.id || '') + '\'\n' +
+      '    }\n' +
       '  };\n' +
       '\n' +
       '  // Script loader with CSP and error handling\n' +
@@ -247,20 +239,12 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
       '    darkMode: ' + enableDarkMode + ',\n' +
       '    showButton: ' + showButton + ',\n' +
       '    apiUrl: API_URL,\n' +
-      '    firebaseConfig: {\n' +
-      '      apiKey: \'' + FIREBASE_CONFIG.apiKey + '\',\n' +
-      '      authDomain: \'' + FIREBASE_CONFIG.authDomain + '\',\n' +
-      '      projectId: \'' + FIREBASE_CONFIG.projectId + '\',\n' +
-      '      storageBucket: \'' + FIREBASE_CONFIG.storageBucket + '\',\n' +
-      '      messagingSenderId: \'' + FIREBASE_CONFIG.messagingSenderId + '\',\n' +
-      '      appId: \'' + FIREBASE_CONFIG.appId + '\'\n' +
-      '    },\n' +
+      '    teamId: \'' + (currentTeam?.id || '') + '\',\n' +
       '    aiAgent: {\n' +
       '      enabled: ' + aiConfig.enabled + ',\n' +
       '      apiUrl: \'' + aiConfig.apiUrl + '\',\n' +
       '      trackingUrl: API_URL\n' +
-      '    },\n' +
-      '    teamId: \'' + (currentTeam?.id || '') + '\'\n' +
+      '    }\n' +
       '  };\n' +
       '\n' +
       '  // Notification Badge Configuration\n' +
@@ -563,6 +547,8 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                     <option value="bottom-left">Bottom Left</option>
                     <option value="top-right">Top Right</option>
                     <option value="top-left">Top Left</option>
+                    <option value="left-notch">Left Side Notch</option>
+                    <option value="right-notch">Right Side Notch</option>
                   </select>
                     <p className="text-xs text-gray-500 mt-1.5">Where the widget button appears on your site</p>
                 </div>
@@ -798,21 +784,31 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                 {showButton && (widgetType === 'full' || widgetType === 'gtm') && (
                   <div
                     className={`absolute flex items-center gap-2 text-white font-medium shadow-lg cursor-pointer hover:shadow-xl transition-all z-10 ${
-                      buttonSize === 'small' ? 'px-3 py-2 text-xs' :
-                      buttonSize === 'large' ? 'px-6 py-4 text-base' :
-                      'px-4 py-3 text-sm'
+                      widgetPosition === 'left-notch' || widgetPosition === 'right-notch' 
+                        ? 'flex-col px-2 py-3 text-xs min-w-[48px] min-h-[120px]' 
+                        : buttonSize === 'small' ? 'px-3 py-2 text-xs' :
+                          buttonSize === 'large' ? 'px-6 py-4 text-base' :
+                          'px-4 py-3 text-sm'
                     } ${
+                      widgetPosition === 'left-notch' ? 'rounded-r-lg border-l-0 left-0 top-1/2 -translate-y-1/2' :
+                      widgetPosition === 'right-notch' ? 'rounded-l-lg border-r-0 right-0 top-1/2 -translate-y-1/2' :
                       buttonShape === 'pill' ? 'rounded-full' :
                       buttonShape === 'square' ? 'rounded-none' :
                       'rounded-lg'
                     }`}
-                style={{
-                  backgroundColor: primaryColor,
-                      [widgetPosition.includes('bottom') ? 'bottom' : 'top']: '20px',
-                      [widgetPosition.includes('right') ? 'right' : 'left']: '20px',
-                }}
-                onClick={() => setIsPreviewWidgetOpen(true)}
-              >
+                    style={{
+                      backgroundColor: primaryColor,
+                      ...(widgetPosition === 'left-notch' || widgetPosition === 'right-notch' 
+                        ? {} 
+                        : {
+                            [widgetPosition.includes('bottom') ? 'bottom' : 'top']: '20px',
+                            [widgetPosition.includes('right') ? 'right' : 'left']: '20px',
+                          }),
+                      writingMode: widgetPosition === 'left-notch' || widgetPosition === 'right-notch' ? 'vertical-rl' : 'horizontal-tb',
+                      textOrientation: widgetPosition === 'left-notch' || widgetPosition === 'right-notch' ? 'mixed' : 'mixed'
+                    }}
+                    onClick={() => setIsPreviewWidgetOpen(true)}
+                  >
                     <svg 
                       width={buttonSize === 'small' ? 14 : buttonSize === 'large' ? 20 : 18} 
                       height={buttonSize === 'small' ? 14 : buttonSize === 'large' ? 20 : 18} 
@@ -820,19 +816,24 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
                       fill="none" 
                       stroke="currentColor" 
                       strokeWidth="2"
+                      style={{
+                        transform: widgetPosition === 'left-notch' || widgetPosition === 'right-notch' ? 'rotate(90deg)' : 'none'
+                      }}
                     >
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                </svg>
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
                     <span>{buttonText}</span>
-                    <span 
-                      className={`absolute bg-red-500 rounded-full border-2 border-white ${
-                        buttonSize === 'small' ? 'w-2 h-2 -top-0.5 -right-0.5' :
-                        buttonSize === 'large' ? 'w-4 h-4 -top-1 -right-1' :
-                        'w-3 h-3 -top-1 -right-1'
-                      }`}
-                    ></span>
-                </div>
-              )}
+                    {widgetPosition !== 'left-notch' && widgetPosition !== 'right-notch' && (
+                      <span 
+                        className={`absolute bg-red-500 rounded-full border-2 border-white ${
+                          buttonSize === 'small' ? 'w-2 h-2 -top-0.5 -right-0.5' :
+                          buttonSize === 'large' ? 'w-4 h-4 -top-1 -right-1' :
+                          'w-3 h-3 -top-1 -right-1'
+                        }`}
+                      ></span>
+                    )}
+                  </div>
+                )}
 
                 {/* Notification Badge Preview */}
                 {widgetType === 'notification' && (
