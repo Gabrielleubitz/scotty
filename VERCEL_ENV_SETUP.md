@@ -4,6 +4,17 @@
 
 The `FIREBASE_SERVICE_ACCOUNT` environment variable **must be valid JSON** and set as a **single-line string** in Vercel.
 
+## Quick Test
+
+After setting the variable, test it with this endpoint:
+**https://scotty-plum.vercel.app/api/widget/test-config**
+
+This will show you:
+- If the variable is set
+- If it's valid JSON
+- Common issues (single quotes, line breaks, etc.)
+- The exact error position if parsing fails
+
 ## How to Set It Correctly
 
 ### Step 1: Get Your Firebase Service Account JSON
