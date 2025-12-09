@@ -3,23 +3,33 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // Initialize Firebase Admin
-if (!getApps().length) {
-  try {
-    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-    if (serviceAccount) {
-      initializeApp({
-        credential: cert(JSON.parse(serviceAccount))
-      });
-    } else {
-      // Fallback to default credentials if available
-      initializeApp();
+function getFirebaseAdmin() {
+  if (getApps().length === 0) {
+    let serviceAccount: any = null;
+    
+    // Try to get service account from environment variable (for Vercel/production)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      // Fallback to old env var name
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
     }
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
+    
+    if (serviceAccount) {
+      initializeApp({ credential: cert(serviceAccount) });
+    } else {
+      // Try to initialize with default credentials (for local development)
+      try {
+        initializeApp();
+        console.log('Initialized Firebase Admin with default credentials');
+      } catch (error) {
+        console.error('Failed to initialize Firebase Admin:', error);
+        throw new Error('Firebase Admin not configured. Set FIREBASE_SERVICE_ACCOUNT environment variable.');
+      }
+    }
   }
+  return getFirestore();
 }
-
-const db = getFirestore();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
@@ -42,15 +52,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'teamId is required' });
     }
 
-    // Get published posts for the team
-    const postsRef = db.collection('changelog');
-    const query = postsRef
-      .where('teamId', '==', teamId)
-      .where('status', '==', 'published')
-      .orderBy('createdAt', 'desc')
-      .limit(50);
+    const db = getFirebaseAdmin();
 
-    const snapshot = await query.get();
+    // Get published posts for the team
+    // Note: If orderBy fails due to missing index, we'll fetch all and sort in memory
+    let snapshot;
+    try {
+      const postsRef = db.collection('changelog');
+      const query = postsRef
+        .where('teamId', '==', teamId)
+        .where('status', '==', 'published')
+        .orderBy('createdAt', 'desc')
+        .limit(50);
+      
+      snapshot = await query.get();
+    } catch (queryError: any) {
+      // If orderBy fails (missing index), fetch without orderBy and sort in memory
+      if (queryError.code === 'failed-precondition' || queryError.message?.includes('index')) {
+        console.warn('Composite index missing, fetching without orderBy and sorting in memory');
+        const postsRef = db.collection('changelog');
+        const query = postsRef
+          .where('teamId', '==', teamId)
+          .where('status', '==', 'published')
+          .limit(50);
+        
+        snapshot = await query.get();
+        
+        // Sort in memory by createdAt
+        const docs = snapshot.docs.sort((a, b) => {
+          const aTime = a.data().createdAt?.toMillis?.() || 0;
+          const bTime = b.data().createdAt?.toMillis?.() || 0;
+          return bTime - aTime; // Descending
+        });
+        
+        // Create a mock snapshot-like object
+        snapshot = { docs } as any;
+      } else {
+        throw queryError;
+      }
+    }
     
     let posts = snapshot.docs.map(doc => {
       const data = doc.data();
@@ -75,6 +115,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Filter by domain/segment if provided
     if (domain && typeof domain === 'string') {
       try {
+        // Remove port number from domain if present (e.g., "www.igani.co:1" -> "www.igani.co")
+        const cleanDomain = domain.split(':')[0];
+        
         const segmentsSnapshot = await db.collection('segments')
           .where('teamId', '==', teamId)
           .get();
@@ -84,11 +127,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ...doc.data()
         }));
 
-        const currentSegment = segments.find(seg => 
-          seg.domain === domain || 
-          seg.domain === `www.${domain}` ||
-          `www.${seg.domain}` === domain
-        );
+        const currentSegment = segments.find(seg => {
+          const segDomain = seg.domain || '';
+          return segDomain === cleanDomain || 
+                 segDomain === `www.${cleanDomain}` ||
+                 `www.${segDomain}` === cleanDomain ||
+                 segDomain === domain ||
+                 segDomain === `www.${domain}` ||
+                 `www.${segDomain}` === domain;
+        });
 
         if (currentSegment) {
           posts = posts.filter(post => 
