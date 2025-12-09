@@ -7,6 +7,7 @@ import ChangelogWidget from './ChangelogWidget';
 import { AIAgentConfig } from '../types';
 import { useTeam } from '../hooks/useTeam';
 import { productDeploymentService } from '../lib/product-deployments';
+import { apiService } from '../lib/api';
 
 interface EmbedCodeGeneratorProps {
   isOpen: boolean;
