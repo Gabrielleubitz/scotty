@@ -2,6 +2,35 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
+// Helper to clean and fix common JSON issues
+function cleanJSONString(jsonString: string): string {
+  let cleaned = jsonString.trim();
+  
+  // Remove any leading/trailing quotes that Vercel might add
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || 
+      (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1);
+    // Unescape if it was escaped
+    cleaned = cleaned.replace(/\\"/g, '"').replace(/\\'/g, "'");
+  }
+  
+  // Replace escaped newlines with actual newlines, then remove them
+  cleaned = cleaned.replace(/\\n/g, ' ').replace(/\\r/g, ' ');
+  
+  // Remove actual newlines and carriage returns
+  cleaned = cleaned.replace(/\n/g, ' ').replace(/\r/g, ' ');
+  
+  // Replace single quotes with double quotes (common mistake)
+  // But be careful - only replace single quotes that are property delimiters
+  // This is a simple heuristic - it might not catch all cases
+  cleaned = cleaned.replace(/'/g, '"');
+  
+  // Remove extra whitespace
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  
+  return cleaned;
+}
+
 // Initialize Firebase Admin
 function getFirebaseAdmin() {
   if (getApps().length === 0) {
@@ -17,47 +46,90 @@ function getFirebaseAdmin() {
           // Show first 100 chars for debugging (safe - no secrets exposed)
           const preview = envVar.substring(0, 100);
           console.log('🔍 Attempting to parse FIREBASE_SERVICE_ACCOUNT (first 100 chars):', preview);
+          console.log('📏 Total length:', envVar.length);
           
           // Check for common issues
-          if (envVar.includes("'")) {
-            console.error('❌ Found single quotes in JSON - must use double quotes!');
+          const hasSingleQuotes = envVar.includes("'");
+          const hasLineBreaks = envVar.includes('\n') || envVar.includes('\r');
+          const startsWithBrace = envVar.trim().startsWith('{');
+          
+          if (hasSingleQuotes) {
+            console.warn('⚠️ Found single quotes in JSON - will attempt to fix');
           }
-          if (envVar.includes('\n') || envVar.includes('\r')) {
-            console.error('❌ Found line breaks in JSON - must be a single line!');
+          if (hasLineBreaks) {
+            console.warn('⚠️ Found line breaks in JSON - will attempt to fix');
           }
-          if (!envVar.trim().startsWith('{')) {
+          if (!startsWithBrace) {
             console.error('❌ JSON does not start with { - may be missing or malformed');
+            console.error('First 50 chars:', envVar.substring(0, 50));
           }
           
-          // Try to parse as JSON
-          serviceAccount = JSON.parse(envVar);
+          // Try to parse as-is first
+          try {
+            serviceAccount = JSON.parse(envVar);
+            console.log('✅ Successfully parsed FIREBASE_SERVICE_ACCOUNT (as-is)');
+          } catch (firstAttempt: any) {
+            console.warn('⚠️ First parse attempt failed, trying to clean JSON...');
+            console.warn('First attempt error:', firstAttempt.message);
+            
+            // Try cleaning the JSON
+            try {
+              const cleaned = cleanJSONString(envVar);
+              console.log('🧹 Cleaned JSON (first 100 chars):', cleaned.substring(0, 100));
+              serviceAccount = JSON.parse(cleaned);
+              console.log('✅ Successfully parsed FIREBASE_SERVICE_ACCOUNT (after cleaning)');
+            } catch (cleanedAttempt: any) {
+              // Both attempts failed - show detailed error
+              const preview = envVar.substring(0, 200);
+              console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT as JSON (both attempts)');
+              console.error('Original error:', firstAttempt.message);
+              console.error('Cleaned error:', cleanedAttempt.message);
+              console.error('Error position (original):', firstAttempt.message.match(/position (\d+)/)?.[1] || 'unknown');
+              console.error('First 200 chars of original value:', preview);
+              console.error('⚠️ The FIREBASE_SERVICE_ACCOUNT environment variable must be valid JSON.');
+              console.error('⚠️ Common issues:');
+              console.error('   - Using single quotes instead of double quotes');
+              console.error('   - Line breaks in the JSON (must be single line)');
+              console.error('   - Missing or extra commas/braces');
+              console.error('   - Vercel escaping the JSON incorrectly');
+              console.error('⚠️ Fix: Go to Vercel → Settings → Environment Variables');
+              console.error('⚠️ Delete and recreate FIREBASE_SERVICE_ACCOUNT with minified single-line JSON');
+              throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT JSON: ${firstAttempt.message}. Check Vercel environment variables - must be valid single-line JSON. Original error at position ${firstAttempt.message.match(/position (\d+)/)?.[1] || 'unknown'}.`);
+            }
+          }
         } else {
           serviceAccount = envVar;
         }
-        console.log('✅ Successfully parsed FIREBASE_SERVICE_ACCOUNT');
       } catch (parseError: any) {
-        const preview = typeof envVar === 'string' ? envVar.substring(0, 200) : 'N/A';
-        console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT as JSON');
-        console.error('Error:', parseError.message);
-        console.error('Error position:', parseError.message.match(/position (\d+)/)?.[1] || 'unknown');
-        console.error('First 200 chars of value:', preview);
-        console.error('⚠️ The FIREBASE_SERVICE_ACCOUNT environment variable must be valid JSON.');
-        console.error('⚠️ Common issues:');
-        console.error('   - Using single quotes instead of double quotes');
-        console.error('   - Line breaks in the JSON (must be single line)');
-        console.error('   - Missing or extra commas/braces');
-        console.error('⚠️ Fix: Go to Vercel → Settings → Environment Variables');
-        console.error('⚠️ Set FIREBASE_SERVICE_ACCOUNT to minified single-line JSON');
-        throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT JSON at position ${parseError.message.match(/position (\d+)/)?.[1] || 'unknown'}: ${parseError.message}. Check Vercel environment variables - must be valid single-line JSON.`);
+        // This catch should not be reached due to nested try-catch, but just in case
+        console.error('❌ Unexpected error parsing FIREBASE_SERVICE_ACCOUNT:', parseError);
+        throw parseError;
       }
     }
     
     if (serviceAccount) {
       try {
+        // Validate service account has required fields
+        if (!serviceAccount.project_id && !serviceAccount.projectId) {
+          throw new Error('Service account missing project_id');
+        }
+        if (!serviceAccount.private_key) {
+          throw new Error('Service account missing private_key');
+        }
+        if (!serviceAccount.client_email) {
+          throw new Error('Service account missing client_email');
+        }
+        
         initializeApp({ credential: cert(serviceAccount) });
         console.log('✅ Firebase Admin initialized with service account');
+        console.log('📋 Project ID:', serviceAccount.project_id || serviceAccount.projectId);
       } catch (initError: any) {
         console.error('❌ Failed to initialize Firebase Admin with service account:', initError.message);
+        console.error('Service account keys present:', {
+          hasProjectId: !!(serviceAccount.project_id || serviceAccount.projectId),
+          hasPrivateKey: !!serviceAccount.private_key,
+          hasClientEmail: !!serviceAccount.client_email
+        });
         throw new Error(`Firebase Admin initialization failed: ${initError.message}`);
       }
     } else {
