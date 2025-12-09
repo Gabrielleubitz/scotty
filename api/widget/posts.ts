@@ -8,23 +8,42 @@ function getFirebaseAdmin() {
     let serviceAccount: any = null;
     
     // Try to get service account from environment variable (for Vercel/production)
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-      // Fallback to old env var name
-      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+    const envVar = process.env.FIREBASE_SERVICE_ACCOUNT || process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    
+    if (envVar) {
+      try {
+        // Check if it's already an object (shouldn't happen, but be safe)
+        if (typeof envVar === 'string') {
+          // Try to parse as JSON
+          serviceAccount = JSON.parse(envVar);
+        } else {
+          serviceAccount = envVar;
+        }
+        console.log('✅ Successfully parsed FIREBASE_SERVICE_ACCOUNT');
+      } catch (parseError: any) {
+        console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT as JSON:', parseError.message);
+        console.error('⚠️ The FIREBASE_SERVICE_ACCOUNT environment variable must be valid JSON.');
+        console.error('⚠️ Make sure it\'s set as a single-line JSON string in Vercel, not a multi-line file.');
+        throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT JSON: ${parseError.message}. Please check your Vercel environment variables.`);
+      }
     }
     
     if (serviceAccount) {
-      initializeApp({ credential: cert(serviceAccount) });
+      try {
+        initializeApp({ credential: cert(serviceAccount) });
+        console.log('✅ Firebase Admin initialized with service account');
+      } catch (initError: any) {
+        console.error('❌ Failed to initialize Firebase Admin with service account:', initError.message);
+        throw new Error(`Firebase Admin initialization failed: ${initError.message}`);
+      }
     } else {
       // Try to initialize with default credentials (for local development)
       try {
         initializeApp();
-        console.log('Initialized Firebase Admin with default credentials');
-      } catch (error) {
-        console.error('Failed to initialize Firebase Admin:', error);
-        throw new Error('Firebase Admin not configured. Set FIREBASE_SERVICE_ACCOUNT environment variable.');
+        console.log('✅ Initialized Firebase Admin with default credentials');
+      } catch (error: any) {
+        console.error('❌ Failed to initialize Firebase Admin:', error.message);
+        throw new Error('Firebase Admin not configured. Set FIREBASE_SERVICE_ACCOUNT environment variable in Vercel with valid JSON.');
       }
     }
   }

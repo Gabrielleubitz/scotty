@@ -1,48 +1,92 @@
 # Vercel Environment Variables Setup
 
-## ⚠️ Important: `.env.local` is ONLY for Local Development
+## Critical: FIREBASE_SERVICE_ACCOUNT
 
-The `.env.local` file in your project is **NOT** used by Vercel. You must add environment variables in the Vercel Dashboard.
+The `FIREBASE_SERVICE_ACCOUNT` environment variable **must be valid JSON** and set as a **single-line string** in Vercel.
 
-## Steps to Add Environment Variables in Vercel
+## How to Set It Correctly
 
-1. **Go to Vercel Dashboard**
-   - Visit [vercel.com](https://vercel.com)
-   - Navigate to your project: `scotty-plum`
+### Step 1: Get Your Firebase Service Account JSON
 
-2. **Open Settings**
-   - Click on your project
-   - Go to **Settings** → **Environment Variables**
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project
+3. Go to **Project Settings** → **Service Accounts**
+4. Click **Generate New Private Key**
+5. Download the JSON file
 
-3. **Add `AI_AGENT_API_KEY`**
-   - Click **Add New**
-   - **Key**: `AI_AGENT_API_KEY`
-   - **Value**: Your OpenAI API key (copy it from your `.env.local` file - it starts with `sk-proj-...`)
-   - **Environment**: Select **Production**, **Preview**, and **Development** (or just Production if you only want it there)
-   - Click **Save**
+### Step 2: Convert to Single-Line JSON
 
-4. **Redeploy**
-   - After adding the environment variable, Vercel will automatically trigger a new deployment
-   - OR manually trigger a redeploy: Go to **Deployments** → Click the three dots on the latest deployment → **Redeploy**
-
-## Required Environment Variables for AI Agent
-
-### Server-Side (NO `VITE_` prefix)
+The JSON file will look like this:
+```json
+{
+  "type": "service_account",
+  "project_id": "your-project-id",
+  "private_key_id": "...",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+  "client_email": "...",
+  "client_id": "...",
+  "auth_uri": "...",
+  "token_uri": "...",
+  "auth_provider_x509_cert_url": "...",
+  "client_x509_cert_url": "..."
+}
 ```
-AI_AGENT_API_KEY=sk-proj-...your-key-here...
+
+### Step 3: Set in Vercel
+
+1. Go to your Vercel project dashboard
+2. Go to **Settings** → **Environment Variables**
+3. Add a new variable:
+   - **Name:** `FIREBASE_SERVICE_ACCOUNT`
+   - **Value:** Paste the **entire JSON as a single line** (minified)
+   
+   **Important:** 
+   - Remove all line breaks
+   - Keep it as one continuous string
+   - Make sure all quotes are double quotes (`"`), not single quotes (`'`)
+   - The entire JSON should be on one line
+
+### Example (minified):
+
+```
+{"type":"service_account","project_id":"scotty-dccad","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n","client_email":"...","client_id":"...","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"..."}
 ```
 
-## Testing After Setup
+### Step 4: Verify
 
-1. Wait for the deployment to complete
-2. Go to your site: `https://scotty-plum.vercel.app`
-3. Open Admin Dashboard → AI Agent Settings
-4. Set **API URL** to: `https://api.openai.com/v1`
-5. Click **Test API**
+After setting the variable:
+1. **Redeploy** your Vercel project (environment variables require a new deployment)
+2. Check the function logs - you should see:
+   - `✅ Successfully parsed FIREBASE_SERVICE_ACCOUNT`
+   - `✅ Firebase Admin initialized with service account`
 
-## Troubleshooting
+## Common Mistakes
 
-- **404 Error**: The API route isn't being found. Check that the deployment completed successfully.
-- **500 Error**: The environment variable isn't set. Double-check it's added in Vercel Dashboard.
-- **403 Error**: The API route is being blocked. Check Vercel deployment logs.
+❌ **Don't:** Set it as a multi-line JSON (Vercel will escape it incorrectly)
+❌ **Don't:** Use single quotes instead of double quotes
+❌ **Don't:** Forget to redeploy after setting the variable
+❌ **Don't:** Include the file path or file reading code
 
+✅ **Do:** Minify the JSON to a single line
+✅ **Do:** Use double quotes for all property names and string values
+✅ **Do:** Redeploy after setting environment variables
+✅ **Do:** Test the API endpoint after deployment
+
+## Quick Fix Script
+
+If you have the JSON file locally, you can minify it with this command:
+
+```bash
+cat your-service-account.json | jq -c . > service-account-minified.json
+```
+
+Then copy the contents of `service-account-minified.json` into Vercel.
+
+## Alternative: Use Vercel CLI
+
+You can also set it via Vercel CLI:
+
+```bash
+vercel env add FIREBASE_SERVICE_ACCOUNT
+# Paste the minified JSON when prompted
+```
