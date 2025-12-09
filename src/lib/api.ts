@@ -754,13 +754,21 @@ export const apiService = {
       const teamPosts = await this.getChangelogPosts(currentTeamId);
       const teamPostIds = new Set(teamPosts.map(p => p.id));
 
-      // Get real analytics from Firebase collections, filtered by team posts
+      // Get real analytics from Firebase collections, filtered by teamId FIRST (privacy-critical)
+      const visitorsRef = collection(db, 'visitors');
+      const postViewsRef = collection(db, 'post_views');
+      
+      // Query with teamId filter BEFORE fetching (critical for privacy)
+      const visitorsQuery = query(visitorsRef, where('teamId', '==', currentTeamId));
+      const postViewsQuery = query(postViewsRef, where('teamId', '==', currentTeamId));
+      
       const [visitorsSnapshot, postViewsSnapshot] = await Promise.all([
-        getDocs(collection(db, 'visitors')),
-        getDocs(collection(db, 'post_views'))
+        getDocs(visitorsQuery).catch(() => ({ docs: [] })),
+        getDocs(postViewsQuery).catch(() => ({ docs: [] }))
       ]);
 
       const visitors = visitorsSnapshot.docs.map(doc => doc.data());
+      // Additional filter by team post IDs for extra security
       const postViews = postViewsSnapshot.docs
         .map(doc => doc.data())
         .filter(view => teamPostIds.has(view.postId));
@@ -897,9 +905,13 @@ export const apiService = {
       const visitorsRef = collection(db, 'visitors');
       const postViewsRef = collection(db, 'post_views');
       
+      // Query with teamId filter BEFORE fetching (critical for privacy)
+      const visitorsQuery = query(visitorsRef, where('teamId', '==', currentTeamId));
+      const postViewsQuery = query(postViewsRef, where('teamId', '==', currentTeamId));
+      
       const [visitorsSnapshot, viewsSnapshot] = await Promise.all([
-        getDocs(visitorsRef),
-        getDocs(postViewsRef)
+        getDocs(visitorsQuery).catch(() => ({ docs: [] })),
+        getDocs(postViewsQuery).catch(() => ({ docs: [] }))
       ]);
 
       const visitors = visitorsSnapshot.docs.map(doc => ({
@@ -1035,7 +1047,12 @@ export const apiService = {
       }
 
       const postViewsRef = collection(db, 'post_views');
-      const q = query(postViewsRef, where('postId', '==', postId));
+      // Filter by both postId AND teamId for privacy
+      const q = query(
+        postViewsRef, 
+        where('postId', '==', postId),
+        where('teamId', '==', currentTeamId)
+      );
       const querySnapshot = await getDocs(q);
       
       const views = querySnapshot.docs.map(doc => ({

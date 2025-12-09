@@ -221,19 +221,47 @@ service cloud.firestore {
                        get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId();
     }
     
-    // Visitors collection (public read/write for widget tracking)
+    // Visitors collection (team-scoped for privacy)
     match /visitors/{visitorId} {
-      allow read, write: if true; // Public for widget functionality
+      // Allow write for widget tracking (public)
+      allow create: if true;
+      
+      // Only allow read if user is authenticated and can access the team
+      allow read: if isAuthenticated() && 
+                     resource.data.teamId != null &&
+                     exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                     (get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId() ||
+                      exists(/databases/$(database)/documents/team_members/$(getUserId() + '_' + resource.data.teamId)));
+      
+      // Allow update for lastSeen tracking
+      allow update: if isAuthenticated() && 
+                       resource.data.teamId != null;
     }
     
-    // Post views collection (public read/write for widget tracking)
+    // Post views collection (team-scoped for privacy)
     match /post_views/{viewId} {
-      allow read, write: if true; // Public for widget functionality
+      // Allow write for widget tracking (public)
+      allow create: if true;
+      
+      // Only allow read if user is authenticated and can access the team
+      allow read: if isAuthenticated() && 
+                     resource.data.teamId != null &&
+                     exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                     (get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId() ||
+                      exists(/databases/$(database)/documents/team_members/$(getUserId() + '_' + resource.data.teamId)));
     }
     
-    // Widget events collection (public read/write for widget tracking)
+    // Widget events collection (team-scoped for privacy)
     match /widget_events/{eventId} {
-      allow read, write: if true; // Public for widget functionality
+      // Allow write for widget tracking (public)
+      allow create: if true;
+      
+      // Only allow read if user is authenticated and can access the team
+      allow read: if isAuthenticated() && 
+                     resource.data.teamId != null &&
+                     exists(/databases/$(database)/documents/teams/$(resource.data.teamId)) &&
+                     (get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.ownerUserId == getUserId() ||
+                      exists(/databases/$(database)/documents/team_members/$(getUserId() + '_' + resource.data.teamId)));
     }
     
     // AI config collection (user-scoped)

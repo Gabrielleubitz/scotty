@@ -1173,7 +1173,8 @@
           userAgent: navigator.userAgent,
           referrer: document.referrer,
           sessionId: this.sessionId,
-          productId: config.product_id
+          productId: config.product_id,
+          teamId: config.teamId || null // CRITICAL: Include teamId for privacy isolation
         };
 
         try {
@@ -1191,7 +1192,8 @@
           timestamp: new Date().toISOString(),
           timeSpent: timeSpent || 0,
           sessionId: this.sessionId,
-          productId: config.product_id
+          productId: config.product_id,
+          teamId: config.teamId || null // CRITICAL: Include teamId for privacy isolation
         };
 
         try {
@@ -1209,7 +1211,8 @@
             domain: this.domain,
             timestamp: new Date().toISOString(),
             sessionId: this.sessionId,
-            productId: config.product_id
+            productId: config.product_id,
+            teamId: config.teamId || null // CRITICAL: Include teamId for privacy isolation
           });
         } catch (error) {
           console.warn('Could not track widget open:', error);
@@ -1225,7 +1228,8 @@
             timestamp: new Date().toISOString(),
             sessionId: this.sessionId,
             timeSpent,
-            productId: config.product_id
+            productId: config.product_id,
+            teamId: config.teamId || null // CRITICAL: Include teamId for privacy isolation
           });
         } catch (error) {
           console.warn('Could not track widget close:', error);
@@ -1239,7 +1243,8 @@
             lastSeen: new Date().toISOString(),
             sessionDuration: Date.now() - this.startTime,
             eventType: 'session_end',
-            productId: config.product_id
+            productId: config.product_id,
+            teamId: config.teamId || null // CRITICAL: Include teamId for privacy isolation
           });
         } catch (error) {
           console.warn('Could not update last seen:', error);
