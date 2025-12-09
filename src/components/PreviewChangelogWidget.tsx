@@ -58,8 +58,23 @@ export const PreviewChangelogWidget: React.FC<PreviewChangelogWidgetProps> = ({
         }
       }
       
+      @keyframes slide-in-left {
+        from {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      
       .animate-slide-in-right {
         animation: slide-in-right 0.3s ease-out;
+      }
+      
+      .animate-slide-in-left {
+        animation: slide-in-left 0.3s ease-out;
       }
     `;
     document.head.appendChild(style);
@@ -73,9 +88,6 @@ export const PreviewChangelogWidget: React.FC<PreviewChangelogWidgetProps> = ({
   }, []);
 
   if (!isOpen) return null;
-
-  // Determine slide direction based on position (if passed as prop, otherwise default to right)
-  const slideFrom = 'right'; // Default, can be made configurable
   
   return (
     <div id="productflow-preview-widget-overlay" className="fixed inset-0 z-50 flex items-center justify-end p-4 bg-black/20 backdrop-blur-sm">
