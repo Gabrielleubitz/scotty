@@ -14,6 +14,21 @@ function getFirebaseAdmin() {
       try {
         // Check if it's already an object (shouldn't happen, but be safe)
         if (typeof envVar === 'string') {
+          // Show first 100 chars for debugging (safe - no secrets exposed)
+          const preview = envVar.substring(0, 100);
+          console.log('🔍 Attempting to parse FIREBASE_SERVICE_ACCOUNT (first 100 chars):', preview);
+          
+          // Check for common issues
+          if (envVar.includes("'")) {
+            console.error('❌ Found single quotes in JSON - must use double quotes!');
+          }
+          if (envVar.includes('\n') || envVar.includes('\r')) {
+            console.error('❌ Found line breaks in JSON - must be a single line!');
+          }
+          if (!envVar.trim().startsWith('{')) {
+            console.error('❌ JSON does not start with { - may be missing or malformed');
+          }
+          
           // Try to parse as JSON
           serviceAccount = JSON.parse(envVar);
         } else {
@@ -21,10 +36,19 @@ function getFirebaseAdmin() {
         }
         console.log('✅ Successfully parsed FIREBASE_SERVICE_ACCOUNT');
       } catch (parseError: any) {
-        console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT as JSON:', parseError.message);
+        const preview = typeof envVar === 'string' ? envVar.substring(0, 200) : 'N/A';
+        console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT as JSON');
+        console.error('Error:', parseError.message);
+        console.error('Error position:', parseError.message.match(/position (\d+)/)?.[1] || 'unknown');
+        console.error('First 200 chars of value:', preview);
         console.error('⚠️ The FIREBASE_SERVICE_ACCOUNT environment variable must be valid JSON.');
-        console.error('⚠️ Make sure it\'s set as a single-line JSON string in Vercel, not a multi-line file.');
-        throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT JSON: ${parseError.message}. Please check your Vercel environment variables.`);
+        console.error('⚠️ Common issues:');
+        console.error('   - Using single quotes instead of double quotes');
+        console.error('   - Line breaks in the JSON (must be single line)');
+        console.error('   - Missing or extra commas/braces');
+        console.error('⚠️ Fix: Go to Vercel → Settings → Environment Variables');
+        console.error('⚠️ Set FIREBASE_SERVICE_ACCOUNT to minified single-line JSON');
+        throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT JSON at position ${parseError.message.match(/position (\d+)/)?.[1] || 'unknown'}: ${parseError.message}. Check Vercel environment variables - must be valid single-line JSON.`);
       }
     }
     
