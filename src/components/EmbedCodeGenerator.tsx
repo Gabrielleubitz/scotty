@@ -333,13 +333,36 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       
-      // Save product deployment
+      // Save product deployment and track the event
       if (currentTeam?.id && productId && productId !== 'YOUR_PRODUCT_ID') {
-        await productDeploymentService.saveDeployment(
-          currentTeam.id,
-          productId,
-          widgetType
-        );
+        try {
+          await productDeploymentService.saveDeployment(
+            currentTeam.id,
+            productId,
+            widgetType
+          );
+          
+          // Track embed code copy event
+          await apiService.trackWidgetEvent({
+            eventType: 'embed_code_copied',
+            teamId: currentTeam.id,
+            productId: productId,
+            widgetType: widgetType,
+            widgetPosition: widgetPosition,
+            timestamp: new Date().toISOString()
+          });
+          
+          console.log('✅ Embed code copied and deployment saved:', {
+            teamId: currentTeam.id,
+            productId: productId,
+            widgetType: widgetType
+          });
+        } catch (error) {
+          console.error('Failed to save deployment or track event:', error);
+          // Still show success for copy, but log the error
+        }
+      } else {
+        console.warn('⚠️ Embed code copied but productId not set. Please set a product ID to track deployments.');
       }
     } catch (err) {
       console.error('Failed to copy:', err);
@@ -400,6 +423,18 @@ export const EmbedCodeGenerator: React.FC<EmbedCodeGeneratorProps> = ({ isOpen, 
               <Info size={12} className="mr-1" />
               Use lowercase letters, numbers, and hyphens only (e.g., "my-awesome-app")
             </p>
+            {productId && productId !== 'YOUR_PRODUCT_ID' && (
+              <p className="text-xs text-green-600 mt-1 flex items-center">
+                <Check size={12} className="mr-1" />
+                Product ID set - deployment will be tracked when you copy the code
+              </p>
+            )}
+            {(!productId || productId === 'YOUR_PRODUCT_ID') && (
+              <p className="text-xs text-amber-600 mt-1 flex items-center">
+                <Info size={12} className="mr-1" />
+                Set a product ID to track this deployment in analytics
+              </p>
+            )}
           </div>
 
           {/* Widget Type Selection */}

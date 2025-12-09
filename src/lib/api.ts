@@ -845,8 +845,11 @@ export const apiService = {
 
   async trackWidgetEvent(eventData: any): Promise<void> {
     try {
+      // Ensure teamId is included for privacy isolation
+      const currentTeamId = getCurrentTeamId();
       const docData = {
         ...eventData,
+        teamId: eventData.teamId || currentTeamId || null, // CRITICAL: Include teamId for privacy
         timestamp: Timestamp.fromDate(new Date())
       };
       
